@@ -1,4 +1,4 @@
-import { DataServiceAbstract } from '../../core/absctract';
+import { DataServiceAbstract } from '../../core';
 import { Injectable } from '@nestjs/common';
 import { User } from '../../core';
 
