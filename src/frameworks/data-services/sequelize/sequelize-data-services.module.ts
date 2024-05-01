@@ -8,7 +8,7 @@ import { SequelizeDataServices } from './sequelize-data-services.service';
 @Module({
   imports: [
     SequelizeModule.forRoot({
-      models: [UserModel, MessageModel],
+      models: [UserModel, MessageModel], // TODO: create config for a sequelize
     }),
   ],
   providers: [{ provide: DataServiceAbstract, useClass: SequelizeDataServices }, SequelizeModule],
