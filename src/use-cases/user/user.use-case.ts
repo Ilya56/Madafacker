@@ -9,4 +9,12 @@ export class UserUseCase {
   create(user: User): Promise<User> {
     return this.dataService.users.create(user);
   }
+
+  getById(id: string): Promise<User> {
+    return this.dataService.users.getById(id);
+  }
+
+  update(id: string, user: User): Promise<void> {
+    return this.dataService.users.update(id, user);
+  }
 }
