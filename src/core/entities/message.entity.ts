@@ -4,6 +4,5 @@ import { User } from './user.entity';
 export class Message {
   body: string;
   author: User;
-  rating: number;
   mode: MessageMode;
 }
