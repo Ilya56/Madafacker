@@ -26,7 +26,7 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
   parentId: ForeignKey<MessageModel['id']>;
   parent: NonAttribute<MessageModel>;
 
-  @Column
   @Default(true)
+  @Column(DataType.BOOLEAN)
   public: CreationOptional<boolean>;
 }

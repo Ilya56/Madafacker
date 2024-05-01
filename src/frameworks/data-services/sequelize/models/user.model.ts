@@ -1,4 +1,4 @@
-import { Model, Column, HasMany, IsUUID, PrimaryKey, Table, BelongsToMany } from 'sequelize-typescript';
+import { Model, Column, HasMany, IsUUID, PrimaryKey, Table, BelongsToMany, DataType } from 'sequelize-typescript';
 import { InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute } from 'sequelize';
 import { MessageModel } from './message.model';
 import { IncomeUserMessagesModel } from './income-user-messages.model';
@@ -7,7 +7,7 @@ import { IncomeUserMessagesModel } from './income-user-messages.model';
 export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
   @PrimaryKey
   @IsUUID('4')
-  @Column({ unique: true })
+  @Column(DataType.UUID)
   id: CreationOptional<string>;
 
   @Column
