@@ -17,5 +17,6 @@ export class SequelizeDataServices extends DataServiceAbstract {
     super();
     this.users = new SequelizeGenericRepository<UserModel, typeof UserModel>(UserModel);
     this.messages = new SequelizeGenericRepository<MessageModel, typeof MessageModel>(MessageModel);
+    this.replies = new SequelizeGenericRepository<MessageModel, typeof MessageModel>(MessageModel);
   }
 }
