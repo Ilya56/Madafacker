@@ -2,17 +2,27 @@ import { GenericRepositoryAbstract } from '../../../core';
 import { Model, ModelCtor } from 'sequelize-typescript';
 import { CreationAttributes } from 'sequelize';
 
+/**
+ * Generic repository for all models. You can extend it to add new methods if you need
+ */
 export class SequelizeGenericRepository<
   T extends Model<any, any>,
   R extends ModelCtor<T>,
 > extends GenericRepositoryAbstract<T> {
   private repository: R;
 
+  /**
+   * Creates new instance of the repository
+   * @param repository Sequelize model to work with
+   */
   public constructor(repository: R) {
     super();
     this.repository = repository;
   }
 
+  /**
+   * All methods here is just an implementation of the GenericRepositoryAbstract, please check docs of this class
+   */
   getAll(): Promise<T[]> {
     return this.repository.findAll();
   }

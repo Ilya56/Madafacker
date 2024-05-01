@@ -4,6 +4,9 @@ import { SequelizeGenericRepository } from './sequelize-generic-repository';
 import { UserModel } from './models';
 import { MessageModel } from './models';
 
+/**
+ * This class stores sequelize data service models to access them from other modules
+ */
 @Injectable()
 export class SequelizeDataServices extends DataServiceAbstract {
   public readonly users: SequelizeGenericRepository<UserModel, typeof UserModel>;

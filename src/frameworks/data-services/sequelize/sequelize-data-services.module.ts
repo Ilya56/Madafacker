@@ -5,6 +5,9 @@ import { MessageModel } from './models';
 import { DataServiceAbstract } from '../../../core';
 import { SequelizeDataServices } from './sequelize-data-services.service';
 
+/**
+ * This module is a Sequelize data service implementation. You can create another service to implement DataServiceAbstract
+ */
 @Module({
   imports: [
     SequelizeModule.forRoot({
