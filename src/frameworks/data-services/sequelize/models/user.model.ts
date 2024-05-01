@@ -43,4 +43,16 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
    */
   @BelongsToMany(() => MessageModel, () => IncomeUserMessagesModel)
   incomeMessages: NonAttribute<MessageModel[]>;
+
+  /**
+   * When a user was created
+   */
+  @CreatedAt
+  createdAt: CreationOptional<Date>;
+
+  /**
+   * When a user was updated
+   */
+  @UpdatedAt
+  updatedAt?: Date;
 }

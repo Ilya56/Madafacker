@@ -71,4 +71,16 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
   @Default(true)
   @Column(DataType.BOOLEAN)
   public: CreationOptional<boolean>;
+
+  /**
+   * When a message was created
+   */
+  @CreatedAt
+  createdAt: CreationOptional<Date>;
+
+  /**
+   * When a message was updated
+   */
+  @UpdatedAt
+  updatedAt?: Date;
 }
