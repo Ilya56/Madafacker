@@ -10,10 +10,10 @@ export abstract class GenericRepositoryAbstract<T> {
   abstract getAll(): Promise<T[]>;
 
   /**
-   * Returns specific entity based on the entity id
+   * Returns specific entity based on the entity id or null if not found
    * @param id
    */
-  abstract getById(id: any): Promise<T>;
+  abstract getById(id: any): Promise<T | null>;
 
   /**
    * Creates new raw in the storage with new entity and returns it
@@ -28,9 +28,9 @@ export abstract class GenericRepositoryAbstract<T> {
   abstract delete(id: any): Promise<void>;
 
   /**
-   * Updates entity with specified id on the new data
+   * Updates entity with specified id on the new data and return updated entity
    * @param id of the entity to update
    * @param entity update data
    */
-  abstract update(id: any, entity: T): Promise<void>;
+  abstract update(id: any, entity: T): Promise<T>;
 }
