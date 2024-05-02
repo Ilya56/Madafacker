@@ -11,6 +11,7 @@ import {
   HasOne,
   CreatedAt,
   UpdatedAt,
+  ForeignKey as ForeignKeyDecorator,
 } from 'sequelize-typescript';
 import { MessageMode } from '../../../../core';
 import { UserModel } from './user.model';
@@ -38,8 +39,9 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
   /**
    * Message author id to store in DB and non-attribute to get author as usual user from the message model
    */
-  @BelongsTo(() => UserModel)
+  @ForeignKeyDecorator(() => UserModel)
   authorId: ForeignKey<UserModel['id']>;
+  @BelongsTo(() => UserModel)
   author: NonAttribute<UserModel>;
 
   /**
@@ -53,9 +55,8 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
   /**
    * Message parent id and parent message object
    */
-  @BelongsTo(() => MessageModel)
+  @ForeignKeyDecorator(() => MessageModel)
   parentId: ForeignKey<MessageModel['id']>;
-
   @HasOne(() => MessageModel)
   parent: NonAttribute<MessageModel>;
 

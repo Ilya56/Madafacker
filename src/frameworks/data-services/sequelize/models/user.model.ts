@@ -7,7 +7,8 @@ import {
   Table,
   BelongsToMany,
   DataType,
-  CreatedAt, UpdatedAt,
+  CreatedAt,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute } from 'sequelize';
 import { MessageModel } from './message.model';
