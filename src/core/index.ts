@@ -4,5 +4,6 @@
  * All other layers depend on core logic, but core is a logic of the real world.
  */
 
+export * from './absctract';
 export * from './enums';
 export * from './entities';
