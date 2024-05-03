@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { IncomeUserMessagesModel, UserModel } from './models';
 import { MessageModel } from './models';
-import { DataServiceAbstract } from '../../../core';
+import { DataServiceAbstract } from '@core';
 import { SequelizeDataServices } from './sequelize-data-services.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeOptions } from 'sequelize-typescript';
