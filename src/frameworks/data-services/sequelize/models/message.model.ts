@@ -12,6 +12,7 @@ import {
   CreatedAt,
   UpdatedAt,
   ForeignKey as ForeignKeyDecorator,
+  NotEmpty,
 } from 'sequelize-typescript';
 import { MessageMode } from '../../../../core';
 import { UserModel } from './user.model';
@@ -33,7 +34,10 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
   /**
    * Message body
    */
-  @Column
+  @NotEmpty
+  @Column({
+    allowNull: false
+  })
   body: string;
 
   /**
@@ -49,6 +53,7 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    */
   @Column({
     type: DataType.ENUM(...Object.values(MessageMode)),
+    allowNull: false,
   })
   mode: MessageMode;
 
@@ -70,7 +75,7 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    * Message mode
    */
   @Default(true)
-  @Column(DataType.BOOLEAN)
+  @Column({ type: DataType.BOOLEAN, allowNull: false })
   public: CreationOptional<boolean>;
 
   /**

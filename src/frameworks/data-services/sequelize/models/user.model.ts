@@ -9,6 +9,7 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  NotEmpty,
 } from 'sequelize-typescript';
 import { InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute } from 'sequelize';
 import { MessageModel } from './message.model';
@@ -30,7 +31,10 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
   /**
    * User name
    */
-  @Column
+  @NotEmpty
+  @Column({
+    allowNull: false,
+  })
   name: string;
 
   /**
