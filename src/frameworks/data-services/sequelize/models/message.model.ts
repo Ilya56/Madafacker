@@ -37,7 +37,7 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    */
   @NotEmpty
   @Column({
-    allowNull: false
+    allowNull: false,
   })
   body: string;
 

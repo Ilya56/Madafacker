@@ -1,5 +1,5 @@
 /**
- * This folder stores Sequelize models that is used on this project
+ * This folder stores Sequelize models that are used on this project
  */
 
 export * from './message.model';
