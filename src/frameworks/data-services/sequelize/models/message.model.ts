@@ -28,6 +28,7 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    */
   @PrimaryKey
   @IsUUID('4')
+  @Default(DataType.UUIDV4)
   @Column({ unique: true })
   id: string;
 

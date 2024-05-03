@@ -10,6 +10,7 @@ import {
   CreatedAt,
   UpdatedAt,
   NotEmpty,
+  Default,
 } from 'sequelize-typescript';
 import { InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute } from 'sequelize';
 import { MessageModel } from './message.model';
@@ -25,6 +26,7 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
    */
   @PrimaryKey
   @IsUUID('4')
+  @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   id: CreationOptional<string>;
 
