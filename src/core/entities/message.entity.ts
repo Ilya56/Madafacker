@@ -1,12 +1,13 @@
 import { MessageMode } from '../enums';
 import { User } from './user.entity';
+import { Entity } from './entity';
 
 /**
  * Message is a message from any user with any text that will be shown to another user's.
  * Message knows who creates it.
  * Message mode indicates a type of the message to separate different types from each other.
  */
-export class Message {
+export class Message extends Entity {
   /**
    * This is message text, main field
    */
