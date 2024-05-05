@@ -11,6 +11,8 @@ import {
   HasOne,
   CreatedAt,
   UpdatedAt,
+  ForeignKey as ForeignKeyDecorator,
+  NotEmpty,
 } from 'sequelize-typescript';
 import { MessageMode } from '../../../../core';
 import { UserModel } from './user.model';
@@ -26,20 +28,25 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    */
   @PrimaryKey
   @IsUUID('4')
+  @Default(DataType.UUIDV4)
   @Column({ unique: true })
   id: string;
 
   /**
    * Message body
    */
-  @Column
+  @NotEmpty
+  @Column({
+    allowNull: false,
+  })
   body: string;
 
   /**
    * Message author id to store in DB and non-attribute to get author as usual user from the message model
    */
-  @BelongsTo(() => UserModel)
+  @ForeignKeyDecorator(() => UserModel)
   authorId: ForeignKey<UserModel['id']>;
+  @BelongsTo(() => UserModel)
   author: NonAttribute<UserModel>;
 
   /**
@@ -47,15 +54,15 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    */
   @Column({
     type: DataType.ENUM(...Object.values(MessageMode)),
+    allowNull: false,
   })
   mode: MessageMode;
 
   /**
    * Message parent id and parent message object
    */
-  @BelongsTo(() => MessageModel)
+  @ForeignKeyDecorator(() => MessageModel)
   parentId: ForeignKey<MessageModel['id']>;
-
   @HasOne(() => MessageModel)
   parent: NonAttribute<MessageModel>;
 
@@ -69,7 +76,7 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    * Message mode
    */
   @Default(true)
-  @Column(DataType.BOOLEAN)
+  @Column({ type: DataType.BOOLEAN, allowNull: false })
   public: CreationOptional<boolean>;
 
   /**
