@@ -1,4 +1,4 @@
-import { DataServiceAbstract } from '../../../core';
+import { DataServiceAbstract } from '@core';
 import { Injectable } from '@nestjs/common';
 import { SequelizeGenericRepository } from './sequelize-generic-repository';
 import { UserModel } from './models';

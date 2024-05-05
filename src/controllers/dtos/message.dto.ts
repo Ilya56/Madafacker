@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { MessageMode } from '../../core';
+import { MessageMode } from '@core';
 
 export class CreateMessageDto {
   @IsString()

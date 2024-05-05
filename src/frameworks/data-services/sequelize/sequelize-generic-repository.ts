@@ -1,4 +1,4 @@
-import { GenericRepositoryAbstract } from '../../../core';
+import { GenericRepositoryAbstract } from '@core';
 import { Model, ModelCtor } from 'sequelize-typescript';
 import { CreationAttributes } from 'sequelize';
 

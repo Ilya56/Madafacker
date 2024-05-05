@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { UserUseCase } from '../use-cases/user/user.use-case';
+import { UserUseCase } from '@use-cases/user/user.use-case';
 import { CreateUserDto } from './dtos';
-import { User } from '../core';
+import { User } from '@core';
 import { UserFactoryService } from './factories';
 
 /**

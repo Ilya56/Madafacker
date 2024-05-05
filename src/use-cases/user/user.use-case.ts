@@ -1,6 +1,5 @@
-import { DataServiceAbstract } from '../../core';
+import { User, DataServiceAbstract } from '@core';
 import { Injectable } from '@nestjs/common';
-import { User } from '../../core';
 
 /**
  * User use case is a class that knows everything about user and how to work with user.

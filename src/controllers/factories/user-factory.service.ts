@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from '../dtos';
-import { User } from '../../core';
+import { User } from '@core';
 
 /**
  * This class is created to process data from HTTP to Entity

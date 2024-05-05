@@ -14,7 +14,7 @@ import {
   ForeignKey as ForeignKeyDecorator,
   NotEmpty,
 } from 'sequelize-typescript';
-import { MessageMode } from '../../../../core';
+import { MessageMode } from '@core';
 import { UserModel } from './user.model';
 import { InferAttributes, InferCreationAttributes, NonAttribute, ForeignKey, CreationOptional } from 'sequelize';
 
