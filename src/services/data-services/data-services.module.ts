@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { SequelizeDataServicesModule } from '@frameworks/data-services/sequelize/sequelize-data-services.module';
 
+/**
+ * This service defines what data service implementation should be used now
+ */
 @Module({
   imports: [SequelizeDataServicesModule],
   exports: [SequelizeDataServicesModule],
