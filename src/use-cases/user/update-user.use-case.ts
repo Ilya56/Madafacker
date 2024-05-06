@@ -1,4 +1,4 @@
-import { CommandAbstract } from '@use-cases/abstract/command.abstract';
+import { CommandAbstract } from '@use-cases/abstract';
 import { User } from '@core';
 import { Injectable } from '@nestjs/common';
 

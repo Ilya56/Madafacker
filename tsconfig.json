@@ -23,7 +23,7 @@
       "@controllers": ["./src/controllers"],
       "@core": ["./src/core"],
       "@frameworks/*": ["./src/frameworks/*"],
-      "@services/*": ["./src/services/*"],
+      "@services": ["./src/services"],
       "@use-cases/*": ["./src/use-cases/*"]
     }
   }

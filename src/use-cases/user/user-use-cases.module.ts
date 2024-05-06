@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { DataServicesModule } from '@services/data-services/data-services.module';
-import { CreateUserUseCase } from '@use-cases/user/create-user.use-case';
-import { UpdateUserUseCase } from '@use-cases/user/update-user.use-case';
-import { GetUserByIdUseCase } from '@use-cases/user/get-user-by-id.use-case';
+import { DataServicesModule } from '@services';
+import { CreateUserUseCase } from '@use-cases/user';
+import { UpdateUserUseCase } from '@use-cases/user';
+import { GetUserByIdUseCase } from '@use-cases/user';
 
 @Module({
   imports: [DataServicesModule],

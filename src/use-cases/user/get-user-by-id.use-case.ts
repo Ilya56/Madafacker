@@ -1,4 +1,4 @@
-import { QueryAbstract } from '@use-cases/abstract/query.abstract';
+import { QueryAbstract } from '@use-cases/abstract';
 import { User } from '@core';
 import { Injectable } from '@nestjs/common';
 
