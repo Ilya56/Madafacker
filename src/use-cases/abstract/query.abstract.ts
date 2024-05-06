@@ -1,5 +1,6 @@
 import { DataServiceAbstract } from '@core';
 import { Inject } from '@nestjs/common';
+import { UserServiceAbstract } from '../../core/absctract/user-service.abstract';
 
 /**
  * This class is an abstraction of any query operation.
@@ -8,6 +9,9 @@ import { Inject } from '@nestjs/common';
 export abstract class QueryAbstract<I, O> {
   @Inject()
   protected dataService: DataServiceAbstract;
+
+  @Inject()
+  protected userService: UserServiceAbstract;
 
   /**
    * Run this command when use a use case

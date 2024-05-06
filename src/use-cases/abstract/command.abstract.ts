@@ -52,7 +52,7 @@ export abstract class CommandAbstract<I, O> {
    * @param input input data
    * @protected
    */
-  public abstract implementation(input: I): Promise<O> | O;
+  protected abstract implementation(input: I): Promise<O> | O;
 
   /**
    * Is used to run implementation in the one transaction without additional impact on the code

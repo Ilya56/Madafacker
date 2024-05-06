@@ -8,7 +8,7 @@ export class CreateUserUseCase extends CommandAbstract<User, User> {
    * Creates new user in the system
    * @param user user entity to create
    */
-  public implementation(user: User): Promise<User> {
+  protected implementation(user: User): Promise<User> {
     return this.dataService.users.create(user);
   }
 }

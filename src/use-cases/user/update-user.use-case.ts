@@ -14,7 +14,7 @@ export class UpdateUserUseCase extends CommandAbstract<UpdateUserInput, User> {
    * @param id id of user to update
    * @param user new user data
    */
-  public implementation({ id, user }: UpdateUserInput): Promise<User> {
+  protected implementation({ id, user }: UpdateUserInput): Promise<User> {
     return this.dataService.users.update(id, user);
   }
 }

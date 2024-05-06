@@ -15,7 +15,7 @@ export class GetUserByIdUseCase extends QueryAbstract<GetByIdInput, GetByIdOutpu
    * If no user - returns null
    * @param id of the user to search
    */
-  public implementation({ id }: GetByIdInput): Promise<GetByIdOutput> {
+  protected implementation({ id }: GetByIdInput): Promise<GetByIdOutput> {
     return this.dataService.users.getById(id);
   }
 }
