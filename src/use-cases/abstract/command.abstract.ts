@@ -1,5 +1,5 @@
 import { DataServiceAbstract } from '@core';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Transactional } from 'sequelize-transactional-decorator';
 
 /**

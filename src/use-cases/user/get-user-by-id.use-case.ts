@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 
 type GetByIdInput = {
   id: string;
-}
+};
 
 type GetByIdOutput = User | null;
 
