@@ -1,9 +1,8 @@
 import { Body, Controller, Get, NotFoundException, Post } from '@nestjs/common';
-import { CreateUserUseCase } from '@use-cases/user/create-user.use-case';
+import { CreateUserUseCase, GetUserByIdUseCase } from '@use-cases/user';
 import { CreateUserDto } from './dtos';
 import { User } from '@core';
 import { UserFactoryService } from './factories';
-import { GetUserByIdUseCase } from '@use-cases/user/get-user-by-id.use-case';
 
 /**
  * User actions controller. All related to the user should be here
