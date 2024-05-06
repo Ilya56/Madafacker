@@ -11,6 +11,7 @@ import {
   UpdatedAt,
   NotEmpty,
   Default,
+  Unique,
 } from 'sequelize-typescript';
 import { InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute } from 'sequelize';
 import { MessageModel } from './message.model';
@@ -34,6 +35,7 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
    * User name
    */
   @NotEmpty
+  @Unique
   @Column({
     allowNull: false,
   })

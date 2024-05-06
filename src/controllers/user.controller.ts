@@ -1,15 +1,15 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { UserUseCase } from '@use-cases/user/user.use-case';
+import { CreateUserUseCase } from '@use-cases/user/create-user.use-case';
 import { CreateUserDto } from './dtos';
 import { User } from '@core';
 import { UserFactoryService } from './factories';
 
 /**
- * User actions controller. All related to the user should  be here
+ * User actions controller. All related to the user should be here
  */
 @Controller('api/user')
 export class UserController {
-  constructor(private userUseCase: UserUseCase, private userFactoryService: UserFactoryService) {}
+  constructor(private createUserUseCase: CreateUserUseCase, private userFactoryService: UserFactoryService) {}
 
   /**
    * Creates new user
@@ -18,6 +18,6 @@ export class UserController {
   @Post()
   create(@Body() userDto: CreateUserDto): Promise<User> {
     const user = this.userFactoryService.createNewUser(userDto);
-    return this.userUseCase.create(user);
+    return this.createUserUseCase.execute(user);
   }
 }

@@ -1,9 +1,10 @@
 import { Message } from './message.entity';
+import { Entity } from './entity';
 
 /**
  * Represents model of the system user who uses application, writes messages, etc.
  */
-export class User {
+export class User extends Entity {
   /**
    * Now user has only name and it should be unique
    */

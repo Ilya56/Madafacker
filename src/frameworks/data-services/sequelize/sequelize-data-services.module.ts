@@ -6,6 +6,12 @@ import { DataServiceAbstract } from '@core';
 import { SequelizeDataServices } from './sequelize-data-services.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeOptions } from 'sequelize-typescript';
+import { initSequelizeCLS, SequelizeTransactionalModule } from 'sequelize-transactional-decorator';
+
+/**
+ * This call is required by the sequelize-transactional-decorator lib
+ */
+initSequelizeCLS();
 
 /**
  * This module is a Sequelize data service implementation. You can create another service to implement DataServiceAbstract
@@ -20,6 +26,7 @@ import { SequelizeOptions } from 'sequelize-typescript';
       }),
       inject: [ConfigService],
     }),
+    SequelizeTransactionalModule.register(),
   ],
   providers: [{ provide: DataServiceAbstract, useClass: SequelizeDataServices }, SequelizeModule],
   exports: [DataServiceAbstract],
