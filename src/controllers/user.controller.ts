@@ -1,6 +1,6 @@
-import { Body, Controller, Get, NotFoundException, Post } from '@nestjs/common';
-import { CreateUserUseCase, GetUserByIdUseCase } from '@use-cases/user';
-import { CreateUserDto } from './dtos';
+import { Body, Controller, Get, NotFoundException, Patch, Post } from '@nestjs/common';
+import { CreateUserUseCase, GetUserByIdUseCase, UpdateUserUseCase } from '@use-cases/user';
+import { CreateUserDto, UpdateUserDto } from './dtos';
 import { User } from '@core';
 import { UserFactoryService } from './factories';
 import { Public } from './auth';
@@ -14,6 +14,7 @@ export class UserController {
     private userFactoryService: UserFactoryService,
     private createUserUseCase: CreateUserUseCase,
     private getUserByIdUseCase: GetUserByIdUseCase,
+    private updateUserUseCase: UpdateUserUseCase,
   ) {}
 
   /**
@@ -39,5 +40,21 @@ export class UserController {
     }
 
     return user;
+  }
+
+  /**
+   * Updates current user data
+   * @param updateUserDto updated user data
+   */
+  @Patch('/current')
+  async update(@Body() updateUserDto: UpdateUserDto): Promise<User> {
+    const user = this.userFactoryService.updateUser(updateUserDto);
+    const updatedUser = await this.updateUserUseCase.execute(user);
+
+    if (!updatedUser) {
+      throw new NotFoundException('Current user not found');
+    }
+
+    return updatedUser;
   }
 }

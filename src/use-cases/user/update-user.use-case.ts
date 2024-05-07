@@ -2,19 +2,16 @@ import { CommandAbstract } from '@use-cases/abstract';
 import { User } from '@core';
 import { Injectable } from '@nestjs/common';
 
-type UpdateUserInput = {
-  id: string;
-  user: User;
-};
+type UpdateUserOutput = User | null;
 
 @Injectable()
-export class UpdateUserUseCase extends CommandAbstract<UpdateUserInput, User> {
+export class UpdateUserUseCase extends CommandAbstract<User, UpdateUserOutput> {
   /**
-   * Updates user data
-   * @param id id of user to update
+   * Updates current user data and returns updated user or null if user not found
    * @param user new user data
    */
-  protected implementation({ id, user }: UpdateUserInput): Promise<User> {
-    return this.dataService.users.update(id, user);
+  protected async implementation(user: User): Promise<User | null> {
+    const currentUser = await this.userService.getCurrentUser();
+    return this.dataService.users.update(currentUser.id, user);
   }
 }

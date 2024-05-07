@@ -1,4 +1,4 @@
-import { DataServiceAbstract } from '@core';
+import { DataServiceAbstract, UserServiceAbstract } from '@core';
 import { Inject } from '@nestjs/common';
 import { Transactional } from 'sequelize-transactional-decorator';
 
@@ -20,12 +20,13 @@ export abstract class CommandAbstract<I, O> {
   public readonly useTransaction: boolean;
 
   /**
-   * Inject data service to work with
+   * Inject services to work with
    * @protected
    */
   @Inject()
   protected dataService: DataServiceAbstract;
-
+  @Inject()
+  protected userService: UserServiceAbstract;
   /**
    * Constructor is created to change options if need
    * @param [options] command settings
