@@ -5,18 +5,16 @@ import { CreationAttributes } from 'sequelize';
 /**
  * Generic repository for all models. You can extend it to add new methods if you need
  */
-export class SequelizeGenericRepository<
-  T extends Model<any, any>,
-  R extends ModelCtor<T>,
-> extends GenericRepositoryAbstract<T> {
-  private repository: R;
+export class SequelizeGenericRepository<T extends Model<any, any>, R extends ModelCtor<T>>
+  implements GenericRepositoryAbstract<T>
+{
+  protected repository: R;
 
   /**
    * Creates new instance of the repository
    * @param repository Sequelize model to work with
    */
   public constructor(repository: R) {
-    super();
     this.repository = repository;
   }
 

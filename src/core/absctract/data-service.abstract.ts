@@ -1,5 +1,6 @@
 import { GenericRepositoryAbstract } from './generic-repository.abstract';
-import { Message, Reply, User } from '../entities';
+import { Message, Reply } from '../entities';
+import { UserRepositoryAbstract } from './entity-repositories';
 
 /**
  * This class defines what repositories should store a data service
@@ -10,7 +11,7 @@ export abstract class DataServiceAbstract {
   /**
    * List of repositories for each entity that can be stored in the data service
    */
-  abstract users: GenericRepositoryAbstract<User>;
+  abstract users: UserRepositoryAbstract;
   abstract messages: GenericRepositoryAbstract<Message>;
   abstract replies: GenericRepositoryAbstract<Reply>;
 }
