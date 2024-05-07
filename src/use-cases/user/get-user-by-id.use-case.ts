@@ -10,8 +10,7 @@ export class GetUserByIdUseCase extends QueryAbstract<Record<string, never>, Get
    * Returns current user entity
    * If no user returns null
    */
-  public async implementation(): Promise<GetByIdOutput> {
-    const id = await this.userService.getCurrentUserId();
-    return this.dataService.users.getById(id);
+  public implementation(): Promise<GetByIdOutput> {
+    return this.userService.getCurrentUser();
   }
 }
