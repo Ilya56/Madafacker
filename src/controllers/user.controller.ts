@@ -3,6 +3,7 @@ import { CreateUserUseCase, GetUserByIdUseCase } from '@use-cases/user';
 import { CreateUserDto } from './dtos';
 import { User } from '@core';
 import { UserFactoryService } from './factories';
+import { Public } from './auth';
 
 /**
  * User actions controller. All related to the user should be here
@@ -19,6 +20,7 @@ export class UserController {
    * Creates new user
    * @param userDto new user data
    */
+  @Public()
   @Post()
   create(@Body() userDto: CreateUserDto): Promise<User> {
     const user = this.userFactoryService.createNewUser(userDto);
