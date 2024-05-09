@@ -11,6 +11,10 @@ export class SequelizeUserRepository
   extends SequelizeGenericRepository<UserModel, typeof UserModel>
   implements UserRepositoryAbstract
 {
+  constructor() {
+    super(UserModel);
+  }
+
   async updateByName(name: string, user: User): Promise<User> {
     const [, updatedRows] = await this.repository.update(user, {
       where: { name },
