@@ -6,7 +6,7 @@ import { Entity } from './entity';
  */
 export class User extends Entity {
   /**
-   * Now user has only name and it should be unique
+   * Now the user has only a name and it should be unique
    */
   name: string;
   /**
