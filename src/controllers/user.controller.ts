@@ -33,13 +33,7 @@ export class UserController {
    */
   @Get('/current')
   async retrieve(): Promise<User> {
-    const user = await this.getUserByIdUseCase.execute({});
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user;
+    return await this.getUserByIdUseCase.execute({});
   }
 
   /**

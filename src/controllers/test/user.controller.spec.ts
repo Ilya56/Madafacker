@@ -71,12 +71,6 @@ describe('UserController', () => {
 
       expect(result).toEqual(expectedUser);
     });
-
-    it('should throw a NotFoundException if no user found', async () => {
-      jest.spyOn(getUserByIdUseCase, 'execute').mockResolvedValue(null);
-
-      await expect(userController.retrieve()).rejects.toThrow(new NotFoundException('User not found'));
-    });
   });
 
   describe('update', () => {
