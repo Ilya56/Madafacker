@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UserUseCasesModule } from '@use-cases/user';
-import { UserController } from '@controllers';
-import { FactoryModule } from '@controllers';
+import { ControllersModule } from '@controllers';
 import { CustomConfigModule } from '@config';
 
+/**
+ * Main app module, start here
+ */
 @Module({
-  imports: [CustomConfigModule, UserUseCasesModule, FactoryModule],
-  controllers: [UserController],
+  imports: [CustomConfigModule, ControllersModule],
   providers: [],
 })
 export class AppModule {}

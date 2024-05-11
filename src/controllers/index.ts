@@ -7,3 +7,4 @@ export * from './auth';
 export * from './dtos';
 export * from './factories';
 export * from './user.controller';
+export * from './controllers.module';
