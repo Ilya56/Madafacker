@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserDto, UpdateUserDto, UserController } from '@controllers';
-import { CreateUserUseCase, GetUserByIdUseCase, UpdateUserUseCase } from '@use-cases/user';
+import { CreateUserUseCase, GetCurrentUserUseCase, UpdateUserUseCase } from '@use-cases/user';
 import { UserFactoryService } from '../factories';
 import { User } from '@core';
 import { NotFoundException } from '@nestjs/common';
@@ -9,7 +9,7 @@ describe('UserController', () => {
   let userController: UserController;
   let userFactoryService: UserFactoryService;
   let createUserUseCase: CreateUserUseCase;
-  let getUserByIdUseCase: GetUserByIdUseCase;
+  let getUserByIdUseCase: GetCurrentUserUseCase;
   let updateUserUseCase: UpdateUserUseCase;
 
   beforeEach(async () => {
@@ -28,7 +28,7 @@ describe('UserController', () => {
           useValue: { execute: jest.fn() },
         },
         {
-          provide: GetUserByIdUseCase,
+          provide: GetCurrentUserUseCase,
           useValue: { execute: jest.fn() },
         },
         {
@@ -41,7 +41,7 @@ describe('UserController', () => {
     userController = module.get<UserController>(UserController);
     userFactoryService = module.get<UserFactoryService>(UserFactoryService);
     createUserUseCase = module.get<CreateUserUseCase>(CreateUserUseCase);
-    getUserByIdUseCase = module.get<GetUserByIdUseCase>(GetUserByIdUseCase);
+    getUserByIdUseCase = module.get<GetCurrentUserUseCase>(GetCurrentUserUseCase);
     updateUserUseCase = module.get<UpdateUserUseCase>(UpdateUserUseCase);
   });
 

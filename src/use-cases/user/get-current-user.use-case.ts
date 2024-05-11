@@ -2,9 +2,8 @@ import { QueryAbstract } from '@use-cases/abstract';
 import { User } from '@core';
 import { Injectable } from '@nestjs/common';
 
-
 @Injectable()
-export class GetUserByIdUseCase extends QueryAbstract<Record<string, never>, User> {
+export class GetCurrentUserUseCase extends QueryAbstract<Record<string, never>, User> {
   /**
    * Returns current user entity
    * If no user returns null

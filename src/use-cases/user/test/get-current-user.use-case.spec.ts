@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GetUserByIdUseCase } from '@use-cases/user';
+import { GetCurrentUserUseCase } from '@use-cases/user';
 import { User, UserServiceAbstract } from '@core';
 import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
 
 describe('GetUserByIdUseCase', () => {
-  let getUserByIdUseCase: GetUserByIdUseCase;
+  let getUserByIdUseCase: GetCurrentUserUseCase;
   let userService: UserServiceAbstract;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GetUserByIdUseCase, ...SERVICES_PROVIDER],
+      providers: [GetCurrentUserUseCase, ...SERVICES_PROVIDER],
     }).compile();
 
-    getUserByIdUseCase = module.get<GetUserByIdUseCase>(GetUserByIdUseCase);
+    getUserByIdUseCase = module.get<GetCurrentUserUseCase>(GetCurrentUserUseCase);
     userService = module.get<UserServiceAbstract>(UserServiceAbstract);
   });
 
