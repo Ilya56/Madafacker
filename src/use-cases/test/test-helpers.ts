@@ -9,6 +9,9 @@ export const SERVICES_PROVIDER = [
         update: jest.fn(),
         getById: jest.fn(),
       },
+      messages: {
+        create: jest.fn(),
+      },
     },
   },
   {

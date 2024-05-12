@@ -1,5 +1,5 @@
 import { Body, Controller, Get, NotFoundException, Patch, Post } from '@nestjs/common';
-import { CreateUserUseCase, GetUserByIdUseCase, UpdateUserUseCase } from '@use-cases/user';
+import { CreateUserUseCase, GetCurrentUserUseCase, UpdateUserUseCase } from '@use-cases/user';
 import { CreateUserDto, UpdateUserDto } from './dtos';
 import { User } from '@core';
 import { UserFactoryService } from './factories';
@@ -13,7 +13,7 @@ export class UserController {
   constructor(
     private userFactoryService: UserFactoryService,
     private createUserUseCase: CreateUserUseCase,
-    private getUserByIdUseCase: GetUserByIdUseCase,
+    private getUserByIdUseCase: GetCurrentUserUseCase,
     private updateUserUseCase: UpdateUserUseCase,
   ) {}
 
@@ -33,13 +33,7 @@ export class UserController {
    */
   @Get('/current')
   async retrieve(): Promise<User> {
-    const user = await this.getUserByIdUseCase.execute({});
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user;
+    return await this.getUserByIdUseCase.execute({});
   }
 
   /**

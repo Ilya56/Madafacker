@@ -1,4 +1,4 @@
-import { User, UserServiceAbstract } from '@core';
+import { NotFoundError, User, UserServiceAbstract } from '@core';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
@@ -19,6 +19,10 @@ export class PassportUserServiceService extends UserServiceAbstract {
   }
 
   async getCurrentUser(): Promise<User> {
-    return this.request.user;
+    const user = this.request.user;
+    if (!user) {
+      throw new NotFoundError('Current user not found');
+    }
+    return user;
   }
 }
