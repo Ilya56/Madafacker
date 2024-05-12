@@ -19,7 +19,7 @@ import { UserModel } from './user.model';
 import { InferAttributes, InferCreationAttributes, NonAttribute, ForeignKey, CreationOptional } from 'sequelize';
 
 /**
- * This model represents message and replied message in the system. Please check entities first
+ * This model represents a message and reply-message in the system. Please check entities first
  */
 @Table
 export class MessageModel extends Model<InferAttributes<MessageModel>, InferCreationAttributes<MessageModel>> {

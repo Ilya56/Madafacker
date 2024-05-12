@@ -9,7 +9,7 @@ import { User } from '@core';
 export class UserFactoryService {
   /**
    * Creates and returns new user entity based on the creation user dto
-   * @param createUserDto
+   * @param createUserDto create user data from request
    */
   createNewUser(createUserDto: CreateUserDto): User {
     const user = new User();
@@ -19,7 +19,7 @@ export class UserFactoryService {
 
   /**
    * Creates and returns update user entity base on the update user dto
-   * @param updateUserDto
+   * @param updateUserDto update user data from request
    */
   updateUser(updateUserDto: UpdateUserDto): User {
     const user = new User();

@@ -3,3 +3,4 @@
  */
 
 export * from './sequelize-user-repository';
+export * from './sequelize-message-repository';

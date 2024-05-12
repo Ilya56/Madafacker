@@ -1,16 +1,5 @@
 import { SequelizeMessageRepository } from '../sequelize-message-repository';
-import { SequelizeGenericRepository } from '@frameworks/data-services/sequelize/sequelize-generic-repository';
-import { MessageModel } from '@frameworks/data-services/sequelize/models';
-
-jest.mock('@frameworks/data-services/sequelize', () => {
-  const actual = jest.requireActual('@frameworks/data-services/sequelize');
-  return {
-    ...actual,
-    SequelizeGenericRepository: jest.fn().mockImplementation(() => ({
-      create: jest.fn(),
-    })),
-  };
-});
+import { MessageModel, SequelizeGenericRepository } from '@frameworks/data-services/sequelize';
 
 describe('SequelizeMessageRepository', () => {
   let repository: SequelizeMessageRepository;
@@ -30,7 +19,6 @@ describe('SequelizeMessageRepository', () => {
   it('should set authorId and call super.create with the modified message', async () => {
     const message = {
       author: { id: 123 },
-      authorId: undefined,
     } as unknown as MessageModel;
 
     await repository.create(message);

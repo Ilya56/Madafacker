@@ -42,7 +42,8 @@ describe('CreateMessageUseCase', () => {
     const result = await createMessageUseCase.execute(message);
 
     expect(result).toEqual(createMessage);
-    expect(dataService.messages.create).toHaveBeenCalledWith(message);
+    expect(dataService.transactional).toHaveBeenCalled();
     expect(userService.getCurrentUser).toHaveBeenCalled();
+    expect(dataService.messages.create).toHaveBeenCalledWith(message);
   });
 });

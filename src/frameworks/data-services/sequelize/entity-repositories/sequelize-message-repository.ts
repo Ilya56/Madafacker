@@ -1,5 +1,4 @@
-import { MessageModel } from '@frameworks/data-services/sequelize/models';
-import { SequelizeGenericRepository } from '@frameworks/data-services/sequelize/sequelize-generic-repository';
+import { MessageModel, SequelizeGenericRepository } from '@frameworks/data-services/sequelize';
 
 /**
  * Sequelize message repository implementation

@@ -1,6 +1,5 @@
 import { User, UserRepositoryAbstract } from '@core';
-import { SequelizeGenericRepository } from '@frameworks/data-services/sequelize/sequelize-generic-repository';
-import { UserModel } from '@frameworks/data-services/sequelize/models';
+import { UserModel, SequelizeGenericRepository } from '@frameworks/data-services/sequelize';
 import { Injectable } from '@nestjs/common';
 
 /**
