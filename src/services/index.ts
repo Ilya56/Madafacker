@@ -3,4 +3,5 @@
  */
 
 export * from './data-services/data-services.module';
+export * from './date-service/date-service.module';
 export * from './user-services/user-services.module';
