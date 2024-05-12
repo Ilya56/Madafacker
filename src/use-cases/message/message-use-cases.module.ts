@@ -7,4 +7,4 @@ import { CreateMessageUseCase } from '@use-cases/message/create-message.use-case
   providers: [CreateMessageUseCase],
   exports: [CreateMessageUseCase],
 })
-export class UserUseCasesModule {}
+export class MessageUseCasesModule {}
