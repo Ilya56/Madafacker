@@ -36,6 +36,7 @@ describe('UpdateUserUseCase', () => {
     const result = await updateUserUseCase.execute(newUserData);
 
     expect(result).toEqual(newUserData);
+    expect(dataService.transactional).toHaveBeenCalled();
     expect(userService.getCurrentUser).toHaveBeenCalled();
     expect(dataService.users.update).toHaveBeenCalledWith('123', newUserData);
   });

@@ -1,6 +1,5 @@
 import { DataServiceAbstract, UserServiceAbstract } from '@core';
 import { Inject } from '@nestjs/common';
-import { Transactional } from 'sequelize-transactional-decorator';
 
 /**
  * Command options.
@@ -44,7 +43,7 @@ export abstract class CommandAbstract<I, O> {
    */
   public async execute(input: I): Promise<O> {
     if (this.useTransaction) {
-      return this.transactionalCall(input);
+      return this.dataService.transactional(this.implementation.bind(this, input));
     }
 
     return this.implementation(input);
@@ -56,14 +55,4 @@ export abstract class CommandAbstract<I, O> {
    * @protected
    */
   protected abstract implementation(input: I): Promise<O> | O;
-
-  /**
-   * Is used to run implementation in the one transaction without additional impact on the code
-   * @param input
-   * @private
-   */
-  @Transactional()
-  private transactionalCall(input: I) {
-    return this.implementation(input);
-  }
 }

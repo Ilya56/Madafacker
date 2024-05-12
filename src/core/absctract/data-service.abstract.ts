@@ -14,4 +14,9 @@ export abstract class DataServiceAbstract {
   abstract users: UserRepositoryAbstract;
   abstract messages: GenericRepositoryAbstract<Message>;
   abstract replies: GenericRepositoryAbstract<Reply>;
+
+  /**
+   * Transactional decorator to make all requests in the function in one transaction
+   */
+  public abstract transactional<I, O>(func: (...args: I[]) => O): Promise<O>;
 }

@@ -34,6 +34,7 @@ describe('CreateUserUseCase', () => {
     const result = await createUserUseCase.execute(user);
 
     expect(result).toEqual(createdUser);
+    expect(dataService.transactional).toHaveBeenCalled();
     expect(dataService.users.create).toHaveBeenCalledWith(user);
   });
 });

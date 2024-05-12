@@ -4,6 +4,7 @@ import { SequelizeGenericRepository } from './sequelize-generic-repository';
 import { MessageModel } from './models';
 import { SequelizeUserRepository } from './entity-repositories';
 import { SequelizeMessageRepository } from '@frameworks/data-services/sequelize/entity-repositories/sequelize-message-repository';
+import { Transactional } from 'sequelize-transactional-decorator';
 
 /**
  * This class stores sequelize data service models to access them from other modules
@@ -19,5 +20,10 @@ export class SequelizeDataServices extends DataServiceAbstract {
     this.users = new SequelizeUserRepository();
     this.messages = new SequelizeMessageRepository();
     this.replies = new SequelizeGenericRepository<MessageModel, typeof MessageModel>(MessageModel);
+  }
+
+  @Transactional()
+  async transactional<I, O>(func: (...args: I[]) => O): Promise<O> {
+    return func();
   }
 }
