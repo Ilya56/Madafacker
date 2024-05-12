@@ -7,9 +7,12 @@ import { UserServiceAbstract } from '@core';
  * It should be extended by any use case that is not changes system state
  */
 export abstract class QueryAbstract<I, O> {
+  /**
+   * Inject services to work with
+   * @protected
+   */
   @Inject()
   protected dataService: DataServiceAbstract;
-
   @Inject()
   protected userService: UserServiceAbstract;
 

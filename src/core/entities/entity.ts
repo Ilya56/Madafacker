@@ -5,7 +5,7 @@
 export abstract class Entity {
   /**
    * Entity unique identifier
-   * By default its string because we use uuid in the begining
+   * By default its string because we use uuid in the beginning
    */
   id: string;
 }

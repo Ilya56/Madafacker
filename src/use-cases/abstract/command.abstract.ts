@@ -27,8 +27,9 @@ export abstract class CommandAbstract<I, O> {
   protected dataService: DataServiceAbstract;
   @Inject()
   protected userService: UserServiceAbstract;
+
   /**
-   * Constructor is created to change options if need
+   * Constructor is created to change options if needed
    * @param [options] command settings
    * @protected
    */
@@ -37,7 +38,8 @@ export abstract class CommandAbstract<I, O> {
   }
 
   /**
-   * Run this command when use a use case. Run in transaction if useTransaction is true
+   * Run this command when use a use case.
+   * Is run in transaction if useTransaction is true
    * @param input command input data
    */
   public async execute(input: I): Promise<O> {
