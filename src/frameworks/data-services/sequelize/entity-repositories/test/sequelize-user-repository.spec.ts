@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SequelizeUserRepository } from '../sequelize-user-repository';
-import { UserModel } from '@frameworks/data-services/sequelize/models';
+import { UserModel } from '@frameworks/data-services/sequelize';
 import { User } from '@core';
 
 describe('SequelizeUserRepository', () => {

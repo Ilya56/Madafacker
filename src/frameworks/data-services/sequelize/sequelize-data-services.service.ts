@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { SequelizeGenericRepository } from './sequelize-generic-repository';
 import { MessageModel } from './models';
 import { SequelizeUserRepository } from './entity-repositories';
-import { SequelizeMessageRepository } from '@frameworks/data-services/sequelize/entity-repositories/sequelize-message-repository';
+import { SequelizeMessageRepository } from './entity-repositories/sequelize-message-repository';
 import { Transactional } from 'sequelize-transactional-decorator';
 
 /**
