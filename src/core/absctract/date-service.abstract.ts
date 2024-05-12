@@ -16,4 +16,9 @@ export abstract class DateServiceAbstract {
    * @param unit unit of the interval
    */
   public abstract getIntervalDuration(number: number, unit: DateUnit): number;
+
+  /**
+   * Returns current date in milliseconds for the UTC timezone
+   */
+  public abstract getCurrentDateInMilliseconds(): number;
 }
