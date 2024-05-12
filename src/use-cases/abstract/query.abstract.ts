@@ -1,6 +1,5 @@
-import { DataServiceAbstract } from '@core';
+import { UserServiceAbstract, DataServiceAbstract } from '@core';
 import { Inject } from '@nestjs/common';
-import { UserServiceAbstract } from '@core';
 
 /**
  * This class is an abstraction of any query operation.
