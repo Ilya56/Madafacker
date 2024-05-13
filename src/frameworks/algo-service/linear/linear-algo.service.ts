@@ -2,24 +2,6 @@ import { AlgoServiceAbstract, DataServiceAbstract, DateServiceAbstract, Message,
 import { Injectable } from '@nestjs/common';
 
 /**
- * Current algo input object
- */
-export type LinearCountUsersAlgoInput = {
-  /**
-   * Total number of active users in the system
-   */
-  totalUsersCount: number;
-  /**
-   * Number of users that already see this message
-   */
-  usersAlreadySeeMessageCount: number;
-  /**
-   * Date when a message was created
-   */
-  messageCreationDate: Date;
-};
-
-/**
  * This implementation calculates the count of users that should see a message in the current iteration using
  * linear function. Each message will be shown to all users in a week, starting from 10% of all users
  *
@@ -39,8 +21,11 @@ export class LinearAlgoService extends AlgoServiceAbstract {
    * @param message message that should be processed
    */
   async selectUsersShowMessage(message: Message): Promise<ShowMessageOutput> {
+    // Total number of active users in the system
     const totalUsersCount = await this.dataService.users.getTotalUsersCount();
+    // Date when a message was created
     const messageCreationDate = message.createdAt;
+    // Number of users that already see this message
     const usersAlreadySeeMessageCount = await this.dataService.users.getUsersAlreadySeeMessageCount(message.id);
 
     const weekInMs = this.dateService.getIntervalDuration(1, 'week');
