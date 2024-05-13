@@ -20,5 +20,5 @@ export abstract class DateServiceAbstract {
   /**
    * Returns current date in milliseconds for the UTC timezone
    */
-  public abstract getCurrentDateInMilliseconds(): number;
+  public abstract getTimestampInMs(): number;
 }

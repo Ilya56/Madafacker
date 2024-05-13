@@ -44,7 +44,7 @@ export class LinearAlgoService extends AlgoServiceAbstract {
     const usersAlreadySeeMessageCount = await this.dataService.users.getUsersAlreadySeeMessageCount(message.id);
 
     const weekInMs = this.dateService.getIntervalDuration(1, 'week');
-    const timeDiff = this.dateService.getCurrentDateInMilliseconds() - messageCreationDate.getTime();
+    const timeDiff = this.dateService.getTimestampInMs() - messageCreationDate.getTime();
 
     if (timeDiff > weekInMs && usersAlreadySeeMessageCount === totalUsersCount) {
       return { usersCount: 0 };

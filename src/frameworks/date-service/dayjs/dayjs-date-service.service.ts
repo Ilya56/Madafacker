@@ -28,7 +28,7 @@ export class DayjsDateService extends DateServiceAbstract {
   /**
    * Returns current date in milliseconds for the UTC timezone
    */
-  getCurrentDateInMilliseconds(): number {
+  getTimestampInMs(): number {
     return dayjs().utc().millisecond();
   }
 }

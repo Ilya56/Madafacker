@@ -12,7 +12,7 @@ describe('LinearAlgoService', () => {
   beforeEach(async () => {
     const mockDateService = {
       getIntervalDuration: jest.fn(),
-      getCurrentDateInMilliseconds: jest.fn(),
+      getTimestampInMs: jest.fn(),
     };
     const mockDataService = {
       users: {
@@ -42,7 +42,7 @@ describe('LinearAlgoService', () => {
     message.id = 'msg1';
     message.createdAt = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
 
-    jest.spyOn(dateService, 'getCurrentDateInMilliseconds').mockReturnValue(Date.now());
+    jest.spyOn(dateService, 'getTimestampInMs').mockReturnValue(Date.now());
     jest.spyOn(dataService.users, 'getUsersAlreadySeeMessageCount').mockResolvedValue(20); // 20 users have seen the message
 
     const result = await service.selectUsersShowMessage(message);
@@ -57,7 +57,7 @@ describe('LinearAlgoService', () => {
     message.id = 'msg1';
     message.createdAt = new Date(); // Now
 
-    jest.spyOn(dateService, 'getCurrentDateInMilliseconds').mockReturnValue(message.createdAt.getTime());
+    jest.spyOn(dateService, 'getTimestampInMs').mockReturnValue(message.createdAt.getTime());
     jest.spyOn(dataService.users, 'getUsersAlreadySeeMessageCount').mockResolvedValue(0);
 
     const result = await service.selectUsersShowMessage(message);
@@ -70,7 +70,7 @@ describe('LinearAlgoService', () => {
     message.id = 'msg1';
     message.createdAt = new Date(); // Now
 
-    jest.spyOn(dateService, 'getCurrentDateInMilliseconds').mockReturnValue(message.createdAt.getTime());
+    jest.spyOn(dateService, 'getTimestampInMs').mockReturnValue(message.createdAt.getTime());
     jest.spyOn(dataService.users, 'getUsersAlreadySeeMessageCount').mockResolvedValue(TOTAL_USERS_COUNT * 0.1);
 
     const result = await service.selectUsersShowMessage(message);
@@ -83,7 +83,7 @@ describe('LinearAlgoService', () => {
     message.id = 'msg1';
     message.createdAt = new Date(Date.now() - 2 * 604800000); // 2 weeks ago
 
-    jest.spyOn(dateService, 'getCurrentDateInMilliseconds').mockReturnValue(Date.now());
+    jest.spyOn(dateService, 'getTimestampInMs').mockReturnValue(Date.now());
     jest.spyOn(dataService.users, 'getUsersAlreadySeeMessageCount').mockResolvedValue(TOTAL_USERS_COUNT);
 
     const result = await service.selectUsersShowMessage(message);
@@ -96,7 +96,7 @@ describe('LinearAlgoService', () => {
     message.id = 'msg1';
     message.createdAt = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
 
-    jest.spyOn(dateService, 'getCurrentDateInMilliseconds').mockReturnValue(Date.now());
+    jest.spyOn(dateService, 'getTimestampInMs').mockReturnValue(Date.now());
     jest.spyOn(dataService.users, 'getUsersAlreadySeeMessageCount').mockResolvedValue(TOTAL_USERS_COUNT);
 
     const result = await service.selectUsersShowMessage(message);
@@ -109,7 +109,7 @@ describe('LinearAlgoService', () => {
     message.id = 'msg1';
     message.createdAt = new Date(Date.now() - 604800000); // 1 week ago
 
-    jest.spyOn(dateService, 'getCurrentDateInMilliseconds').mockReturnValue(Date.now());
+    jest.spyOn(dateService, 'getTimestampInMs').mockReturnValue(Date.now());
     jest.spyOn(dataService.users, 'getUsersAlreadySeeMessageCount').mockResolvedValue(0);
 
     const result = await service.selectUsersShowMessage(message);
