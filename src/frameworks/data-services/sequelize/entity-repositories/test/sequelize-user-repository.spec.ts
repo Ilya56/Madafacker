@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SequelizeUserRepository } from '../sequelize-user-repository';
 import { IncomeUserMessagesModel, UserModel } from '@frameworks/data-services/sequelize';
-import { User } from '@core';
+import { Message, User } from '@core';
+import sequelize from 'sequelize';
 
 describe('SequelizeUserRepository', () => {
   let userRepository: SequelizeUserRepository;
@@ -15,12 +16,14 @@ describe('SequelizeUserRepository', () => {
           useValue: {
             update: jest.fn(),
             count: jest.fn(),
+            findAll: jest.fn(),
           },
         },
         {
           provide: IncomeUserMessagesModel,
           useValue: {
             count: jest.fn(),
+            bulkCreate: jest.fn(),
           },
         },
       ],
@@ -83,6 +86,40 @@ describe('SequelizeUserRepository', () => {
       const result = await userRepository.getUsersAlreadySeeMessageCount(messageId);
       expect(result).toEqual(5);
       expect(IncomeUserMessagesModel.count).toHaveBeenCalledWith({ where: { messageId } });
+    });
+  });
+
+  describe('getRandomUserIds', () => {
+    it('should retrieve random user IDs', async () => {
+      const mockUsers = [{ id: '1' }, { id: '2' }, { id: '3' }];
+      jest.spyOn(UserModel, 'findAll').mockResolvedValue(mockUsers as any);
+
+      const quantity = 3;
+      const result = await userRepository.getRandomUserIds(quantity);
+
+      expect(result).toEqual(['1', '2', '3']);
+      expect(UserModel.findAll).toHaveBeenCalledWith({
+        order: sequelize.literal('rand()'),
+        limit: quantity,
+        attributes: ['id'],
+      });
+    });
+  });
+
+  describe('sendMessageToUsers', () => {
+    it('should send a message to specified users', async () => {
+      const message = { id: 'msg1' } as Message;
+      const userIds = ['user1', 'user2', 'user3'];
+      const expectedBulkCreateData = userIds.map((userId) => ({
+        userId,
+        messageId: message.id,
+      }));
+
+      jest.spyOn(IncomeUserMessagesModel, 'bulkCreate').mockResolvedValue([]);
+
+      await userRepository.sendMessageToUsers(message, userIds);
+
+      expect(IncomeUserMessagesModel.bulkCreate).toHaveBeenCalledWith(expectedBulkCreateData);
     });
   });
 });
