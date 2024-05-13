@@ -1,4 +1,4 @@
-import { DataServiceAbstract, UserServiceAbstract } from '@core';
+import { AlgoServiceAbstract, DataServiceAbstract, UserServiceAbstract } from '@core';
 
 export const SERVICES_PROVIDER = [
   {
@@ -8,6 +8,8 @@ export const SERVICES_PROVIDER = [
         create: jest.fn(),
         update: jest.fn(),
         getById: jest.fn(),
+        getRandomUserIds: jest.fn(),
+        sendMessageToUsers: jest.fn(),
       },
       messages: {
         create: jest.fn(),
@@ -19,6 +21,12 @@ export const SERVICES_PROVIDER = [
     provide: UserServiceAbstract,
     useValue: {
       getCurrentUser: jest.fn(),
+    },
+  },
+  {
+    provide: AlgoServiceAbstract,
+    useValue: {
+      selectUsersShowMessage: jest.fn(),
     },
   },
 ];
