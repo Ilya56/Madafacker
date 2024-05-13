@@ -1,5 +1,5 @@
 import { User, UserRepositoryAbstract } from '@core';
-import { UserModel, SequelizeGenericRepository } from '@frameworks/data-services/sequelize';
+import { UserModel, SequelizeGenericRepository, IncomeUserMessagesModel } from '@frameworks/data-services/sequelize';
 import { Injectable } from '@nestjs/common';
 
 /**
@@ -20,5 +20,22 @@ export class SequelizeUserRepository
       returning: true,
     });
     return updatedRows[0];
+  }
+
+  /**
+   * Count users without criteria. Returns a number of all users
+   */
+  getTotalUsersCount(): Promise<number> {
+    return this.repository.count();
+  }
+
+  /**
+   * Count the quantity of the IncomeUserMessagesModel with messageId
+   * @param messageId message to count
+   */
+  getUsersAlreadySeeMessageCount(messageId: string): Promise<number> {
+    return IncomeUserMessagesModel.count({
+      where: { messageId: messageId },
+    });
   }
 }

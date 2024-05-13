@@ -20,4 +20,8 @@ export class Message extends Entity {
    * Message mode is created to separate messages from different application modes (like Good and Evil)
    */
   mode: MessageMode;
+  /**
+   * Message creation date JS object
+   */
+  createdAt: Date;
 }

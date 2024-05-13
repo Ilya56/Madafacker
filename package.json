@@ -32,6 +32,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/sequelize": "^10.0.1",
     "class-transformer": "^0.5.1",
+    "dayjs": "^1.11.11",
     "passport": "^0.7.0",
     "passport-unique-token": "^3.0.0",
     "pg": "^8.11.5",
@@ -84,12 +85,24 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "@config": ["<rootDir>/config"],
-      "@controllers": ["<rootDir>/controllers"],
-      "@core": ["<rootDir>/core"],
-      "@frameworks/(.*)": ["<rootDir>/frameworks/$1"],
-      "@services": ["<rootDir>/services"],
-      "@use-cases/(.*)": ["<rootDir>/use-cases/$1"]
+      "@config": [
+        "<rootDir>/config"
+      ],
+      "@controllers": [
+        "<rootDir>/controllers"
+      ],
+      "@core": [
+        "<rootDir>/core"
+      ],
+      "@frameworks/(.*)": [
+        "<rootDir>/frameworks/$1"
+      ],
+      "@services": [
+        "<rootDir>/services"
+      ],
+      "@use-cases/(.*)": [
+        "<rootDir>/use-cases/$1"
+      ]
     }
   }
 }

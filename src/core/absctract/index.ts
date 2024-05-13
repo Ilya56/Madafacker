@@ -5,7 +5,9 @@
  * which DB is used, how it's working, etc. all of its details
  */
 
+export * from './algo-service.abstract';
 export * from './entity-repositories';
 export * from './data-service.abstract';
+export * from './date-service.abstract';
 export * from './generic-repository.abstract';
 export * from './user-service.abstract';

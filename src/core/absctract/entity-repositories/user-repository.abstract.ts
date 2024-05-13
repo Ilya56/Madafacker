@@ -10,4 +10,15 @@ export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> 
    * @param user new user data
    */
   updateByName(name: string, user: User): Promise<User>;
+
+  /**
+   * Returns total active users count
+   */
+  getTotalUsersCount(): Promise<number>;
+
+  /**
+   * Returns a number of users that already see a message with messageId
+   * @param messageId message id to check how much users see it
+   */
+  getUsersAlreadySeeMessageCount(messageId: string): Promise<number>;
 }
