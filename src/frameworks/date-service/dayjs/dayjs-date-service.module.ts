@@ -3,7 +3,7 @@ import { DateServiceAbstract } from '@core';
 import { DayjsDateService } from '@frameworks/date-service/dayjs';
 
 /**
- * This module is a Passport user service implementation. You can create another service to implement UserServiceAbstract
+ * This module is a DayJs date service implementation
  */
 @Module({
   imports: [],

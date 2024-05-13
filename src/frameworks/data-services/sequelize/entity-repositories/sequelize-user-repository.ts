@@ -22,10 +22,17 @@ export class SequelizeUserRepository
     return updatedRows[0];
   }
 
+  /**
+   * Count users without criteria. Returns a number of all users
+   */
   getTotalUsersCount(): Promise<number> {
     return this.repository.count();
   }
 
+  /**
+   * Count the quantity of the IncomeUserMessagesModel with messageId
+   * @param messageId message to count
+   */
   getUsersAlreadySeeMessageCount(messageId: string): Promise<number> {
     return IncomeUserMessagesModel.count({
       where: { messageId: messageId },

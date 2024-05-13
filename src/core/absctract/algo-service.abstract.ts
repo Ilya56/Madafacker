@@ -1,7 +1,7 @@
 import { Message } from '../entities';
 
 /**
- * Also output. If the value in this object exists - you should do what this value means.
+ * Algo output. If the value in this object exists - you should do what this value means.
  * - usersCount - this means to send a message to this number of random users
  */
 export type ShowMessageOutput = {

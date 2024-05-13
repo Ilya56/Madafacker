@@ -1,5 +1,5 @@
 /**
- * Date units from milliseconds to months
+ * Date units from milliseconds to years
  */
 export type DateUnit = 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
 
