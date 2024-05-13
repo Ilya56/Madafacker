@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SequelizeUserRepository } from '../sequelize-user-repository';
-import { UserModel } from '@frameworks/data-services/sequelize';
+import { IncomeUserMessagesModel, UserModel } from '@frameworks/data-services/sequelize';
 import { User } from '@core';
 
 describe('SequelizeUserRepository', () => {
@@ -14,6 +14,13 @@ describe('SequelizeUserRepository', () => {
           provide: UserModel,
           useValue: {
             update: jest.fn(),
+            count: jest.fn(),
+          },
+        },
+        {
+          provide: IncomeUserMessagesModel,
+          useValue: {
+            count: jest.fn(),
           },
         },
       ],
@@ -57,6 +64,25 @@ describe('SequelizeUserRepository', () => {
         where: { name },
         returning: true,
       });
+    });
+  });
+
+  describe('getTotalUsersCount', () => {
+    it('should return the total number of users', async () => {
+      jest.spyOn(UserModel, 'count').mockResolvedValue(10);
+      const result = await userRepository.getTotalUsersCount();
+      expect(result).toEqual(10);
+      expect(UserModel.count).toHaveBeenCalled();
+    });
+  });
+
+  describe('getUsersAlreadySeeMessageCount', () => {
+    it('should return the count of users who have seen a specific message', async () => {
+      const messageId = 'abc123';
+      jest.spyOn(IncomeUserMessagesModel, 'count').mockResolvedValue(5);
+      const result = await userRepository.getUsersAlreadySeeMessageCount(messageId);
+      expect(result).toEqual(5);
+      expect(IncomeUserMessagesModel.count).toHaveBeenCalledWith({ where: { messageId } });
     });
   });
 });
