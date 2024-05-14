@@ -32,4 +32,10 @@ describe('DayjsDateService', () => {
     expect(service.getIntervalDuration(1, 'month')).toEqual(MONTH);
     expect(service.getIntervalDuration(1, 'year')).toEqual(YEAR);
   });
+
+  it('should return the current date in milliseconds for the UTC timezone', () => {
+    const now = Date.now();
+    const timestamp = service.getTimestampInMs();
+    expect(timestamp).toBeCloseTo(now, -2);
+  });
 });
