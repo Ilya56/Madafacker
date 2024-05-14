@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { DataServicesModule, UserServicesModule } from '@services';
-import { CreateMessageUseCase, SendMessageUseCase } from '@use-cases/message';
+import { CreateMessageUseCase } from '@use-cases/message';
+import { ServicesModule } from '@services';
 
 @Module({
-  imports: [DataServicesModule, UserServicesModule],
-  providers: [CreateMessageUseCase, SendMessageUseCase],
-  exports: [CreateMessageUseCase, SendMessageUseCase],
+  imports: [ServicesModule],
+  providers: [CreateMessageUseCase],
+  exports: [CreateMessageUseCase],
 })
 export class MessageUseCasesModule {}
