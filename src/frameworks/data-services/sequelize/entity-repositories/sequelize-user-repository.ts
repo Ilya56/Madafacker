@@ -1,17 +1,15 @@
 import { Message, User, UserRepositoryAbstract } from '@core';
 import { UserModel, SequelizeGenericRepository, IncomeUserMessagesModel } from '@frameworks/data-services/sequelize';
-import { Injectable } from '@nestjs/common';
-import sequelize from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 
 /**
  * Sequelize user repository implementation
  */
-@Injectable()
 export class SequelizeUserRepository
   extends SequelizeGenericRepository<UserModel, typeof UserModel>
   implements UserRepositoryAbstract
 {
-  constructor() {
+  constructor(private readonly sequelize: Sequelize) {
     super(UserModel);
   }
 
@@ -48,7 +46,7 @@ export class SequelizeUserRepository
    */
   async getRandomUserIds(quantity: number): Promise<string[]> {
     const users = await this.repository.findAll({
-      order: sequelize.literal('rand()'),
+      order: this.sequelize.random(),
       limit: quantity,
       attributes: ['id'],
     });

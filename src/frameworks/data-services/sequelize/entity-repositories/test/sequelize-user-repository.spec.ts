@@ -2,15 +2,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SequelizeUserRepository } from '../sequelize-user-repository';
 import { IncomeUserMessagesModel, UserModel } from '@frameworks/data-services/sequelize';
 import { Message, User } from '@core';
-import sequelize from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 
 describe('SequelizeUserRepository', () => {
   let userRepository: SequelizeUserRepository;
+  const sequelize = new Sequelize({
+    dialect: 'postgres',
+    storage: ':memory:',
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        SequelizeUserRepository,
+        {
+          provide: SequelizeUserRepository,
+          useValue: new SequelizeUserRepository(sequelize),
+        },
         {
           provide: UserModel,
           useValue: {
@@ -93,13 +100,14 @@ describe('SequelizeUserRepository', () => {
     it('should retrieve random user IDs', async () => {
       const mockUsers = [{ id: '1' }, { id: '2' }, { id: '3' }];
       jest.spyOn(UserModel, 'findAll').mockResolvedValue(mockUsers as any);
+      jest.spyOn(sequelize, 'random').mockReturnValue('RANDOM()' as any);
 
       const quantity = 3;
       const result = await userRepository.getRandomUserIds(quantity);
 
       expect(result).toEqual(['1', '2', '3']);
       expect(UserModel.findAll).toHaveBeenCalledWith({
-        order: sequelize.literal('rand()'),
+        order: 'RANDOM()',
         limit: quantity,
         attributes: ['id'],
       });
