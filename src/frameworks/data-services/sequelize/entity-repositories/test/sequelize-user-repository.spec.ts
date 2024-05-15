@@ -1,26 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SequelizeUserRepository } from '../sequelize-user-repository';
 import { IncomeUserMessagesModel, UserModel } from '@frameworks/data-services/sequelize';
-import { User } from '@core';
+import { Message, User } from '@core';
+import { Sequelize } from 'sequelize-typescript';
 
 describe('SequelizeUserRepository', () => {
   let userRepository: SequelizeUserRepository;
+  const sequelize = new Sequelize({
+    dialect: 'postgres',
+    storage: ':memory:',
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        SequelizeUserRepository,
+        {
+          provide: SequelizeUserRepository,
+          useValue: new SequelizeUserRepository(sequelize),
+        },
         {
           provide: UserModel,
           useValue: {
             update: jest.fn(),
             count: jest.fn(),
+            findAll: jest.fn(),
           },
         },
         {
           provide: IncomeUserMessagesModel,
           useValue: {
             count: jest.fn(),
+            bulkCreate: jest.fn(),
           },
         },
       ],
@@ -83,6 +93,41 @@ describe('SequelizeUserRepository', () => {
       const result = await userRepository.getUsersAlreadySeeMessageCount(messageId);
       expect(result).toEqual(5);
       expect(IncomeUserMessagesModel.count).toHaveBeenCalledWith({ where: { messageId } });
+    });
+  });
+
+  describe('getRandomUserIds', () => {
+    it('should retrieve random user IDs', async () => {
+      const mockUsers = [{ id: '1' }, { id: '2' }, { id: '3' }];
+      jest.spyOn(UserModel, 'findAll').mockResolvedValue(mockUsers as any);
+      jest.spyOn(sequelize, 'random').mockReturnValue('RANDOM()' as any);
+
+      const quantity = 3;
+      const result = await userRepository.getRandomUserIds(quantity);
+
+      expect(result).toEqual(['1', '2', '3']);
+      expect(UserModel.findAll).toHaveBeenCalledWith({
+        order: 'RANDOM()',
+        limit: quantity,
+        attributes: ['id'],
+      });
+    });
+  });
+
+  describe('sendMessageToUsers', () => {
+    it('should send a message to specified users', async () => {
+      const message = { id: 'msg1' } as Message;
+      const userIds = ['user1', 'user2', 'user3'];
+      const expectedBulkCreateData = userIds.map((userId) => ({
+        userId,
+        messageId: message.id,
+      }));
+
+      jest.spyOn(IncomeUserMessagesModel, 'bulkCreate').mockResolvedValue([]);
+
+      await userRepository.sendMessageToUsers(message, userIds);
+
+      expect(IncomeUserMessagesModel.bulkCreate).toHaveBeenCalledWith(expectedBulkCreateData);
     });
   });
 });

@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AlgoServiceAbstract } from '@core';
 import { LinearAlgoService } from './linear-algo.service';
+import { DataServicesModule, DateServicesModule } from '@services';
 
 /**
  * This module is a linear algo implementation
  */
 @Module({
-  imports: [],
+  imports: [forwardRef(() => DataServicesModule), forwardRef(() => DateServicesModule)],
   providers: [{ provide: AlgoServiceAbstract, useClass: LinearAlgoService }],
   exports: [AlgoServiceAbstract],
 })

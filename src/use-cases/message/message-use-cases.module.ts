@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { DataServicesModule, UserServicesModule } from '@services';
 import { CreateMessageUseCase } from '@use-cases/message';
+import { ServicesModule } from '@services';
 
 @Module({
-  imports: [DataServicesModule, UserServicesModule],
+  imports: [ServicesModule],
   providers: [CreateMessageUseCase],
   exports: [CreateMessageUseCase],
 })

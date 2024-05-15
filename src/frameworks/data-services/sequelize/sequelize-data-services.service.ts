@@ -5,6 +5,7 @@ import { MessageModel } from './models';
 import { SequelizeUserRepository } from './entity-repositories';
 import { SequelizeMessageRepository } from './entity-repositories/sequelize-message-repository';
 import { Transactional } from 'sequelize-transactional-decorator';
+import { Sequelize } from 'sequelize-typescript';
 
 /**
  * This class stores sequelize data service models to access them from other modules
@@ -15,9 +16,9 @@ export class SequelizeDataServices extends DataServiceAbstract {
   public readonly messages: SequelizeMessageRepository;
   public readonly replies: SequelizeGenericRepository<MessageModel, typeof MessageModel>;
 
-  constructor() {
+  constructor(sequelize: Sequelize) {
     super();
-    this.users = new SequelizeUserRepository();
+    this.users = new SequelizeUserRepository(sequelize);
     this.messages = new SequelizeMessageRepository();
     this.replies = new SequelizeGenericRepository<MessageModel, typeof MessageModel>(MessageModel);
   }
