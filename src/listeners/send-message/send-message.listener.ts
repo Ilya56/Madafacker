@@ -1,6 +1,7 @@
 import { Message } from '@core';
 import { Process, Processor } from '@nestjs/bull';
 import { SendMessageUseCase } from '@use-cases/message';
+import { Job } from 'bull';
 
 /**
  * Bull listener
@@ -14,7 +15,7 @@ export class SendMessageListener {
    * @param job bull bob object
    */
   @Process()
-  run(message: Message) {
-    return this.sendMessageUseCase.execute(message);
+  run(job: Job<Message>) {
+    return this.sendMessageUseCase.execute(job.data);
   }
 }

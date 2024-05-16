@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { SendMessageListener } from './send-message.listener';
-import { MessageUseCasesModule } from '@use-cases/message/message-use-cases.module';
+import { SendMessageModule } from './send-message';
 
 /**
  * Listeners module.
  * Import all listener modules
  */
 @Module({
-  imports: [MessageUseCasesModule],
-  providers: [SendMessageListener],
+  imports: [SendMessageModule],
 })
 export class ListenersModule {}
