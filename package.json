@@ -102,6 +102,9 @@
       "@frameworks/(.*)": [
         "<rootDir>/frameworks/$1"
       ],
+      "@listeners": [
+        "<rootDir>/listeners"
+      ],
       "@services": [
         "<rootDir>/services"
       ],
