@@ -1,4 +1,4 @@
-import { AlgoServiceAbstract, DataServiceAbstract, UserServiceAbstract } from '@core';
+import { AlgoServiceAbstract, DataServiceAbstract, TaskServiceAbstract, UserServiceAbstract } from '@core';
 
 export const SERVICES_PROVIDER = [
   {
@@ -27,6 +27,14 @@ export const SERVICES_PROVIDER = [
     provide: AlgoServiceAbstract,
     useValue: {
       selectUsersShowMessage: jest.fn(),
+    },
+  },
+  {
+    provide: TaskServiceAbstract,
+    useValue: {
+      sendMessage: {
+        addTask: jest.fn(),
+      },
     },
   },
 ];

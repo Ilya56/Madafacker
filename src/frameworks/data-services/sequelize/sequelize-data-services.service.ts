@@ -1,5 +1,5 @@
 import { DataServiceAbstract } from '@core';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SequelizeGenericRepository } from './sequelize-generic-repository';
 import { MessageModel } from './models';
 import { SequelizeUserRepository } from './entity-repositories';
@@ -16,6 +16,8 @@ export class SequelizeDataServices extends DataServiceAbstract {
   public readonly messages: SequelizeMessageRepository;
   public readonly replies: SequelizeGenericRepository<MessageModel, typeof MessageModel>;
 
+  private readonly logger = new Logger(SequelizeDataServices.name);
+
   constructor(sequelize: Sequelize) {
     super();
     this.users = new SequelizeUserRepository(sequelize);
@@ -25,6 +27,11 @@ export class SequelizeDataServices extends DataServiceAbstract {
 
   @Transactional()
   async transactional<I, O>(func: (...args: I[]) => O): Promise<O> {
-    return func();
+    try {
+      return func();
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
   }
 }

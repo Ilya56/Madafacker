@@ -24,6 +24,7 @@
       "@controllers": ["./src/controllers"],
       "@core": ["./src/core"],
       "@frameworks/*": ["./src/frameworks/*"],
+      "@listeners": ["./src/listeners"],
       "@services": ["./src/services"],
       "@use-cases/*": ["./src/use-cases/*"]
     }
