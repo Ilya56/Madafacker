@@ -7,7 +7,8 @@ import { ListenersModule } from '@listeners';
  * Main app module, start here
  */
 @Module({
-  imports: [CustomConfigModule, ControllersModule, ListenersModule],
+  // listeners should be before controllers
+  imports: [CustomConfigModule, ListenersModule, ControllersModule],
   providers: [],
 })
 export class AppModule {}
