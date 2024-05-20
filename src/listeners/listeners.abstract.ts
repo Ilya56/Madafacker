@@ -2,7 +2,7 @@ import { Logger, OnApplicationBootstrap } from '@nestjs/common';
 
 /**
  * Listener abstract class
- * Each listener should subscribe on the events in
+ * Each listener should subscribe on the events in the method subscribe
  */
 export abstract class ListenersAbstract implements OnApplicationBootstrap {
   /**
@@ -23,8 +23,9 @@ export abstract class ListenersAbstract implements OnApplicationBootstrap {
   /**
    * Each listener is initialized in the start of the application
    * This method calls abstract subscribe method and catch errors from it
+   * Is used by the Nest.js, don't override this method
    */
-  onApplicationBootstrap(): any {
+  public onApplicationBootstrap(): any {
     Promise.resolve(this.subscribe()).catch((err) => this.logger.error(err));
   }
 
