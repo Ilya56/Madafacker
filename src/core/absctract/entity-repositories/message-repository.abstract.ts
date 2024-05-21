@@ -1,4 +1,4 @@
-import { GenericRepositoryAbstract, Message } from '@core';
+import { GenericRepositoryAbstract, Message, User } from '@core';
 
 /**
  * This interface is created to extend generic repository with a methods that are useful for a message entity
@@ -8,5 +8,5 @@ export interface MessageRepositoryAbstract extends GenericRepositoryAbstract<Mes
    * Returns all income messages for a user with userId
    * @param userId user id to search messages
    */
-  getIncomingByUserId(userId: string): Promise<Message[]>;
+  getIncomingByUserId(userId: User['id']): Promise<Message[]>;
 }

@@ -32,7 +32,7 @@ export class SequelizeUserRepository
    * Count the quantity of the IncomeUserMessagesModel with messageId
    * @param messageId message to count
    */
-  getUsersAlreadySeeMessageCount(messageId: string): Promise<number> {
+  getUsersAlreadySeeMessageCount(messageId: Message['id']): Promise<number> {
     return IncomeUserMessagesModel.count({
       where: { messageId: messageId },
     });
@@ -44,7 +44,7 @@ export class SequelizeUserRepository
    * Returns a plain array of ids (strings)
    * @param quantity quantity of the random users to retrieve
    */
-  async getRandomUserIds(quantity: number): Promise<string[]> {
+  async getRandomUserIds(quantity: number): Promise<User['id'][]> {
     const users = await this.repository.findAll({
       order: this.sequelize.random(),
       limit: quantity,
@@ -58,7 +58,7 @@ export class SequelizeUserRepository
    * @param message message to send
    * @param userIds users to retrieve a message
    */
-  async sendMessageToUsers(message: Message, userIds: string[]): Promise<void> {
+  async sendMessageToUsers(message: Message, userIds: User['id'][]): Promise<void> {
     const incomeUserMessageData = userIds.map((userId) => ({
       userId,
       messageId: message.id,
