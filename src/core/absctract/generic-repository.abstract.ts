@@ -1,4 +1,4 @@
-import { Entity } from '../entities/entity';
+import { Entity } from '../../entities/entity';
 
 /**
  * This is an abstract repository class that defines what child repository should do.
