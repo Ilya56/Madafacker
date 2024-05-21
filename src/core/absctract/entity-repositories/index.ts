@@ -3,3 +3,4 @@
  */
 
 export * from './user-repository.abstract';
+export * from './message-repository.abstract';

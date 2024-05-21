@@ -1,7 +1,8 @@
-import { ForeignKey as ForeignKeyType, InferAttributes, InferCreationAttributes } from 'sequelize';
-import { Model, Table, ForeignKey } from 'sequelize-typescript';
+import { ForeignKey as ForeignKeyType, InferAttributes, InferCreationAttributes, NonAttribute } from 'sequelize';
+import { Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { UserModel } from './user.model';
 import { MessageModel } from './message.model';
+import { User } from '@core';
 
 /**
  * This model is created to store many-to-many relation between user and messages.
@@ -17,4 +18,10 @@ export class IncomeUserMessagesModel extends Model<
 
   @ForeignKey(() => MessageModel)
   messageId: ForeignKeyType<MessageModel['id']>;
+
+  @BelongsTo(() => UserModel)
+  user: NonAttribute<User>;
+
+  @BelongsTo(() => MessageModel)
+  message: NonAttribute<MessageModel>;
 }

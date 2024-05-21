@@ -1,4 +1,4 @@
-import { TaskServiceAbstract } from '@core';
+import { Message, TaskServiceAbstract } from '@core';
 import { SendMessageUseCase } from '@use-cases/message';
 import { Injectable } from '@nestjs/common';
 import { ListenersAbstract } from '../listeners.abstract';
@@ -20,6 +20,18 @@ export class SendMessageListener extends ListenersAbstract {
    * @protected
    */
   protected subscribe(): void {
-    this.taskService.sendMessage.processQueue((message) => this.sendMessageUseCase.execute(message));
+    this.taskService.sendMessage.processQueue((message) =>
+      this.sendMessageUseCase.execute(this.prepareMessage(message)),
+    );
+  }
+
+  /**
+   * Fix a message object after send throw the task service, such transform date fields in date objects
+   * @param message message object to fix
+   * @private
+   */
+  private prepareMessage(message: Message): Message {
+    message.createdAt = new Date(message.createdAt);
+    return message;
   }
 }
