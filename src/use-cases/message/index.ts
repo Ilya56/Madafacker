@@ -4,3 +4,4 @@
 
 export * from './create-message.use-case';
 export * from './send-message.use-case';
+export * from './retrieve-income-messages.use-case';
