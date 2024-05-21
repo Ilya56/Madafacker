@@ -1,5 +1,5 @@
 import { GenericRepositoryAbstract } from './generic-repository.abstract';
-import { Reply } from '../entities';
+import { Reply } from '@core';
 import { MessageRepositoryAbstract, UserRepositoryAbstract } from './entity-repositories';
 
 /**
