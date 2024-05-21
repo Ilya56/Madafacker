@@ -1,5 +1,5 @@
 import { IncomeUserMessagesModel, MessageModel, SequelizeGenericRepository } from '@frameworks/data-services/sequelize';
-import { Message, MessageRepositoryAbstract } from '@core';
+import { Message, MessageRepositoryAbstract, User } from '@core';
 
 /**
  * Sequelize message repository implementation
@@ -25,7 +25,7 @@ export class SequelizeMessageRepository
    * Retrieve all income user message models for a user with id userId with a populated message and returns only messages
    * @param userId user id to retrieve data
    */
-  async getIncomingByUserId(userId: string): Promise<Message[]> {
+  async getIncomingByUserId(userId: User['id']): Promise<Message[]> {
     const incomeUserMessagesModels = await IncomeUserMessagesModel.findAll({
       where: {
         userId,
