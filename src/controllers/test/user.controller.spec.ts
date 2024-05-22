@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateUserDto, UpdateUserDto, UserController } from '@controllers';
+import { UserController } from '../user.controller';
+import { CreateUserDto, UpdateUserDto } from '../dtos';
 import { CreateUserUseCase, GetCurrentUserUseCase, UpdateUserUseCase } from '@use-cases/user';
 import { UserFactoryService } from '../factories';
 import { User } from '@core';
