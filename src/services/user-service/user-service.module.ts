@@ -8,4 +8,4 @@ import { PassportUserServiceModule } from '@frameworks/user-services/passport';
   imports: [PassportUserServiceModule],
   exports: [PassportUserServiceModule],
 })
-export class UserServicesModule {}
+export class UserServiceModule {}

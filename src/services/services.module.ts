@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { DataServicesModule } from './data-services/data-services.module';
-import { UserServicesModule } from './user-services/user-services.module';
+import { DataServiceModule } from './data-service/data-service.module';
+import { UserServiceModule } from './user-service/user-service.module';
 import { DateServicesModule } from './date-service/date-service.module';
-import { AlgoServicesModule } from './algo-service/algo-services.module';
-import { TaskServicesModule } from './task-services/task-services.module';
+import { AlgoServiceModule } from './algo-service/algo-service.module';
+import { TaskServiceModule } from './task-service/task-service.module';
 
 @Module({
-  imports: [DataServicesModule, UserServicesModule, DateServicesModule, AlgoServicesModule, TaskServicesModule],
-  exports: [DataServicesModule, UserServicesModule, DateServicesModule, AlgoServicesModule, TaskServicesModule],
+  imports: [DataServiceModule, UserServiceModule, DateServicesModule, AlgoServiceModule, TaskServiceModule],
+  exports: [DataServiceModule, UserServiceModule, DateServicesModule, AlgoServiceModule, TaskServiceModule],
 })
 export class ServicesModule {}

@@ -8,4 +8,4 @@ import { LinearAlgoModule } from '@frameworks/algo-service/linear';
   imports: [LinearAlgoModule],
   exports: [LinearAlgoModule],
 })
-export class AlgoServicesModule {}
+export class AlgoServiceModule {}
