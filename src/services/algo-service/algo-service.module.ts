@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { LinearAlgoModule } from '@frameworks/algo-service/linear';
+import { LinearAlgoModule } from '@frameworks/algo-services/linear';
 
 /**
  * This service defines what algo service implementation should be used now
