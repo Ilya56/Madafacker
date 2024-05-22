@@ -3,5 +3,3 @@
  */
 
 export * from './passport-user-service.module';
-export * from './passport-user-service.service';
-export * from './unique-token.passport-strategy';

@@ -1,5 +1,6 @@
-import { Message, UserRepositoryAbstract } from '@core';
-import { UserModel, SequelizeGenericRepository, IncomeUserMessagesModel } from '@frameworks/data-services/sequelize';
+import { Message, User, UserRepositoryAbstract } from '@core';
+import { SequelizeGenericRepository } from '../sequelize-generic-repository';
+import { IncomeUserMessagesModel, UserModel } from '../models';
 import { Sequelize } from 'sequelize-typescript';
 
 /**

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SequelizeUserRepository } from '../sequelize-user-repository';
-import { IncomeUserMessagesModel, UserModel } from '@frameworks/data-services/sequelize';
+import { IncomeUserMessagesModel, UserModel } from '../../models';
 import { Message } from '@core';
 import { Sequelize } from 'sequelize-typescript';
 
