@@ -13,15 +13,19 @@ export class IncomeUserMessagesModel extends Model<
   InferAttributes<IncomeUserMessagesModel>,
   InferCreationAttributes<IncomeUserMessagesModel>
 > {
+  /**
+   * User id who retrieves a message as incoming
+   */
   @ForeignKey(() => UserModel)
   userId: ForeignKeyType<UserModel['id']>;
-
-  @ForeignKey(() => MessageModel)
-  messageId: ForeignKeyType<MessageModel['id']>;
-
   @BelongsTo(() => UserModel)
   user: NonAttribute<User>;
 
+  /**
+   * Message id that user retrieves
+   */
+  @ForeignKey(() => MessageModel)
+  messageId: ForeignKeyType<MessageModel['id']>;
   @BelongsTo(() => MessageModel)
   message: NonAttribute<MessageModel>;
 }

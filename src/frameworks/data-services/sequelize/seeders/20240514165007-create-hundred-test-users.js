@@ -18,7 +18,10 @@ function getUuid(i) {
   return uuid({ random });
 }
 
-/** @type {import('sequelize-cli').Migration} */
+/**
+ * Create 100 users in the DB. When reverted, remove all messages and income user messages too
+ * @type {import('sequelize-cli').Migration}
+ */
 module.exports = {
   async up(queryInterface) {
     const bulkCreate = new Array(LENGTH).fill(null).map((_, i) => ({
