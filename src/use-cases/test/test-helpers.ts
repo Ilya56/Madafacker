@@ -13,6 +13,7 @@ export const SERVICES_PROVIDER = [
       },
       messages: {
         create: jest.fn(),
+        getIncomingByUserId: jest.fn(),
       },
       transactional: jest.fn().mockImplementation(async (fn: any) => fn()),
     },
