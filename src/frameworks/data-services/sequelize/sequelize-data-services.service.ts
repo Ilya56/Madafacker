@@ -28,7 +28,7 @@ export class SequelizeDataServices extends DataServiceAbstract {
   @Transactional()
   async transactional<I, O>(func: (...args: I[]) => O): Promise<O> {
     try {
-      return func();
+      return await func();
     } catch (e) {
       this.logger.error(e);
       throw e;
