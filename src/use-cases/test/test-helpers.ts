@@ -1,5 +1,9 @@
 import { AlgoServiceAbstract, DataServiceAbstract, TaskServiceAbstract, UserServiceAbstract } from '@core';
 
+/**
+ * This variable is useful to create tests for a use cases
+ * Can stub all services dependencies
+ */
 export const SERVICES_PROVIDER = [
   {
     provide: DataServiceAbstract,
