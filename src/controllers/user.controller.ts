@@ -33,7 +33,7 @@ export class UserController {
    */
   @Get('/current')
   async retrieve(): Promise<User> {
-    return await this.getUserByIdUseCase.execute({});
+    return await this.getUserByIdUseCase.execute();
   }
 
   /**
