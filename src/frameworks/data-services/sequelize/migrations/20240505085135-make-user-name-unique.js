@@ -3,7 +3,10 @@
 const TABLE_NAME = 'UserModels';
 const FIELD_NAME = 'name';
 
-/** @type {import('sequelize-cli').Migration} */
+/**
+ * Makes user model table name field unique
+ * @type {import('sequelize-cli').Migration}
+ */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.changeColumn(TABLE_NAME, FIELD_NAME, {
