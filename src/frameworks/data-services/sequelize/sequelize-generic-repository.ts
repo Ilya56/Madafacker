@@ -64,7 +64,7 @@ export class SequelizeGenericRepository<T extends Model<any, any>, R extends Mod
    * @param id instance id to update
    * @param entity data to update
    */
-  async update(id: any, entity: T): Promise<T> {
+  async update(id: any, entity: T): Promise<T | null> {
     const [, updatedRows] = await this.repository.update(entity, {
       where: { id },
       returning: true,
