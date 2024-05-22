@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DateServiceAbstract } from '@core';
-import { DayjsDateService } from '@frameworks/date-service/dayjs';
+import { DayjsDateService } from '@frameworks/date-services/dayjs';
 
 /**
  * This module is a DayJs date service implementation
