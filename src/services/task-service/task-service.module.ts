@@ -8,4 +8,4 @@ import { BullTaskServicesModule } from '@frameworks/task-services/bull';
   imports: [BullTaskServicesModule],
   exports: [BullTaskServicesModule],
 })
-export class TaskServicesModule {}
+export class TaskServiceModule {}

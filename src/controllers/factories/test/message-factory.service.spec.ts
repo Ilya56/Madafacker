@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MessageFactoryService, CreateMessageDto } from '@controllers';
+import { CreateMessageDto } from '../../dtos';
+import { MessageFactoryService } from '../message-factory.service';
 import { Message, MessageMode } from '@core';
 
 describe('MessageFactoryService', () => {

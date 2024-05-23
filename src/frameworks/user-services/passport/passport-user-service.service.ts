@@ -18,6 +18,10 @@ export class PassportUserServiceService extends UserServiceAbstract {
     super();
   }
 
+  /**
+   * Returns a current user object from the request object
+   * If no user in request - throw not found error
+   */
   async getCurrentUser(): Promise<User> {
     const user = this.request.user;
     if (!user) {

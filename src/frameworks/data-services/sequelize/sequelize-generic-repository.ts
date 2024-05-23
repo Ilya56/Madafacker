@@ -8,6 +8,10 @@ import { CreationAttributes } from 'sequelize';
 export class SequelizeGenericRepository<T extends Model<any, any>, R extends ModelCtor<T>>
   implements GenericRepositoryAbstract<T>
 {
+  /**
+   * Sequelize model
+   * @protected
+   */
   protected repository: R;
 
   /**
@@ -19,29 +23,48 @@ export class SequelizeGenericRepository<T extends Model<any, any>, R extends Mod
   }
 
   /**
-   * All methods here is just an implementation of the GenericRepositoryAbstract, please check docs of this class
+   * Returns all records by using find all method
    */
   getAll(): Promise<T[]> {
     return this.repository.findAll();
   }
 
+  /**
+   * Returns model instance using find one method with id as an only criteria.
+   * @param id instance id to search
+   */
   getById(id: any): Promise<T | null> {
     return this.repository.findOne({
       where: { id },
     });
   }
 
+  /**
+   * Creates new instance of the model based on the provided entity
+   * Uses standard model static create method
+   * @param entity new instance data
+   */
   create(entity: T): Promise<T> {
     return this.repository.create(entity as CreationAttributes<T>);
   }
 
+  /**
+   * It uses destroy method with id as a criteria
+   * @param id instance id to destroy
+   */
   async delete(id: any): Promise<void> {
     await this.repository.destroy({
       where: { id },
     });
   }
 
-  async update(id: any, entity: T): Promise<T> {
+  /**
+   * Search for instances based on the id and updates them based on the provided entity object.
+   * If no object was updated - return null
+   * @param id instance id to update
+   * @param entity data to update
+   */
+  async update(id: any, entity: T): Promise<T | null> {
     const [, updatedRows] = await this.repository.update(entity, {
       where: { id },
       returning: true,

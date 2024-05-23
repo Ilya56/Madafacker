@@ -6,9 +6,7 @@
  */
 
 export * from './algo-service.abstract';
-export * from './entity-repositories';
-export * from './data-service.abstract';
 export * from './date-service.abstract';
-export * from './generic-repository.abstract';
 export * from './user-service.abstract';
+export * from './data-service';
 export * from './task-service';

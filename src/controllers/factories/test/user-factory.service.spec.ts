@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserFactoryService } from '@controllers';
+import { UserFactoryService } from '../user-factory.service';
 import { CreateUserDto, UpdateUserDto } from '../../dtos';
 import { User } from '@core';
 

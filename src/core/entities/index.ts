@@ -3,6 +3,7 @@
  * Each entity here represents some real world stuff and can do nothing, just describe structure
  */
 
+export * from './entity';
 export * from './user.entity';
 export * from './message.entity';
 export * from './reply.entity';

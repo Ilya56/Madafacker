@@ -5,13 +5,6 @@ import { User, GenericRepositoryAbstract, Message } from '@core';
  */
 export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> {
   /**
-   * Updates user with specified name on the new data and return updated user or null if no user to update
-   * @param name name of the user to update
-   * @param user new user data
-   */
-  updateByName(name: User['name'], user: User): Promise<User>;
-
-  /**
    * Returns total active users count
    */
   getTotalUsersCount(): Promise<number>;

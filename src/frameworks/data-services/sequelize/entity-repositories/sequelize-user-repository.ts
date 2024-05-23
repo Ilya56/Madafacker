@@ -1,5 +1,6 @@
 import { Message, User, UserRepositoryAbstract } from '@core';
-import { UserModel, SequelizeGenericRepository, IncomeUserMessagesModel } from '@frameworks/data-services/sequelize';
+import { SequelizeGenericRepository } from '../sequelize-generic-repository';
+import { IncomeUserMessagesModel, UserModel } from '../models';
 import { Sequelize } from 'sequelize-typescript';
 
 /**
@@ -11,14 +12,6 @@ export class SequelizeUserRepository
 {
   constructor(private readonly sequelize: Sequelize) {
     super(UserModel);
-  }
-
-  async updateByName(name: string, user: User): Promise<User> {
-    const [, updatedRows] = await this.repository.update(user, {
-      where: { name },
-      returning: true,
-    });
-    return updatedRows[0];
   }
 
   /**

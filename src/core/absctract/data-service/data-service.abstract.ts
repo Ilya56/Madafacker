@@ -1,7 +1,6 @@
 import { GenericRepositoryAbstract } from './generic-repository.abstract';
-import { Reply } from '../entities';
-import { UserRepositoryAbstract } from './entity-repositories';
-import { MessageRepositoryAbstract } from './entity-repositories/message-repository.abstract';
+import { Reply } from '@core';
+import { MessageRepositoryAbstract, UserRepositoryAbstract } from './entity-repositories';
 
 /**
  * This class defines what repositories should store a data service

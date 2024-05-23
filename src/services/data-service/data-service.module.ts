@@ -8,4 +8,4 @@ import { SequelizeDataServicesModule } from '@frameworks/data-services/sequelize
   imports: [SequelizeDataServicesModule],
   exports: [SequelizeDataServicesModule],
 })
-export class DataServicesModule {}
+export class DataServiceModule {}

@@ -22,7 +22,7 @@ describe('GetUserByIdUseCase', () => {
 
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
 
-    const result = await getUserByIdUseCase.execute({});
+    const result = await getUserByIdUseCase.execute();
 
     expect(result).toEqual(user);
     expect(userService.getCurrentUser).toHaveBeenCalled();

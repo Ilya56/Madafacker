@@ -1,5 +1,6 @@
 import { SequelizeMessageRepository } from '../sequelize-message-repository';
-import { MessageModel, IncomeUserMessagesModel, SequelizeGenericRepository } from '@frameworks/data-services/sequelize';
+import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
+import { IncomeUserMessagesModel, MessageModel } from '../../models';
 
 describe('SequelizeMessageRepository', () => {
   let repository: SequelizeMessageRepository;

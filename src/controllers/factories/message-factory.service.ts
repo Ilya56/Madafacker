@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMessageDto } from '@controllers';
+import { CreateMessageDto } from '../dtos';
 import { Message } from '@core';
 
 /**

@@ -1,5 +1,9 @@
 import { AlgoServiceAbstract, DataServiceAbstract, TaskServiceAbstract, UserServiceAbstract } from '@core';
 
+/**
+ * This variable is useful to create tests for a use cases
+ * Can stub all services dependencies
+ */
 export const SERVICES_PROVIDER = [
   {
     provide: DataServiceAbstract,
@@ -13,6 +17,7 @@ export const SERVICES_PROVIDER = [
       },
       messages: {
         create: jest.fn(),
+        getIncomingByUserId: jest.fn(),
       },
       transactional: jest.fn().mockImplementation(async (fn: any) => fn()),
     },

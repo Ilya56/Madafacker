@@ -1,4 +1,5 @@
-import { IncomeUserMessagesModel, MessageModel, SequelizeGenericRepository } from '@frameworks/data-services/sequelize';
+import { IncomeUserMessagesModel, MessageModel } from '../models';
+import { SequelizeGenericRepository } from '../sequelize-generic-repository';
 import { Message, MessageRepositoryAbstract, User } from '@core';
 
 /**
