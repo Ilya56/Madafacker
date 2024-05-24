@@ -9,7 +9,7 @@ export class RetrieveIncomeMessagesUseCase extends QueryAbstract<void, Message[]
    * @protected
    */
   protected async implementation(): Promise<Message[]> {
-    const currentUser = await this.userService.getCurrentUser();
-    return this.dataService.messages.getIncomingByUserId(currentUser.id);
+    const currentUser = await this.userService.getCurrentUser({ withIncomingMessages: true });
+    return currentUser.incomeMessages;
   }
 }
