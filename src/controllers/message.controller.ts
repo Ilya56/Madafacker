@@ -1,9 +1,12 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { MessageFactoryService } from './factories';
-import { CreateMessageUseCase } from '@use-cases/message/create-message.use-case';
 import { Message } from '@core';
 import { CreateMessageDto } from './dtos';
-import { RetrieveIncomeMessagesUseCase } from '@use-cases/message';
+import {
+  CreateMessageUseCase,
+  RetrieveIncomeMessagesUseCase,
+  RetrieveOutcomeMessagesUseCase,
+} from '@use-cases/message';
 
 /**
  * Message actions controller. All related to the user should be here
@@ -14,6 +17,7 @@ export class MessageController {
     private messageFactoryService: MessageFactoryService,
     private createMessageUseCase: CreateMessageUseCase,
     private retrieveIncomeMessagesUseCase: RetrieveIncomeMessagesUseCase,
+    private retrieveOutcomeMessagesUseCase: RetrieveOutcomeMessagesUseCase,
   ) {}
 
   /**
@@ -32,5 +36,13 @@ export class MessageController {
   @Get('/current/incoming')
   retrieveIncoming() {
     return this.retrieveIncomeMessagesUseCase.execute();
+  }
+
+  /**
+   * Returns all outcoming messages of the current user
+   */
+  @Get('/current/outcoming')
+  retrieveOutcome() {
+    return this.retrieveOutcomeMessagesUseCase.execute();
   }
 }
