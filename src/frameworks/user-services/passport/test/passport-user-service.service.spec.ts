@@ -34,6 +34,7 @@ describe('PassportUserServiceService', () => {
           useValue: {
             messages: {
               getIncomingByUserId: jest.fn().mockResolvedValue(['message1', 'message2']),
+              getOutcomingByUserId: jest.fn().mockResolvedValue(['message3', 'message4']),
             },
           },
         },
@@ -65,6 +66,18 @@ describe('PassportUserServiceService', () => {
       const result = await service.getCurrentUser({ withIncomingMessages: false });
       expect(result.incomeMessages).toEqual([]);
       expect(dataService.messages.getIncomingByUserId).not.toHaveBeenCalled();
+    });
+
+    it('should return the user with incoming messages if options.withOutcomingMessages is true', async () => {
+      const result = await service.getCurrentUser({ withOutcomingMessages: true });
+      expect(result.outcomeMessages).toEqual(['message3', 'message4']);
+      expect(dataService.messages.getOutcomingByUserId).toHaveBeenCalledWith(mockRequest.user.id);
+    });
+
+    it('should return the user without fetching messages if options.withOutcomingMessages is false', async () => {
+      const result = await service.getCurrentUser({ withOutcomingMessages: false });
+      expect(result.outcomeMessages).toEqual([]);
+      expect(dataService.messages.getOutcomingByUserId).not.toHaveBeenCalled();
     });
   });
 });

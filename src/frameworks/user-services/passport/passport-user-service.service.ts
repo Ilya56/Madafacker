@@ -37,6 +37,10 @@ export class PassportUserServiceService extends UserServiceAbstract {
       user.incomeMessages = await this.dataService.messages.getIncomingByUserId(user.id);
     }
 
+    if (options?.withOutcomingMessages) {
+      user.outcomeMessages = await this.dataService.messages.getOutcomingByUserId(user.id);
+    }
+
     return user;
   }
 }
