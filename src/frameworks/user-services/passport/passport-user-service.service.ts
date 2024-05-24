@@ -1,4 +1,4 @@
-import { NotFoundError, User, UserServiceAbstract } from '@core';
+import { DataServiceAbstract, GetUserOptions, NotFoundError, User, UserServiceAbstract } from '@core';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
@@ -13,20 +13,30 @@ export class PassportUserServiceService extends UserServiceAbstract {
   /**
    * It requires to get a request object each usage
    * @param request system request object
+   * @param dataService data service to manipulate with data
    */
-  constructor(@Inject(REQUEST) private request: UserRequest) {
+  constructor(
+    @Inject(REQUEST) private readonly request: UserRequest,
+    private readonly dataService: DataServiceAbstract,
+  ) {
     super();
   }
 
   /**
    * Returns a current user object from the request object
    * If no user in request - throw not found error
+   * @param options user options
    */
-  async getCurrentUser(): Promise<User> {
+  async getCurrentUser(options?: GetUserOptions): Promise<User> {
     const user = this.request.user;
     if (!user) {
       throw new NotFoundError('Current user not found');
     }
+
+    if (options?.withIncomingMessages) {
+      user.incomeMessages = await this.dataService.messages.getIncomingByUserId(user.id);
+    }
+
     return user;
   }
 }
