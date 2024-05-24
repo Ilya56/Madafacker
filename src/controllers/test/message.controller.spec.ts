@@ -4,13 +4,14 @@ import { MessageFactoryService } from '../factories';
 import { CreateMessageUseCase } from '@use-cases/message/create-message.use-case';
 import { CreateMessageDto } from '../dtos';
 import { Message, MessageMode } from '@core';
-import { RetrieveIncomeMessagesUseCase } from '@use-cases/message';
+import { RetrieveIncomeMessagesUseCase, RetrieveOutcomeMessagesUseCase } from '@use-cases/message';
 
 describe('MessageController', () => {
   let controller: MessageController;
   let factoryService: MessageFactoryService;
   let createMessageUseCase: CreateMessageUseCase;
   let retrieveIncomeMessagesUseCase: RetrieveIncomeMessagesUseCase;
+  let retrieveOutcomeMessagesUseCase: RetrieveOutcomeMessagesUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,6 +29,10 @@ describe('MessageController', () => {
           provide: RetrieveIncomeMessagesUseCase,
           useValue: { execute: jest.fn().mockResolvedValue([new Message()]) },
         },
+        {
+          provide: RetrieveOutcomeMessagesUseCase,
+          useValue: { execute: jest.fn().mockResolvedValue([new Message()]) },
+        },
       ],
     }).compile();
 
@@ -35,6 +40,7 @@ describe('MessageController', () => {
     factoryService = module.get<MessageFactoryService>(MessageFactoryService);
     createMessageUseCase = module.get<CreateMessageUseCase>(CreateMessageUseCase);
     retrieveIncomeMessagesUseCase = module.get<RetrieveIncomeMessagesUseCase>(RetrieveIncomeMessagesUseCase);
+    retrieveOutcomeMessagesUseCase = module.get<RetrieveOutcomeMessagesUseCase>(RetrieveOutcomeMessagesUseCase);
   });
 
   describe('create', () => {
@@ -67,6 +73,19 @@ describe('MessageController', () => {
       const result = await controller.retrieveIncoming();
 
       expect(retrieveIncomeMessagesUseCase.execute).toHaveBeenCalled();
+      expect(result).toEqual(messages);
+    });
+  });
+
+  describe('retrieveIncoming', () => {
+    it('should retrieve incoming messages for the current user', async () => {
+      const messages = [new Message(), new Message()];
+
+      jest.spyOn(retrieveOutcomeMessagesUseCase, 'execute').mockResolvedValue(messages);
+
+      const result = await controller.retrieveOutcome();
+
+      expect(retrieveOutcomeMessagesUseCase.execute).toHaveBeenCalled();
       expect(result).toEqual(messages);
     });
   });

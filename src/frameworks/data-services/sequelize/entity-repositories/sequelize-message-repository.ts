@@ -35,4 +35,16 @@ export class SequelizeMessageRepository
     });
     return incomeUserMessagesModels.map((incomeMessage) => incomeMessage.message);
   }
+
+  /**
+   * Returns all messages with authorId is provided user id
+   * @param userId user id to search
+   */
+  getOutcomingByUserId(userId: User['id']): Promise<Message[]> {
+    return this.repository.findAll({
+      where: {
+        authorId: userId,
+      },
+    });
+  }
 }

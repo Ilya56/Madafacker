@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RetrieveIncomeMessagesUseCase } from '@use-cases/message';
 import { Message, User, UserServiceAbstract } from '@core';
 import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
+import { RetrieveOutcomeMessagesUseCase } from '@use-cases/message/retrieve-outcome-messages.use-case';
 
 describe('RetrieveIncomeMessagesUseCase', () => {
-  let retrieveIncomeMessagesUseCase: RetrieveIncomeMessagesUseCase;
+  let retrieveOutcomeMessagesUseCase: RetrieveOutcomeMessagesUseCase;
   let userService: UserServiceAbstract;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [RetrieveIncomeMessagesUseCase, ...SERVICES_PROVIDER],
+      providers: [RetrieveOutcomeMessagesUseCase, ...SERVICES_PROVIDER],
     }).compile();
 
-    retrieveIncomeMessagesUseCase = module.get<RetrieveIncomeMessagesUseCase>(RetrieveIncomeMessagesUseCase);
+    retrieveOutcomeMessagesUseCase = module.get<RetrieveOutcomeMessagesUseCase>(RetrieveOutcomeMessagesUseCase);
     userService = module.get<UserServiceAbstract>(UserServiceAbstract);
   });
 
@@ -22,13 +22,13 @@ describe('RetrieveIncomeMessagesUseCase', () => {
     const user = new User();
     user.id = 'user-id';
     user.name = 'username';
-    user.incomeMessages = messages;
+    user.outcomeMessages = messages;
 
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
 
-    const result = await retrieveIncomeMessagesUseCase.execute();
+    const result = await retrieveOutcomeMessagesUseCase.execute();
 
     expect(result).toEqual(messages);
-    expect(userService.getCurrentUser).toHaveBeenCalledWith({ withIncomingMessages: true });
+    expect(userService.getCurrentUser).toHaveBeenCalledWith({ withOutcomingMessages: true });
   });
 });

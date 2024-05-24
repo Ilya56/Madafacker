@@ -9,4 +9,11 @@ export interface MessageRepositoryAbstract extends GenericRepositoryAbstract<Mes
    * @param userId user id to search messages
    */
   getIncomingByUserId(userId: User['id']): Promise<Message[]>;
+
+  /**
+   * Returns all outcome message from the user by user id
+   * Outcome is a message where author is a user with userId
+   * @param userId user id to search messages
+   */
+  getOutcomingByUserId(userId: User['id']): Promise<Message[]>;
 }
