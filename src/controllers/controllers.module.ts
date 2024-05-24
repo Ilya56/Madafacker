@@ -4,7 +4,7 @@ import { FactoryModule } from './factories';
 import { UserUseCasesModule } from '@use-cases/user';
 import { ErrorHandlerModule } from './error-handler';
 import { MessageController } from './message.controller';
-import { MessageUseCasesModule } from '@use-cases/message/message-use-cases.module';
+import { MessageUseCasesModule } from '@use-cases/message';
 
 /**
  * Controllers module, declare all controllers, import use cases and factories
