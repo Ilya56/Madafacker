@@ -1,9 +1,6 @@
 import { DataServiceAbstract } from '@core';
 import { Injectable, Logger } from '@nestjs/common';
-import { SequelizeGenericRepository } from './sequelize-generic-repository';
-import { MessageModel } from './models';
-import { SequelizeUserRepository } from './entity-repositories';
-import { SequelizeMessageRepository } from './entity-repositories/sequelize-message-repository';
+import { SequelizeUserRepository, SequelizeMessageRepository, SequelizeReplyRepository } from './entity-repositories';
 import { Transactional } from 'sequelize-transactional-decorator';
 import { Sequelize } from 'sequelize-typescript';
 
@@ -17,7 +14,7 @@ export class SequelizeDataServices extends DataServiceAbstract {
    */
   public readonly users: SequelizeUserRepository;
   public readonly messages: SequelizeMessageRepository;
-  public readonly replies: SequelizeGenericRepository<MessageModel, typeof MessageModel>;
+  public readonly replies: SequelizeReplyRepository;
 
   /**
    * Service logger
@@ -33,7 +30,7 @@ export class SequelizeDataServices extends DataServiceAbstract {
     super();
     this.users = new SequelizeUserRepository(sequelize);
     this.messages = new SequelizeMessageRepository();
-    this.replies = new SequelizeGenericRepository<MessageModel, typeof MessageModel>(MessageModel);
+    this.replies = new SequelizeReplyRepository();
   }
 
   /**
