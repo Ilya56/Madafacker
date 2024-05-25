@@ -9,7 +9,7 @@ import {
 } from '@use-cases/message';
 
 /**
- * Message actions controller. All related to the user should be here
+ * Message actions controller. All related to the message should be here
  */
 @Controller('api/message')
 export class MessageController {
