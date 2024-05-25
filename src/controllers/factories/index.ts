@@ -4,4 +4,5 @@
 
 export * from './user-factory.service';
 export * from './message-factory.service';
+export * from './reply-factory.service';
 export * from './factory.module';

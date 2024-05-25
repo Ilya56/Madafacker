@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumberString, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { PickType } from '@nestjs/mapped-types';
 
 export class CreateReplyDto {
@@ -6,9 +6,9 @@ export class CreateReplyDto {
   @IsNotEmpty()
   body: string;
 
-  @IsNumberString()
+  @IsUUID()
   @IsNotEmpty()
-  parentId: number;
+  parentId: string;
 
   @IsBoolean()
   @IsNotEmpty()
