@@ -5,12 +5,14 @@ import { UserUseCasesModule } from '@use-cases/user';
 import { ErrorHandlerModule } from './error-handler';
 import { MessageController } from './message.controller';
 import { MessageUseCasesModule } from '@use-cases/message';
+import { ReplyController } from './reply.controller';
+import { ReplyUseCasesModule } from '@use-cases/reply';
 
 /**
  * Controllers module, declare all controllers, import use cases and factories
  */
 @Module({
-  controllers: [UserController, MessageController],
+  controllers: [UserController, MessageController, ReplyController],
   imports: [
     // factory module
     FactoryModule,
@@ -19,6 +21,7 @@ import { MessageUseCasesModule } from '@use-cases/message';
     // use cases
     UserUseCasesModule,
     MessageUseCasesModule,
+    ReplyUseCasesModule,
   ],
 })
 export class ControllersModule {}
