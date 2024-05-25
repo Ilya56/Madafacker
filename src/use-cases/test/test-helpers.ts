@@ -16,8 +16,12 @@ export const SERVICES_PROVIDER = [
         sendMessageToUsers: jest.fn(),
       },
       messages: {
+        getById: jest.fn(),
         create: jest.fn(),
         getIncomingByUserId: jest.fn(),
+      },
+      replies: {
+        create: jest.fn(),
       },
       transactional: jest.fn().mockImplementation(async (fn: any) => fn()),
     },
