@@ -7,6 +7,8 @@ import { SequelizeDataServices } from './sequelize-data-services.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeOptions } from 'sequelize-typescript';
 import { initSequelizeCLS, SequelizeTransactionalModule } from 'sequelize-transactional-decorator';
+import { Dialect } from 'sequelize/types/sequelize';
+import { getDialectPackageByName } from './dialectModuleFactory';
 
 /**
  * This call is required by the sequelize-transactional-decorator lib
@@ -22,7 +24,7 @@ initSequelizeCLS();
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): SequelizeOptions => ({
         ...configService.get('database'),
-        dialectModule: require('pg'),
+        dialectModule: getDialectPackageByName(configService.get<Dialect>('database.dialect')),
         models: [UserModel, MessageModel, IncomeUserMessagesModel],
       }),
       inject: [ConfigService],
