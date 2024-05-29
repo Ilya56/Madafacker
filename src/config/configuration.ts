@@ -1,14 +1,35 @@
 /**
  * Custom config file. Is created to separate different config in groups
  */
-export default () => ({
-  port: parseInt(process.env.PORT ?? '', 10) || 4000,
-  database: {
-    dialect: 'postgres',
-    host: process.env.DB_HOST ?? 'localhost',
-    port: process.env.DB_PORT ?? '5432',
-    username: process.env.DB_USERNAME ?? 'postgres',
-    password: process.env.DB_PASSWORD ?? '',
-    database: process.env.DB_NAME ?? 'postgres',
-  },
-});
+export default () =>
+  ({
+    port: numberValue('PORT', '4000'),
+    database: {
+      dialect: 'postgres',
+      host: stringValue('DB_HOST', 'localhost'),
+      port: numberValue('DB_PORT', '5432'),
+      username: stringValue('DB_USERNAME', 'postgres'),
+      password: stringValue('DB_PASSWORD', ''),
+      database: stringValue('DB_NAME', 'postgres'),
+    },
+  } as const);
+
+/**
+ * Retrieves string value from process env.
+ * If no value in the env file, it returns default value
+ * @param name key of the property to retrieve
+ * @param defaultValue default value if env value not found
+ */
+function stringValue(name: string, defaultValue: string): string {
+  return process.env[name] ?? defaultValue;
+}
+
+/**
+ * Retrieves numeric value from process env.
+ * If no value in the env file, it returns parsed to number default value
+ * @param name key of the property to retrieve
+ * @param defaultValue default value if env value not found
+ */
+function numberValue(name: string, defaultValue: string): number {
+  return +stringValue(name, defaultValue);
+}
