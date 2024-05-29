@@ -7,6 +7,7 @@ import { SequelizeDataServices } from './sequelize-data-services.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeOptions } from 'sequelize-typescript';
 import { initSequelizeCLS, SequelizeTransactionalModule } from 'sequelize-transactional-decorator';
+import { ConfigType } from '@config';
 import { Dialect } from 'sequelize/types/sequelize';
 import { getDialectPackageByName } from './dialectModuleFactory';
 
@@ -23,7 +24,7 @@ initSequelizeCLS();
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): SequelizeOptions => ({
-        ...configService.get('database'),
+        ...configService.get<ConfigType['database']>('database'),
         dialectModule: getDialectPackageByName(configService.get<Dialect>('database.dialect')),
         models: [UserModel, MessageModel, IncomeUserMessagesModel],
       }),

@@ -14,3 +14,5 @@ import configuration from './configuration';
   ],
 })
 export class CustomConfigModule {}
+
+export type ConfigType = ReturnType<typeof configuration>;
