@@ -12,6 +12,11 @@ export default () =>
       password: stringValue('DB_PASSWORD', ''),
       database: stringValue('DB_NAME', 'postgres'),
     },
+    redis: {
+      host: stringValue('REDIS_HOST', 'localhost'),
+      port: numberValue('REDIS_PORT', '6379'),
+      password: stringValue('REDIS_PASSWORD', ''),
+    },
   } as const);
 
 /**
