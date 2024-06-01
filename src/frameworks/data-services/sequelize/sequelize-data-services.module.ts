@@ -22,6 +22,7 @@ initSequelizeCLS();
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): SequelizeOptions => ({
         ...configService.get('database'),
+        dialectModule: require('pg'),
         models: [UserModel, MessageModel, IncomeUserMessagesModel],
       }),
       inject: [ConfigService],
