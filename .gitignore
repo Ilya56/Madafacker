@@ -36,3 +36,5 @@ lerna-debug.log*
 
 # Project files
 .env
+
+.vercel
