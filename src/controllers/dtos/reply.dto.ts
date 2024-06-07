@@ -15,4 +15,8 @@ export class CreateReplyDto {
   public: boolean;
 }
 
-export class UpdateReplyDto extends PickType(CreateReplyDto, ['public']) {}
+export class UpdateReplyDto extends PickType(CreateReplyDto, ['public']) {
+  @IsUUID()
+  @IsNotEmpty()
+  id: string;
+}

@@ -1,14 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReplyFactoryService } from '../factories';
-import { CreateReplyDto } from '../dtos';
-import { Message, Reply } from '@core';
+import { CreateReplyDto, UpdateReplyDto } from '../dtos';
 import { ReplyController } from '../reply.controller';
-import { CreateReplyUseCase } from '@use-cases/reply';
+import { CreateReplyUseCase, UpdateReplyUseCase } from '@use-cases/reply';
+import { Reply } from '@core';
+import { NotFoundException } from '@nestjs/common';
 
-describe('MessageController', () => {
+describe('ReplyController', () => {
   let controller: ReplyController;
   let factoryService: ReplyFactoryService;
   let createReplyUseCase: CreateReplyUseCase;
+  let updateReplyUseCase: UpdateReplyUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -16,11 +18,18 @@ describe('MessageController', () => {
       providers: [
         {
           provide: ReplyFactoryService,
-          useValue: { createNewReply: jest.fn() },
+          useValue: {
+            createNewReply: jest.fn(),
+            updateReply: jest.fn(),
+          },
         },
         {
           provide: CreateReplyUseCase,
-          useValue: { execute: jest.fn().mockResolvedValue(new Message()) },
+          useValue: { execute: jest.fn().mockResolvedValue(new Reply()) },
+        },
+        {
+          provide: UpdateReplyUseCase,
+          useValue: { execute: jest.fn().mockResolvedValue(null) },
         },
       ],
     }).compile();
@@ -28,10 +37,11 @@ describe('MessageController', () => {
     controller = module.get<ReplyController>(ReplyController);
     factoryService = module.get<ReplyFactoryService>(ReplyFactoryService);
     createReplyUseCase = module.get<CreateReplyUseCase>(CreateReplyUseCase);
+    updateReplyUseCase = module.get<UpdateReplyUseCase>(UpdateReplyUseCase);
   });
 
   describe('create', () => {
-    it('should create and process a new message', async () => {
+    it('should create and process a new reply', async () => {
       const dto = new CreateReplyDto();
       dto.body = 'Hello World';
       dto.public = true;
@@ -49,6 +59,45 @@ describe('MessageController', () => {
       expect(factoryService.createNewReply).toHaveBeenCalledWith(dto);
       expect(createReplyUseCase.execute).toHaveBeenCalledWith({ reply, parentId: 'parent-id' });
       expect(result).toEqual(reply);
+    });
+  });
+
+  describe('update', () => {
+    it('should update an existing reply', async () => {
+      const dto = new UpdateReplyDto();
+      dto.id = 'reply-id';
+      dto.public = false;
+
+      const reply = new Reply();
+      reply.id = dto.id;
+      reply.public = dto.public;
+
+      jest.spyOn(factoryService, 'updateReply').mockReturnValue(reply);
+      jest.spyOn(updateReplyUseCase, 'execute').mockResolvedValue(reply);
+
+      const result = await controller.update(dto);
+
+      expect(factoryService.updateReply).toHaveBeenCalledWith(dto);
+      expect(updateReplyUseCase.execute).toHaveBeenCalledWith(reply);
+      expect(result).toEqual(reply);
+    });
+
+    it('should throw NotFoundException if the reply is not found', async () => {
+      const dto = new UpdateReplyDto();
+      dto.id = 'reply-id';
+      dto.public = false;
+
+      const reply = new Reply();
+      reply.id = dto.id;
+      reply.public = dto.public;
+
+      jest.spyOn(factoryService, 'updateReply').mockReturnValue(reply);
+      jest.spyOn(updateReplyUseCase, 'execute').mockResolvedValue(null);
+
+      await expect(controller.update(dto)).rejects.toThrow(NotFoundException);
+
+      expect(factoryService.updateReply).toHaveBeenCalledWith(dto);
+      expect(updateReplyUseCase.execute).toHaveBeenCalledWith(reply);
     });
   });
 });
