@@ -59,7 +59,7 @@ describe('PassportUserServiceService', () => {
     it('should return the user with incoming messages if options.withIncomingMessages is true', async () => {
       const result = await service.getCurrentUser({ withIncomingMessages: true });
       expect(result.incomeMessages).toEqual(['message1', 'message2']);
-      expect(dataService.messages.getIncomingByUserId).toHaveBeenCalledWith(mockRequest.user.id);
+      expect(dataService.messages.getIncomingByUserId).toHaveBeenCalledWith(mockRequest.user.id, 1);
     });
 
     it('should return the user without fetching messages if options.withIncomingMessages is false', async () => {
@@ -71,7 +71,7 @@ describe('PassportUserServiceService', () => {
     it('should return the user with incoming messages if options.withOutcomingMessages is true', async () => {
       const result = await service.getCurrentUser({ withOutcomingMessages: true });
       expect(result.outcomeMessages).toEqual(['message3', 'message4']);
-      expect(dataService.messages.getOutcomingByUserId).toHaveBeenCalledWith(mockRequest.user.id);
+      expect(dataService.messages.getOutcomingByUserId).toHaveBeenCalledWith(mockRequest.user.id, 1);
     });
 
     it('should return the user without fetching messages if options.withOutcomingMessages is false', async () => {
