@@ -1,6 +1,7 @@
 import { IncomeUserMessagesModel, MessageModel } from '../models';
 import { SequelizeGenericRepository } from '../sequelize-generic-repository';
 import { Message, MessageRepositoryAbstract, User } from '@core';
+import { IncludeOptions } from 'sequelize';
 
 /**
  * Sequelize message repository implementation
@@ -25,26 +26,85 @@ export class SequelizeMessageRepository
   /**
    * Retrieve all income user message models for a user with id userId with a populated message and returns only messages
    * @param userId user id to retrieve data
+   * @param [repliesDepth=0] replies depth to retrieve
    */
-  async getIncomingByUserId(userId: User['id']): Promise<Message[]> {
+  async getIncomingByUserId(userId: User['id'], repliesDepth = 0): Promise<Message[]> {
     const incomeUserMessagesModels = await IncomeUserMessagesModel.findAll({
       where: {
         userId,
       },
       include: MessageModel,
     });
-    return incomeUserMessagesModels.map((incomeMessage) => incomeMessage.message);
+    return this.fillMessagesWithReplies(
+      incomeUserMessagesModels.map((incomeMessage) => incomeMessage.message),
+      repliesDepth,
+    );
   }
 
   /**
    * Returns all messages with authorId is provided user id
    * @param userId user id to search
+   * @param [repliesDepth=0] replies depth to retrieve
    */
-  getOutcomingByUserId(userId: User['id']): Promise<Message[]> {
-    return this.repository.findAll({
+  async getOutcomingByUserId(userId: User['id'], repliesDepth = 0): Promise<Message[]> {
+    const outcomeMessageModels = await this.repository.findAll({
       where: {
         authorId: userId,
       },
     });
+    return this.fillMessagesWithReplies(outcomeMessageModels, repliesDepth);
+  }
+
+  /**
+   * Fill a message array with replies
+   * @param messages messages to fill with replies
+   * @param repliesDepth replies depth
+   * @private
+   */
+  private fillMessagesWithReplies(messages: MessageModel[], repliesDepth: number): Promise<MessageModel[]> {
+    if (repliesDepth <= 0) {
+      return Promise.resolve(messages);
+    }
+
+    return Promise.all(messages.map(async (message) => this.addRepliesToMessage(message, repliesDepth)));
+  }
+
+  /**
+   * Generates Sequelize include an object with replies with specified depth
+   * @param depth replies include depth
+   * @private
+   */
+  private generateInclude(depth: number): [IncludeOptions] | undefined {
+    if (depth <= 0) {
+      return; // Base case: no more nesting
+    }
+
+    return [
+      {
+        model: MessageModel,
+        as: 'replies',
+        include: this.generateInclude(depth - 1),
+      },
+    ];
+  }
+
+  /**
+   * Returns the message object with replies with specified depth
+   * @param message message object to populate replies
+   * @param repliesDepth replies depth to populate
+   * @private
+   */
+  private async addRepliesToMessage(message: MessageModel, repliesDepth: number): Promise<MessageModel> {
+    if (repliesDepth <= 0) {
+      return message;
+    }
+
+    const newMessage = (await this.repository.findByPk(message.id, {
+      include: this.generateInclude(repliesDepth),
+    })) as MessageModel;
+
+    message.replies = newMessage.replies;
+
+    return message;
   }
 }

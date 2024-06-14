@@ -7,6 +7,7 @@ describe('SequelizeMessageRepository', () => {
   let superCreateSpy: jest.SpyInstance;
   let findAllSpy: jest.SpyInstance;
   let findAllMessageSpy: jest.SpyInstance;
+  let findByPkSpy: jest.SpyInstance;
 
   beforeEach(() => {
     repository = new SequelizeMessageRepository();
@@ -16,6 +17,7 @@ describe('SequelizeMessageRepository', () => {
 
     findAllSpy = jest.spyOn(IncomeUserMessagesModel, 'findAll').mockImplementation(async () => []);
     findAllMessageSpy = jest.spyOn(MessageModel, 'findAll').mockImplementation(async () => []);
+    findByPkSpy = jest.spyOn(MessageModel, 'findByPk').mockImplementation(async () => null);
   });
 
   afterEach(() => {
@@ -71,6 +73,87 @@ describe('SequelizeMessageRepository', () => {
         authorId: userId,
       },
     });
+    expect(result).toEqual(messages);
+  });
+
+  it('should generate include options with specified depth', () => {
+    const depth = 2;
+    const includeOptions = repository['generateInclude'](depth);
+
+    expect(includeOptions).toEqual([
+      {
+        model: MessageModel,
+        as: 'replies',
+        include: [
+          {
+            model: MessageModel,
+            as: 'replies',
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should return the message object with replies with specified depth', async () => {
+    const message = {
+      id: 1,
+      replies: [],
+    } as unknown as MessageModel;
+
+    const populatedMessage = {
+      id: 1,
+      replies: [
+        {
+          id: 2,
+          replies: [],
+        },
+      ],
+    } as unknown as MessageModel;
+
+    findByPkSpy.mockResolvedValue(populatedMessage);
+
+    const result = await (repository as any)['addRepliesToMessage'](message, 1);
+
+    expect(findByPkSpy).toHaveBeenCalledWith(message.id, {
+      include: [
+        {
+          as: 'replies',
+          model: MessageModel,
+        },
+      ],
+    });
+    expect(result.replies).toEqual(populatedMessage.replies);
+  });
+
+  it('should fill messages with replies to the specified depth', async () => {
+    const messages = [
+      { id: 1, replies: [] },
+      { id: 2, replies: [] },
+    ] as unknown as MessageModel[];
+
+    const populatedMessages = [
+      { id: 1, replies: [{ id: 3 }] },
+      { id: 2, replies: [{ id: 4 }] },
+    ] as unknown as MessageModel[];
+
+    jest
+      .spyOn(repository as any, 'addRepliesToMessage')
+      .mockImplementationOnce(async () => populatedMessages[0])
+      .mockImplementationOnce(async () => populatedMessages[1]);
+
+    const result = await (repository as any)['fillMessagesWithReplies'](messages, 1);
+
+    expect(result).toEqual(populatedMessages);
+  });
+
+  it('should return messages without filling replies if depth is 0', async () => {
+    const messages = [
+      { id: 1, replies: [] },
+      { id: 2, replies: [] },
+    ] as unknown as MessageModel[];
+
+    const result = await (repository as any)['fillMessagesWithReplies'](messages, 0);
+
     expect(result).toEqual(messages);
   });
 });
