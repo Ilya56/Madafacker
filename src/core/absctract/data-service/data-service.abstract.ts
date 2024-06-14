@@ -1,6 +1,4 @@
-import { GenericRepositoryAbstract } from './generic-repository.abstract';
-import { Reply } from '@core';
-import { MessageRepositoryAbstract, UserRepositoryAbstract } from './entity-repositories';
+import { MessageRepositoryAbstract, UserRepositoryAbstract, ReplyRepositoryAbstract } from './entity-repositories';
 
 /**
  * This class defines what repositories should store a data service
@@ -13,7 +11,7 @@ export abstract class DataServiceAbstract {
    */
   abstract users: UserRepositoryAbstract;
   abstract messages: MessageRepositoryAbstract;
-  abstract replies: GenericRepositoryAbstract<Reply>;
+  abstract replies: ReplyRepositoryAbstract;
 
   /**
    * Transactional decorator to make all requests in the function in one transaction
