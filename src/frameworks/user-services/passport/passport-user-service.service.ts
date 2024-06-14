@@ -34,11 +34,11 @@ export class PassportUserServiceService extends UserServiceAbstract {
     }
 
     if (options?.withIncomingMessages) {
-      user.incomeMessages = await this.dataService.messages.getIncomingByUserId(user.id);
+      user.incomeMessages = await this.dataService.messages.getIncomingByUserId(user.id, 1);
     }
 
     if (options?.withOutcomingMessages) {
-      user.outcomeMessages = await this.dataService.messages.getOutcomingByUserId(user.id);
+      user.outcomeMessages = await this.dataService.messages.getOutcomingByUserId(user.id, 1);
     }
 
     return user;
