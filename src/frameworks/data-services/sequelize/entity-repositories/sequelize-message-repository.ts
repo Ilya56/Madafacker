@@ -61,12 +61,14 @@ export class SequelizeMessageRepository
    * @param repliesDepth replies depth
    * @private
    */
-  private fillMessagesWithReplies(messages: MessageModel[], repliesDepth: number): Promise<MessageModel[]> {
+  protected fillMessagesWithReplies(messages: MessageModel[], repliesDepth: number): Promise<MessageModel[]> {
     if (repliesDepth <= 0) {
       return Promise.resolve(messages);
     }
 
-    return Promise.all(messages.map(async (message) => this.addRepliesToMessage(message, repliesDepth)));
+    return Promise.all(
+      messages.map((message) => this.addRepliesToMessage(message, repliesDepth, false) as Promise<MessageModel>),
+    );
   }
 
   /**
@@ -92,18 +94,29 @@ export class SequelizeMessageRepository
    * Returns the message object with replies with specified depth
    * @param message message object to populate replies
    * @param repliesDepth replies depth to populate
+   * @param returnNewMessage if true - returns a retrieved message, otherwise returns a message from params
    * @private
    */
-  private async addRepliesToMessage(message: MessageModel, repliesDepth: number): Promise<MessageModel> {
+  protected async addRepliesToMessage(
+    message: MessageModel,
+    repliesDepth: number,
+    returnNewMessage: boolean,
+  ): Promise<MessageModel | null> {
     if (repliesDepth <= 0) {
       return message;
     }
 
-    const newMessage = (await this.repository.findByPk(message.id, {
+    const newMessage = await this.repository.findByPk(message.id, {
       include: this.generateInclude(repliesDepth),
-    })) as MessageModel;
+    });
 
-    message.replies = newMessage.replies;
+    if (returnNewMessage) {
+      return newMessage;
+    }
+
+    if (newMessage) {
+      message.replies = newMessage.replies;
+    }
 
     return message;
   }

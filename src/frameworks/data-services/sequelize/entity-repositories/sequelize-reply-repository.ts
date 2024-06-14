@@ -15,7 +15,16 @@ export class SequelizeReplyRepository extends SequelizeMessageRepository impleme
     return super.create(reply);
   }
 
-  getByIdWithPopulatedReplies(replyId: Reply['id'], repliesDepth = 0): Promise<Reply> {
-    return Promise.resolve(new Reply());
+  /**
+   * If reply depth is 0, it just returns regular reply by request in the Sequelize.
+   * Otherwise, it uses method from the message repository to retrieve a message with populated replies
+   * @param replyId it of the reply to retrieve
+   * @param repliesDepth replies depth level
+   */
+  getByIdWithPopulatedReplies(replyId: Reply['id'], repliesDepth = 0): Promise<MessageModel | null> {
+    if (repliesDepth === 0) {
+      return this.repository.findByPk(replyId);
+    }
+    return super.addRepliesToMessage({ id: replyId } as MessageModel, repliesDepth, true);
   }
 }
