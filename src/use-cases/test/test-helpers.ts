@@ -23,6 +23,7 @@ export const SERVICES_PROVIDER = [
       replies: {
         create: jest.fn(),
         update: jest.fn(),
+        getByIdWithPopulatedReplies: jest.fn(),
       },
       transactional: jest.fn().mockImplementation(async (fn: any) => fn()),
     },
