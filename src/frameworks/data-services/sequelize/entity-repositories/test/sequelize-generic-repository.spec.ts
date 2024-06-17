@@ -100,5 +100,16 @@ describe('SequelizeGenericRepository', () => {
       expect(result).toEqual(updatedModel);
       expect(repository.update).toHaveBeenCalledWith(updatedModel, { where: { id: 1 }, returning: true });
     });
+
+    it('should return null if no entity is updated', async () => {
+      const updatedModel = new TestModel();
+      const mockUpdateResult = [0, []] as never as [number];
+
+      jest.spyOn(repository, 'update').mockResolvedValue(mockUpdateResult);
+
+      const result = await sequelizeGenericRepository.update(1, updatedModel);
+      expect(result).toBeNull();
+      expect(repository.update).toHaveBeenCalledWith(updatedModel, { where: { id: 1 }, returning: true });
+    });
   });
 });

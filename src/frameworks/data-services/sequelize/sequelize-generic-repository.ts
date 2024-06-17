@@ -76,6 +76,6 @@ export class SequelizeGenericRepository<T extends Model<any, any>, R extends Mod
       where: { id },
       returning: true,
     });
-    return updatedRows?.[0];
+    return updatedRows?.[0] ?? null;
   }
 }
