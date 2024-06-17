@@ -1,5 +1,6 @@
 import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
 import { Sequelize, Model, ModelCtor } from 'sequelize-typescript';
+import { DuplicateNotAllowedError } from '@core';
 
 jest.mock('sequelize-typescript');
 
@@ -55,6 +56,25 @@ describe('SequelizeGenericRepository', () => {
       const result = await sequelizeGenericRepository.create(newModel);
       expect(result).toEqual(newModel);
       expect(repository.create).toHaveBeenCalledWith(newModel);
+    });
+
+    it('should throw DuplicateNotAllowedError on unique constraint violation', async () => {
+      const newModel = new TestModel();
+      const error = new Error();
+      error.name = 'SequelizeUniqueConstraintError';
+      jest.spyOn(repository, 'create').mockRejectedValue(error);
+
+      await expect(sequelizeGenericRepository.create(newModel)).rejects.toThrow(DuplicateNotAllowedError);
+      expect(repository.create).toHaveBeenCalledWith(newModel as any);
+    });
+
+    it('should rethrow other errors', async () => {
+      const newModel = new TestModel();
+      const error = new Error('Some other error');
+      jest.spyOn(repository, 'create').mockRejectedValue(error);
+
+      await expect(sequelizeGenericRepository.create(newModel)).rejects.toThrow('Some other error');
+      expect(repository.create).toHaveBeenCalledWith(newModel as any);
     });
   });
 
