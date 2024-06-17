@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CallHandler,
   ExecutionContext,
   Injectable,
@@ -6,7 +7,7 @@ import {
   NestInterceptor,
   NotFoundException,
 } from '@nestjs/common';
-import { CoreError, NotFoundError } from '@core';
+import { CoreError, DuplicateNotAllowedError, NotFoundError } from '@core';
 import { catchError, Observable, throwError } from 'rxjs';
 
 /**
@@ -24,6 +25,9 @@ export class CoreErrorHandler implements NestInterceptor {
     }
     if (exception instanceof NotFoundError) {
       return new NotFoundException(exception.message);
+    }
+    if (exception instanceof DuplicateNotAllowedError) {
+      return new BadRequestException(`Duplicated value is not allowed: ${exception.message}`);
     }
   }
 
