@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReplyFactoryService } from '../factories';
 import { CreateReplyDto, UpdateReplyDto } from '../dtos';
 import { ReplyController } from '../reply.controller';
-import { CreateReplyUseCase, UpdateReplyUseCase } from '@use-cases/reply';
+import { CreateReplyUseCase, GetReplyByIdUseCase, UpdateReplyUseCase } from '@use-cases/reply';
 import { Reply } from '@core';
 import { NotFoundException } from '@nestjs/common';
 
@@ -11,6 +11,7 @@ describe('ReplyController', () => {
   let factoryService: ReplyFactoryService;
   let createReplyUseCase: CreateReplyUseCase;
   let updateReplyUseCase: UpdateReplyUseCase;
+  let getReplyByIdUseCase: GetReplyByIdUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,6 +32,10 @@ describe('ReplyController', () => {
           provide: UpdateReplyUseCase,
           useValue: { execute: jest.fn().mockResolvedValue(null) },
         },
+        {
+          provide: GetReplyByIdUseCase,
+          useValue: { execute: jest.fn().mockResolvedValue(new Reply()) },
+        },
       ],
     }).compile();
 
@@ -38,6 +43,7 @@ describe('ReplyController', () => {
     factoryService = module.get<ReplyFactoryService>(ReplyFactoryService);
     createReplyUseCase = module.get<CreateReplyUseCase>(CreateReplyUseCase);
     updateReplyUseCase = module.get<UpdateReplyUseCase>(UpdateReplyUseCase);
+    getReplyByIdUseCase = module.get<GetReplyByIdUseCase>(GetReplyByIdUseCase);
   });
 
   describe('create', () => {
@@ -98,6 +104,32 @@ describe('ReplyController', () => {
 
       expect(factoryService.updateReply).toHaveBeenCalledWith(dto);
       expect(updateReplyUseCase.execute).toHaveBeenCalledWith(reply);
+    });
+  });
+
+  describe('getById', () => {
+    it('should return a reply with the given id', async () => {
+      const id = 'reply-id';
+      const reply = new Reply();
+      reply.id = id;
+
+      jest.spyOn(getReplyByIdUseCase, 'execute').mockResolvedValue(reply);
+
+      const result = await controller.getById(id);
+
+      expect(getReplyByIdUseCase.execute).toHaveBeenCalledWith(id);
+      expect(result).toEqual(reply);
+    });
+
+    it('should throw NotFoundException if the reply is not found', async () => {
+      const id = 'reply-id';
+
+      jest.spyOn(getReplyByIdUseCase, 'execute').mockResolvedValue(null);
+
+      const result = await controller.getById(id);
+
+      expect(getReplyByIdUseCase.execute).toHaveBeenCalledWith(id);
+      expect(result).toEqual(null);
     });
   });
 });
