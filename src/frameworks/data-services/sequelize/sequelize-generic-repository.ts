@@ -1,4 +1,4 @@
-import { GenericRepositoryAbstract } from '@core';
+import { DuplicateNotAllowedError, GenericRepositoryAbstract } from '@core';
 import { Model, ModelCtor } from 'sequelize-typescript';
 import { CreationAttributes } from 'sequelize';
 
@@ -44,8 +44,15 @@ export class SequelizeGenericRepository<T extends Model<any, any>, R extends Mod
    * Uses standard model static create method
    * @param entity new instance data
    */
-  create(entity: T): Promise<T> {
-    return this.repository.create(entity as CreationAttributes<T>);
+  async create(entity: T): Promise<T> {
+    try {
+      return await this.repository.create(entity as CreationAttributes<T>);
+    } catch (error) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        throw new DuplicateNotAllowedError(error?.original?.detail || error?.message || error);
+      }
+      throw error;
+    }
   }
 
   /**
