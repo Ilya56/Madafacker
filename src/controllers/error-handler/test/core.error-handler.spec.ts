@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CallHandler, ExecutionContext } from '@nestjs/common';
+import { BadRequestException, CallHandler, ExecutionContext } from '@nestjs/common';
 import { CoreErrorHandler } from '../core.error-handler';
-import { NotFoundError } from '@core';
+import { DuplicateNotAllowedError, NotFoundError } from '@core';
 import { of, throwError } from 'rxjs';
 
 describe('CoreErrorHandler', () => {
@@ -37,6 +37,15 @@ describe('CoreErrorHandler', () => {
       expect(result.status).toBe(404);
       expect(result.name).toBe('NotFoundException');
       expect(result.message).toBe('Resource not found');
+    });
+
+    it('should handle DuplicateNotAllowedError as BadRequestException', () => {
+      const duplicateNowAllowedError = new DuplicateNotAllowedError('Duplicate not allowed');
+      const result = interceptor.catch(duplicateNowAllowedError);
+      expect(result.response).toBeDefined();
+      expect(result.status).toBe(400);
+      expect(result.name).toBe('BadRequestException');
+      expect(result.message).toBe('Duplicated value is not allowed: Duplicate not allowed');
     });
   });
 
