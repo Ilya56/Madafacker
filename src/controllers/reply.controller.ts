@@ -1,5 +1,5 @@
-import { Body, Controller, NotFoundException, Patch, Post } from '@nestjs/common';
-import { CreateReplyUseCase, UpdateReplyUseCase } from '@use-cases/reply';
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import { CreateReplyUseCase, GetReplyByIdUseCase, UpdateReplyUseCase } from '@use-cases/reply';
 import { CreateReplyDto, UpdateReplyDto } from './dtos';
 import { ReplyFactoryService } from './factories';
 
@@ -12,6 +12,7 @@ export class ReplyController {
     private readonly replyFactoryService: ReplyFactoryService,
     private readonly createReplyUseCase: CreateReplyUseCase,
     private readonly updateReplyUseCase: UpdateReplyUseCase,
+    private readonly getReplyByIdUseCase: GetReplyByIdUseCase,
   ) {}
 
   /**
@@ -38,5 +39,14 @@ export class ReplyController {
     }
 
     return updatedReply;
+  }
+
+  /**
+   * Returns reply with 1 leve of child replies by id
+   * @param id id of the reply to retrieve
+   */
+  @Get('/:id')
+  getById(@Param('id') id: string) {
+    return this.getReplyByIdUseCase.execute(id);
   }
 }
