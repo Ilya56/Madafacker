@@ -22,9 +22,9 @@ export class SequelizeReplyRepository extends SequelizeMessageRepository impleme
    * @param repliesDepth replies depth level
    */
   getByIdWithPopulatedReplies(replyId: Reply['id'], repliesDepth = 0): Promise<MessageModel | null> {
-    if (repliesDepth === 0) {
-      return this.repository.findByPk(replyId);
-    }
-    return super.addRepliesToMessage({ id: replyId } as MessageModel, repliesDepth, true);
+    const include = this.generateInclude(repliesDepth);
+    return this.repository.findByPk(replyId, {
+      ...(include && { include }),
+    });
   }
 }

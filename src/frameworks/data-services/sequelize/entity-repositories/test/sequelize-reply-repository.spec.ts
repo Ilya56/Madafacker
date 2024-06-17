@@ -1,13 +1,11 @@
 import { SequelizeReplyRepository } from '../sequelize-reply-repository';
 import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
 import { MessageModel } from '../../models';
-import { SequelizeMessageRepository } from '@frameworks/data-services/sequelize/entity-repositories/sequelize-message-repository';
 
 describe('SequelizeReplyRepository', () => {
   let repository: SequelizeReplyRepository;
   let superCreateSpy: jest.SpyInstance;
   let findByPkSpy: jest.SpyInstance;
-  let addRepliesToMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
     repository = new SequelizeReplyRepository();
@@ -16,12 +14,6 @@ describe('SequelizeReplyRepository', () => {
       .mockImplementation(async (model) => model);
 
     findByPkSpy = jest.spyOn(MessageModel, 'findByPk').mockImplementation(async () => null);
-    addRepliesToMessageSpy = jest
-      .spyOn(SequelizeMessageRepository.prototype as any, 'addRepliesToMessage')
-      .mockImplementation(async (message: MessageModel, depth) => ({
-        ...message,
-        replies: new Array(depth).fill({ id: message.id + 1, replies: [] }),
-      }));
   });
 
   afterEach(() => {
@@ -49,7 +41,7 @@ describe('SequelizeReplyRepository', () => {
 
     const result = await repository.getByIdWithPopulatedReplies(replyId, 0);
 
-    expect(findByPkSpy).toHaveBeenCalledWith(replyId);
+    expect(findByPkSpy).toHaveBeenCalledWith(replyId, {});
     expect(result).toEqual(reply);
   });
 
@@ -64,11 +56,39 @@ describe('SequelizeReplyRepository', () => {
       ],
     } as unknown as MessageModel;
 
-    addRepliesToMessageSpy.mockResolvedValue(populatedReply);
+    jest.spyOn(repository as any, 'generateInclude').mockReturnValue([
+      {
+        model: MessageModel,
+        as: 'replies',
+        include: [
+          {
+            model: MessageModel,
+            as: 'replies',
+            include: [],
+          },
+        ],
+      },
+    ]);
+
+    findByPkSpy.mockResolvedValue(populatedReply);
 
     const result = await repository.getByIdWithPopulatedReplies(replyId, depth);
 
-    expect(addRepliesToMessageSpy).toHaveBeenCalledWith({ id: replyId }, depth, true);
+    expect(findByPkSpy).toHaveBeenCalledWith(replyId, {
+      include: [
+        {
+          model: MessageModel,
+          as: 'replies',
+          include: [
+            {
+              model: MessageModel,
+              as: 'replies',
+              include: [],
+            },
+          ],
+        },
+      ],
+    });
     expect(result).toEqual(populatedReply);
   });
 });
