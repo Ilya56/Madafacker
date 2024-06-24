@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, CallHandler, ExecutionContext } from '@nestjs/common';
+import { CallHandler, ExecutionContext } from '@nestjs/common';
 import { CoreErrorHandler } from '../core.error-handler';
 import { DuplicateNotAllowedError, NotFoundError } from '@core';
 import { of, throwError } from 'rxjs';
