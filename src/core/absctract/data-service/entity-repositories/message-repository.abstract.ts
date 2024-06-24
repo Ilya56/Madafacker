@@ -26,4 +26,9 @@ export interface MessageRepositoryAbstract extends GenericRepositoryAbstract<Mes
    * By default, it should be 0.
    */
   getOutcomingByUserId(userId: User['id'], repliesDepth?: number): Promise<Message[]>;
+
+  /**
+   * Returns all messages that are in the sending process
+   */
+  getNotSentMessages(): Promise<Message[]>;
 }

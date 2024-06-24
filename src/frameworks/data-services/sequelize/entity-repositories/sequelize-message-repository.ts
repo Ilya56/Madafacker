@@ -76,4 +76,8 @@ export class SequelizeMessageRepository
       },
     ];
   }
+
+  getNotSentMessages(): Promise<Message[]> {
+    return Promise.resolve([]);
+  }
 }
