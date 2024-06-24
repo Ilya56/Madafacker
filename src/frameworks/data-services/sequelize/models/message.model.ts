@@ -90,4 +90,11 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    */
   @UpdatedAt
   updatedAt?: Date;
+
+  /**
+   * Mark that message already was sent to all users and no need to process this message again
+   */
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  wasSent: boolean;
 }

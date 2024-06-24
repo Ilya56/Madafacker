@@ -24,4 +24,8 @@ export class Message extends Entity {
    * Message creation date JS object
    */
   createdAt: Date;
+  /**
+   * Mark that message already was sent to all users and no need to process this message again
+   */
+  wasSent: boolean;
 }
