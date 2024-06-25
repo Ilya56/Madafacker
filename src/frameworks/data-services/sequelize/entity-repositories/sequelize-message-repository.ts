@@ -77,11 +77,23 @@ export class SequelizeMessageRepository
     ];
   }
 
+  /**
+   * Returns all messages with flag wasSent = false
+   */
   getNotSentMessages(): Promise<Message[]> {
-    return Promise.resolve([]);
+    return this.repository.findAll({
+      where: {
+        wasSent: false,
+      },
+    });
   }
 
-  markAsSent(message: Message): Promise<void> {
-    return Promise.resolve(undefined);
+  /**
+   * Set wasSent = true
+   * @param message message to mark was sent
+   */
+  async markAsSent(message: Message): Promise<void> {
+    const messageModel = Object.assign(message, { wasSent: true }) as MessageModel;
+    await this.update(message.id, messageModel);
   }
 }
