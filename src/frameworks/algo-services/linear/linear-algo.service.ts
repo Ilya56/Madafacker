@@ -3,7 +3,8 @@ import { Injectable } from '@nestjs/common';
 
 /**
  * This implementation calculates the count of users that should see a message in the current iteration using
- * linear function. Each message will be shown to all users in a week, starting from 10% of all users
+ * linear function. Each message will be shown to all users in a week, starting from 10% of all users/
+ * If a message was sent to all users and no need to process it again, it should return wasSent = true.
  *
  * f(t) = k * t + c
  * where k is some coefficient, c = total users count / 10
@@ -32,7 +33,7 @@ export class LinearAlgoService extends AlgoServiceAbstract {
     const timeDiff = this.dateService.getTimestampInMs() - messageCreationDate.getTime();
 
     if (timeDiff > weekInMs && usersAlreadySeeMessageCount === totalUsersCount) {
-      return { usersCount: 0 };
+      return { usersCount: 0, wasSent: true };
     }
 
     const startCountToShow = Math.floor(totalUsersCount * 0.1);
