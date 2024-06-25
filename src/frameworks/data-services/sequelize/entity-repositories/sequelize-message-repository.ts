@@ -80,4 +80,8 @@ export class SequelizeMessageRepository
   getNotSentMessages(): Promise<Message[]> {
     return Promise.resolve([]);
   }
+
+  markAsSent(message: Message): Promise<void> {
+    return Promise.resolve(undefined);
+  }
 }

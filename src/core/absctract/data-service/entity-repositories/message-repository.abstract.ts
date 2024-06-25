@@ -31,4 +31,10 @@ export interface MessageRepositoryAbstract extends GenericRepositoryAbstract<Mes
    * Returns all messages that are in the sending process
    */
   getNotSentMessages(): Promise<Message[]>;
+
+  /**
+   * Mark the message as sent. By the fact make wasSent = true
+   * @param message message to mark as sent
+   */
+  markAsSent(message: Message): Promise<void>;
 }
