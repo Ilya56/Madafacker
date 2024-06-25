@@ -15,5 +15,8 @@ export class SendMessageUseCase extends CommandAbstract<Message, void> {
       const randomUserIds = await this.dataService.users.getRandomUserIds(sendMessageData.usersCount);
       await this.dataService.users.sendMessageToUsers(message, randomUserIds);
     }
+    if (sendMessageData.wasSent) {
+      await this.dataService.messages.markAsSent(message);
+    }
   }
 }

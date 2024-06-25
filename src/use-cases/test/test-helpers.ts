@@ -19,6 +19,7 @@ export const SERVICES_PROVIDER = [
         getById: jest.fn(),
         create: jest.fn(),
         getIncomingByUserId: jest.fn(),
+        markAsSent: jest.fn(),
       },
       replies: {
         create: jest.fn(),

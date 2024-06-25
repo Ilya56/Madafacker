@@ -55,5 +55,38 @@ describe('SendMessageUseCase', () => {
       expect(dataService.users.getRandomUserIds).not.toHaveBeenCalled();
       expect(dataService.users.sendMessageToUsers).not.toHaveBeenCalled();
     });
+
+    it('should mark the message as sent if wasSent flag is true', async () => {
+      const message = new Message();
+      message.id = 'messageId1';
+      const sendMessageData = { usersCount: 0, wasSent: true };
+
+      jest.spyOn(algoService, 'selectUsersShowMessage').mockResolvedValue(sendMessageData);
+      jest.spyOn(dataService.messages, 'markAsSent').mockResolvedValue();
+
+      await service.execute(message);
+
+      expect(algoService.selectUsersShowMessage).toHaveBeenCalledWith(message);
+      expect(dataService.messages.markAsSent).toHaveBeenCalledWith(message);
+    });
+
+    it('should handle the case when both usersCount and wasSent are true', async () => {
+      const message = new Message();
+      message.id = 'messageId1';
+      const sendMessageData = { usersCount: 3, wasSent: true };
+      const userIds = ['user1', 'user2', 'user3'];
+
+      jest.spyOn(algoService, 'selectUsersShowMessage').mockResolvedValue(sendMessageData);
+      jest.spyOn(dataService.users, 'getRandomUserIds').mockResolvedValue(userIds);
+      jest.spyOn(dataService.users, 'sendMessageToUsers').mockResolvedValue();
+      jest.spyOn(dataService.messages, 'markAsSent').mockResolvedValue();
+
+      await service.execute(message);
+
+      expect(algoService.selectUsersShowMessage).toHaveBeenCalledWith(message);
+      expect(dataService.users.getRandomUserIds).toHaveBeenCalledWith(sendMessageData.usersCount);
+      expect(dataService.users.sendMessageToUsers).toHaveBeenCalledWith(message, userIds);
+      expect(dataService.messages.markAsSent).toHaveBeenCalledWith(message);
+    });
   });
 });
