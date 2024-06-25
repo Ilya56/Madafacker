@@ -75,7 +75,7 @@ describe('LinearAlgoService', () => {
 
     const result = await service.selectUsersShowMessage(message);
 
-    expect(result.usersCount).toBe(10 - 10); // No new users should be calculated
+    expect(result.usersCount).toBe(0); // No new users should be calculated
   });
 
   it('should handle cases when more than a week has elapsed', async () => {
@@ -89,6 +89,7 @@ describe('LinearAlgoService', () => {
     const result = await service.selectUsersShowMessage(message);
 
     expect(result.usersCount).toBe(0); // All users should have seen the message
+    expect(result.wasSent).toBe(true);
   });
 
   it('should return zero if all users have already seen the message', async () => {
@@ -101,7 +102,7 @@ describe('LinearAlgoService', () => {
 
     const result = await service.selectUsersShowMessage(message);
 
-    expect(result.usersCount).toBe(100 - 100); // No new users to show
+    expect(result.usersCount).toBe(0); // No new users to show
   });
 
   it('should calculate all users if none have seen the message yet and a week has passed', async () => {
