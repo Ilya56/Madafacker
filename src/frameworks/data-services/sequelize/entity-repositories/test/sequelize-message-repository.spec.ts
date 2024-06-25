@@ -1,12 +1,14 @@
 import { SequelizeMessageRepository } from '../sequelize-message-repository';
 import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
 import { IncomeUserMessagesModel, MessageModel } from '../../models';
+import { Message } from '@core';
 
 describe('SequelizeMessageRepository', () => {
   let repository: SequelizeMessageRepository;
   let superCreateSpy: jest.SpyInstance;
   let findAllSpy: jest.SpyInstance;
   let findAllMessageSpy: jest.SpyInstance;
+  let updateSpy: jest.SpyInstance;
 
   beforeEach(() => {
     repository = new SequelizeMessageRepository();
@@ -16,6 +18,7 @@ describe('SequelizeMessageRepository', () => {
 
     findAllSpy = jest.spyOn(IncomeUserMessagesModel, 'findAll').mockImplementation(async () => []);
     findAllMessageSpy = jest.spyOn(MessageModel, 'findAll').mockImplementation(async () => []);
+    updateSpy = jest.spyOn(repository, 'update').mockImplementation(async () => null);
   });
 
   afterEach(() => {
@@ -90,5 +93,37 @@ describe('SequelizeMessageRepository', () => {
         ],
       },
     ]);
+  });
+
+  it('should retrieve all messages with wasSent = false', async () => {
+    const messages = [
+      { id: 1, text: 'Message 1', wasSent: false },
+      { id: 2, text: 'Message 2', wasSent: false },
+    ] as unknown as MessageModel[];
+
+    findAllMessageSpy.mockResolvedValue(messages);
+
+    const result = await repository.getNotSentMessages();
+
+    expect(findAllMessageSpy).toHaveBeenCalledWith({
+      where: {
+        wasSent: false,
+      },
+    });
+    expect(result).toEqual(messages);
+  });
+
+  it('should mark a message as sent', async () => {
+    const message = {
+      id: 1,
+      text: 'Message 1',
+      wasSent: false,
+    } as unknown as Message;
+
+    const messageModel = { ...message, wasSent: true } as MessageModel;
+
+    await repository.markAsSent(message);
+
+    expect(updateSpy).toHaveBeenCalledWith(message.id, messageModel);
   });
 });
