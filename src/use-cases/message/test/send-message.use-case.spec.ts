@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SendMessageUseCase } from '@use-cases/message';
 import { Message } from '@core';
 import { AlgoServiceAbstract, DataServiceAbstract } from '@core';
-import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
+import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
 describe('SendMessageUseCase', () => {
   let service: SendMessageUseCase;

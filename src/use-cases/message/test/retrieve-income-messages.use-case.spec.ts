@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RetrieveIncomeMessagesUseCase } from '@use-cases/message';
 import { Message, User, UserServiceAbstract } from '@core';
-import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
+import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
 describe('RetrieveIncomeMessagesUseCase', () => {
   let retrieveIncomeMessagesUseCase: RetrieveIncomeMessagesUseCase;

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateMessageUseCase } from '@use-cases/message';
 import { DataServiceAbstract, Message, MessageMode, TaskServiceAbstract, User, UserServiceAbstract } from '@core';
-import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
+import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
 jest.mock('sequelize-transactional-decorator', () => ({
   Transactional: () => () => ({}),

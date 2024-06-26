@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateReplyUseCase } from '@use-cases/reply';
 import { NotFoundError } from '@core';
 import { DataServiceAbstract, UserServiceAbstract } from '@core';
-import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
+import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
 describe('CreateReplyUseCase', () => {
   let useCase: CreateReplyUseCase;

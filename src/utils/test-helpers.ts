@@ -20,6 +20,7 @@ export const SERVICES_PROVIDER = [
         create: jest.fn(),
         getIncomingByUserId: jest.fn(),
         markAsSent: jest.fn(),
+        getNotSentMessages: jest.fn(),
       },
       replies: {
         create: jest.fn(),

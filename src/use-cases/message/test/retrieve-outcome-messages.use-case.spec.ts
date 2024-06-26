@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Message, User, UserServiceAbstract } from '@core';
-import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
+import { SERVICES_PROVIDER } from '@utils/test-helpers';
 import { RetrieveOutcomeMessagesUseCase } from '@use-cases/message/retrieve-outcome-messages.use-case';
 
 describe('RetrieveIncomeMessagesUseCase', () => {

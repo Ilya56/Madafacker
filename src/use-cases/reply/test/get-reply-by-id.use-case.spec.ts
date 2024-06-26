@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GetReplyByIdUseCase } from '@use-cases/reply';
 import { DataServiceAbstract } from '@core';
-import { SERVICES_PROVIDER } from '@use-cases/test/test-helpers';
+import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
 describe('GetReplyByIdUseCase', () => {
   let useCase: GetReplyByIdUseCase;

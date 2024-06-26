@@ -27,7 +27,8 @@
       "@jobs": ["./src/jobs"],
       "@listeners": ["./src/listeners"],
       "@services": ["./src/services"],
-      "@use-cases/*": ["./src/use-cases/*"]
+      "@use-cases/*": ["./src/use-cases/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   }
 }
