@@ -104,6 +104,9 @@
       "@frameworks/(.*)": [
         "<rootDir>/frameworks/$1"
       ],
+      "@jobs": [
+        "<rootDir>/jobs"
+      ],
       "@listeners": [
         "<rootDir>/listeners"
       ],
