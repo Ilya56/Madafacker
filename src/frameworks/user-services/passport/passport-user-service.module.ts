@@ -5,6 +5,7 @@ import { DataServiceModule } from '@services';
 import { UniqueTokenAuthGuard } from './unique-token-auth.guard';
 import { PassportUserServiceService } from './passport-user-service.service';
 import { UniqueTokenPassportStrategy } from './unique-token.passport-strategy';
+import { GeneralGuard } from '@controllers';
 
 /**
  * This module is a Passport user service implementation. You can create another service to implement UserServiceAbstract
@@ -12,6 +13,7 @@ import { UniqueTokenPassportStrategy } from './unique-token.passport-strategy';
 @Module({
   imports: [forwardRef(() => DataServiceModule)],
   providers: [
+    GeneralGuard,
     UniqueTokenPassportStrategy,
     { provide: UserServiceAbstract, useClass: PassportUserServiceService },
     { provide: APP_GUARD, useClass: UniqueTokenAuthGuard },
