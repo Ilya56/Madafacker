@@ -114,6 +114,9 @@
       ],
       "@use-cases/(.*)": [
         "<rootDir>/use-cases/$1"
+      ],
+      "@utils/(.*)": [
+        "<rootDir>/utils/$1"
       ]
     }
   }
