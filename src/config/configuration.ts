@@ -4,6 +4,7 @@
 export default () =>
   ({
     port: numberValue('PORT', '4000'),
+    apiKey: stringValue('API_KEY', ''),
     database: {
       dialect: 'postgres',
       host: stringValue('DB_HOST', 'localhost'),
