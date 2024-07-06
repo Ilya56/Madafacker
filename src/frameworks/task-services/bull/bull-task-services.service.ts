@@ -1,9 +1,12 @@
 import { Message, TaskServiceAbstract } from '@core';
 import { BullQueue } from './bull-queue';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Implementation of the task service using bull lib
  */
+@Injectable()
 export class BullTaskServices extends TaskServiceAbstract {
   /**
    * System queues list
@@ -13,8 +16,8 @@ export class BullTaskServices extends TaskServiceAbstract {
   /**
    * Constructor to init queues
    */
-  constructor() {
+  constructor(private configService: ConfigService) {
     super();
-    this.sendMessage = new BullQueue<Message>('sendMessage');
+    this.sendMessage = new BullQueue<Message>(this.configService, 'sendMessage');
   }
 }

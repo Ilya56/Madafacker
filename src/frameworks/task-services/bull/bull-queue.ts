@@ -1,8 +1,10 @@
 import { QueueAbstract } from '@core';
 import Bull, { Queue } from 'bull';
+import { ConfigService } from '@nestjs/config';
+import { ConfigType } from '@config';
 
 /**
- * Bull queue implementation. Can be used with @nestjs/bull for easier integration in the module
+ * Bull queue implementation.
  */
 export class BullQueue<T> extends QueueAbstract<T> {
   /**
@@ -13,11 +15,12 @@ export class BullQueue<T> extends QueueAbstract<T> {
 
   /**
    * Constructor to create a queue with some name
+   * @param configService config service to retrieve redis config
    * @param name queue name
    */
-  public constructor(name: string) {
+  public constructor(configService: ConfigService, name: string) {
     super();
-    this.queue = new Bull<T>(name);
+    this.queue = new Bull<T>(name, { redis: configService.get<ConfigType['redis']>('redis') });
   }
 
   /**
