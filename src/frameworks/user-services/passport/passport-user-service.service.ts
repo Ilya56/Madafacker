@@ -1,24 +1,19 @@
 import { DataServiceAbstract, GetUserOptions, NotFoundError, User, UserServiceAbstract } from '@core';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-
-type UserRequest = Request & { user: User };
+import { Injectable } from '@nestjs/common';
+import { ClsService } from 'nestjs-cls';
+import { ClsData } from '@controllers';
 
 /**
  * Implementation of the User service based on the password auth framework
  */
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class PassportUserServiceService extends UserServiceAbstract {
   /**
    * It requires to get a request object each usage
-   * @param request system request object
+   * @param cls CLS module to manipulate user and avoid request scoped injection
    * @param dataService data service to manipulate with data
    */
-  constructor(
-    @Inject(REQUEST) private readonly request: UserRequest,
-    private readonly dataService: DataServiceAbstract,
-  ) {
+  constructor(private readonly cls: ClsService<ClsData>, private readonly dataService: DataServiceAbstract) {
     super();
   }
 
@@ -28,7 +23,7 @@ export class PassportUserServiceService extends UserServiceAbstract {
    * @param options user options
    */
   async getCurrentUser(options?: GetUserOptions): Promise<User> {
-    const user = this.request.user;
+    const user = this.cls.get('user');
     if (!user) {
       throw new NotFoundError('Current user not found');
     }

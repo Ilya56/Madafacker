@@ -1,33 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PassportUserServiceService } from '../passport-user-service.service';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { ClsService } from 'nestjs-cls';
 import { DataServiceAbstract, User, NotFoundError } from '@core';
-
-type UserRequest = Request & { user: User };
+import { ClsData } from '@controllers';
 
 describe('PassportUserServiceService', () => {
   let service: PassportUserServiceService;
-  let mockRequest: UserRequest;
+  let clsService: ClsService<ClsData>;
   let dataService: DataServiceAbstract;
+  let mockUser: User;
 
   beforeEach(async () => {
-    // Creating a mock user and attaching it to the request object
-    mockRequest = {
-      user: {
-        id: '1',
-        name: 'Test',
-        incomeMessages: [],
-        outcomeMessages: [],
-      } as User,
-    } as UserRequest;
+    // Mock user data
+    mockUser = {
+      id: '1',
+      name: 'Test User',
+      incomeMessages: [],
+      outcomeMessages: [],
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PassportUserServiceService,
         {
-          provide: REQUEST,
-          useValue: mockRequest,
+          provide: ClsService,
+          useValue: {
+            get: jest.fn().mockReturnValue(mockUser),
+          },
         },
         {
           provide: DataServiceAbstract,
@@ -41,40 +40,45 @@ describe('PassportUserServiceService', () => {
       ],
     }).compile();
 
-    service = await module.resolve<PassportUserServiceService>(PassportUserServiceService);
+    service = module.get<PassportUserServiceService>(PassportUserServiceService);
+    clsService = module.get<ClsService<ClsData>>(ClsService);
     dataService = module.get<DataServiceAbstract>(DataServiceAbstract);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('getCurrentUser', () => {
-    it('should return the user from the request object', async () => {
+    it('should return the user from ClsService', async () => {
       const result = await service.getCurrentUser();
-      expect(result).toEqual(mockRequest.user);
+      expect(result).toEqual(mockUser);
     });
 
-    it('should throw NotFoundError if no user in request object', async () => {
-      mockRequest.user = undefined as unknown as User;
+    it('should throw NotFoundError if no user in ClsService', async () => {
+      jest.spyOn(clsService, 'get').mockReturnValueOnce(undefined);
       await expect(service.getCurrentUser()).rejects.toThrow(NotFoundError);
     });
 
     it('should return the user with incoming messages if options.withIncomingMessages is true', async () => {
       const result = await service.getCurrentUser({ withIncomingMessages: true });
       expect(result.incomeMessages).toEqual(['message1', 'message2']);
-      expect(dataService.messages.getIncomingByUserId).toHaveBeenCalledWith(mockRequest.user.id, 1);
+      expect(dataService.messages.getIncomingByUserId).toHaveBeenCalledWith(mockUser.id, 1);
     });
 
-    it('should return the user without fetching messages if options.withIncomingMessages is false', async () => {
+    it('should not fetch incoming messages if options.withIncomingMessages is false', async () => {
       const result = await service.getCurrentUser({ withIncomingMessages: false });
       expect(result.incomeMessages).toEqual([]);
       expect(dataService.messages.getIncomingByUserId).not.toHaveBeenCalled();
     });
 
-    it('should return the user with incoming messages if options.withOutcomingMessages is true', async () => {
+    it('should return the user with outcoming messages if options.withOutcomingMessages is true', async () => {
       const result = await service.getCurrentUser({ withOutcomingMessages: true });
       expect(result.outcomeMessages).toEqual(['message3', 'message4']);
-      expect(dataService.messages.getOutcomingByUserId).toHaveBeenCalledWith(mockRequest.user.id, 1);
+      expect(dataService.messages.getOutcomingByUserId).toHaveBeenCalledWith(mockUser.id, 1);
     });
 
-    it('should return the user without fetching messages if options.withOutcomingMessages is false', async () => {
+    it('should not fetch outcoming messages if options.withOutcomingMessages is false', async () => {
       const result = await service.getCurrentUser({ withOutcomingMessages: false });
       expect(result.outcomeMessages).toEqual([]);
       expect(dataService.messages.getOutcomingByUserId).not.toHaveBeenCalled();
