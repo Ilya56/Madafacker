@@ -9,6 +9,7 @@ import { ReplyController } from './reply.controller';
 import { ReplyUseCasesModule } from '@use-cases/reply';
 import { JobsModule } from '@jobs';
 import { CronController } from './cron.controller';
+import { CustomClsModule } from './cls';
 
 /**
  * Controllers module, declare all controllers, import use cases and factories
@@ -16,10 +17,10 @@ import { CronController } from './cron.controller';
 @Module({
   controllers: [UserController, MessageController, ReplyController, CronController],
   imports: [
-    // factory module
+    // helper modules
     FactoryModule,
-    // error handler module
     ErrorHandlerModule,
+    CustomClsModule,
     // jobs
     JobsModule,
     // use cases

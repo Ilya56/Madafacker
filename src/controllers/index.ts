@@ -4,4 +4,5 @@
  */
 
 export * from './auth';
+export * from './cls';
 export * from './controllers.module';
