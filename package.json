@@ -25,7 +25,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@nestjs/bull": "^10.1.1",
     "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
