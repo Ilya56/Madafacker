@@ -5,3 +5,4 @@
 export * from './CoreError';
 export * from './NotFoundError';
 export * from './DuplicateNotAllowedError';
+export * from './OperationNotAllowedException';
