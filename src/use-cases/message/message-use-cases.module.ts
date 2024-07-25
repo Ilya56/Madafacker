@@ -5,6 +5,7 @@ import {
   SendMessageUseCase,
   RetrieveIncomeMessagesUseCase,
   RetrieveOutcomeMessagesUseCase,
+  RateMessageUseCase,
 } from '@use-cases/message';
 
 /**
@@ -12,7 +13,19 @@ import {
  */
 @Module({
   imports: [ServicesModule],
-  providers: [CreateMessageUseCase, SendMessageUseCase, RetrieveIncomeMessagesUseCase, RetrieveOutcomeMessagesUseCase],
-  exports: [CreateMessageUseCase, SendMessageUseCase, RetrieveIncomeMessagesUseCase, RetrieveOutcomeMessagesUseCase],
+  providers: [
+    CreateMessageUseCase,
+    SendMessageUseCase,
+    RetrieveIncomeMessagesUseCase,
+    RetrieveOutcomeMessagesUseCase,
+    RateMessageUseCase,
+  ],
+  exports: [
+    CreateMessageUseCase,
+    SendMessageUseCase,
+    RetrieveIncomeMessagesUseCase,
+    RetrieveOutcomeMessagesUseCase,
+    RateMessageUseCase,
+  ],
 })
 export class MessageUseCasesModule {}
