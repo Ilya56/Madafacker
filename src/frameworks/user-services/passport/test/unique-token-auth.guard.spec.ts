@@ -4,12 +4,10 @@ import { GeneralGuard } from '@controllers';
 import { ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
-import { ClsData } from '@controllers';
 
 describe('UniqueTokenAuthGuard', () => {
   let guard: UniqueTokenAuthGuard;
   let generalGuard: GeneralGuard;
-  let clsService: ClsService<ClsData>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,7 +30,6 @@ describe('UniqueTokenAuthGuard', () => {
 
     guard = module.get<UniqueTokenAuthGuard>(UniqueTokenAuthGuard);
     generalGuard = module.get<GeneralGuard>(GeneralGuard);
-    clsService = module.get<ClsService<ClsData>>(ClsService);
   });
 
   describe('canActivate', () => {
