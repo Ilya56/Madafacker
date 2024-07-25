@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { UniqueTokenStrategy } from 'passport-unique-token';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { DataServiceAbstract, User } from '@core';
 
 /**
@@ -18,12 +18,19 @@ export class UniqueTokenPassportStrategy extends PassportStrategy(UniqueTokenStr
    * @param id user id to validate
    */
   async validate(id: string): Promise<User> {
-    const user = await this.dataService.users.getById(id);
+    try {
+      const user = await this.dataService.users.getById(id);
 
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return user;
+    } catch (e) {
+      if (this.dataService.isInvalidUuidError(e)) {
+        throw new NotFoundException('User not found');
+      }
+      throw e;
     }
-
-    return user;
   }
 }
