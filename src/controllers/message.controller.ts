@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { MessageFactoryService } from './factories';
 import { Message } from '@core';
-import { CreateMessageDto } from './dtos';
+import { CreateMessageDto, RatingDto } from './dtos';
 import {
   CreateMessageUseCase,
+  RateMessageUseCase,
   RetrieveIncomeMessagesUseCase,
   RetrieveOutcomeMessagesUseCase,
 } from '@use-cases/message';
@@ -18,6 +19,7 @@ export class MessageController {
     private createMessageUseCase: CreateMessageUseCase,
     private retrieveIncomeMessagesUseCase: RetrieveIncomeMessagesUseCase,
     private retrieveOutcomeMessagesUseCase: RetrieveOutcomeMessagesUseCase,
+    private rateMessageUseCase: RateMessageUseCase,
   ) {}
 
   /**
@@ -44,5 +46,15 @@ export class MessageController {
   @Get('/current/outcoming')
   retrieveOutcome() {
     return this.retrieveOutcomeMessagesUseCase.execute();
+  }
+
+  /**
+   * Rate message from current user
+   * @param messageId message to rate
+   * @param rating rating to set
+   */
+  @Patch('/:id/rate')
+  rate(@Param('id', ParseUUIDPipe) messageId: string, @Body() { rating }: RatingDto) {
+    return this.rateMessageUseCase.execute({ messageId, rating });
   }
 }
