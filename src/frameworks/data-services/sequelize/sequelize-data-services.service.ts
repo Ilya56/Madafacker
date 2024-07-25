@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SequelizeUserRepository, SequelizeMessageRepository, SequelizeReplyRepository } from './entity-repositories';
 import { Transactional } from 'sequelize-transactional-decorator';
 import { Sequelize } from 'sequelize-typescript';
+import { DatabaseError } from 'sequelize';
 
 /**
  * This class stores sequelize data service models to access them from other modules
@@ -46,5 +47,13 @@ export class SequelizeDataServices extends DataServiceAbstract {
       this.logger.error(e);
       throw e;
     }
+  }
+
+  /**
+   * Checks error name and message to be right
+   * @param error error to check
+   */
+  public isInvalidUuidError(error: DatabaseError): boolean {
+    return error.name === 'SequelizeDatabaseError' && error.message.includes('uuid');
   }
 }
