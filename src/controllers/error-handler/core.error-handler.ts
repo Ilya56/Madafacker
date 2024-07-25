@@ -7,7 +7,7 @@ import {
   NestInterceptor,
   NotFoundException,
 } from '@nestjs/common';
-import { CoreError, DuplicateNotAllowedError, NotFoundError } from '@core';
+import { CoreError, DuplicateNotAllowedError, NotFoundError, OperationNotAllowedException } from '@core';
 import { catchError, Observable, throwError } from 'rxjs';
 
 /**
@@ -28,6 +28,9 @@ export class CoreErrorHandler implements NestInterceptor {
     }
     if (exception instanceof DuplicateNotAllowedError) {
       return new BadRequestException(`Duplicated value is not allowed: ${exception.message}`);
+    }
+    if (exception instanceof OperationNotAllowedException) {
+      return new BadRequestException(`Operation not allowed: ${exception.message}`);
     }
   }
 
