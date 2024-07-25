@@ -4,7 +4,7 @@ import { MessageFactoryService } from '../factories';
 import { CreateMessageUseCase } from '@use-cases/message/create-message.use-case';
 import { CreateMessageDto } from '../dtos';
 import { Message, MessageMode } from '@core';
-import { RetrieveIncomeMessagesUseCase, RetrieveOutcomeMessagesUseCase } from '@use-cases/message';
+import { RateMessageUseCase, RetrieveIncomeMessagesUseCase, RetrieveOutcomeMessagesUseCase } from '@use-cases/message';
 
 describe('MessageController', () => {
   let controller: MessageController;
@@ -32,6 +32,10 @@ describe('MessageController', () => {
         {
           provide: RetrieveOutcomeMessagesUseCase,
           useValue: { execute: jest.fn().mockResolvedValue([new Message()]) },
+        },
+        {
+          provide: RateMessageUseCase,
+          useValue: { execute: jest.fn().mockResolvedValue(undefined) },
         },
       ],
     }).compile();

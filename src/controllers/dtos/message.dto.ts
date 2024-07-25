@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { MessageMode } from '@core';
+import { MessageMode, MessageRating } from '@core';
 
 export class CreateMessageDto {
   @IsString()
@@ -8,4 +8,10 @@ export class CreateMessageDto {
 
   @IsEnum(MessageMode)
   mode: MessageMode;
+}
+
+export class RatingDto {
+  @IsNotEmpty()
+  @IsEnum(MessageRating)
+  rating: MessageRating;
 }
