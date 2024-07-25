@@ -17,4 +17,10 @@ export abstract class DataServiceAbstract {
    * Transactional decorator to make all requests in the function in one transaction
    */
   public abstract transactional<I, O>(func: (...args: I[]) => O): Promise<O>;
+
+  /**
+   * Returns true if error is about invalid uuid
+   * @param error error to check
+   */
+  public abstract isInvalidUuidError(error: Error): boolean;
 }
