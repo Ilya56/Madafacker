@@ -8,7 +8,7 @@ jest.mock('@nestjs/config');
 
 describe('BullQueue', () => {
   let bullQueue: BullQueue<any>;
-  let queueMock: Queue<any>;
+  let queueMock: Queue;
   let configServiceMock: ConfigService;
 
   beforeEach(() => {
@@ -16,7 +16,7 @@ describe('BullQueue', () => {
     queueMock = {
       add: jest.fn(),
       process: jest.fn(),
-    } as unknown as Queue<any>;
+    } as unknown as Queue;
 
     (Bull as jest.Mock).mockImplementation(() => queueMock);
 
