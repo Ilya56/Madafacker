@@ -1,16 +1,13 @@
 import { SequelizeMessageRepository } from '../sequelize-message-repository';
 import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
 import { IncomeUserMessagesModel, MessageModel } from '../../models';
-import { MessageRating } from '@core';
 
 describe('SequelizeMessageRepository', () => {
   let repository: SequelizeMessageRepository;
   let superCreateSpy: jest.SpyInstance;
   let findAllSpy: jest.SpyInstance;
   let findAllMessageSpy: jest.SpyInstance;
-  let findOneSpy: jest.SpyInstance;
   let updateSpy: jest.SpyInstance;
-  let updateIncomeUserMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
     repository = new SequelizeMessageRepository();
@@ -20,9 +17,7 @@ describe('SequelizeMessageRepository', () => {
 
     findAllSpy = jest.spyOn(IncomeUserMessagesModel, 'findAll').mockImplementation(async () => []);
     findAllMessageSpy = jest.spyOn(MessageModel, 'findAll').mockImplementation(async () => []);
-    findOneSpy = jest.spyOn(IncomeUserMessagesModel, 'findOne').mockImplementation(async () => null);
     updateSpy = jest.spyOn(repository, 'update').mockImplementation(async () => null);
-    updateIncomeUserMessageSpy = jest.spyOn(IncomeUserMessagesModel, 'update').mockImplementation(async () => [1]);
   });
 
   afterEach(() => {
@@ -141,67 +136,6 @@ describe('SequelizeMessageRepository', () => {
       await repository.markAsSent(messageId);
 
       expect(updateSpy).toHaveBeenCalledWith(messageId, { wasSent: true });
-    });
-  });
-
-  describe('getUserMessageRating', () => {
-    it('should retrieve user message rating', async () => {
-      const userId = 'test-user-id';
-      const messageId = 'test-message-id';
-      const rating = MessageRating.like;
-      const incomeUserMessage = { rating } as IncomeUserMessagesModel;
-
-      findOneSpy.mockResolvedValue(incomeUserMessage);
-
-      const result = await repository.getUserMessageRating(userId, messageId);
-
-      expect(findOneSpy).toHaveBeenCalledWith({
-        where: {
-          userId,
-          messageId,
-        },
-      });
-      expect(result).toEqual(rating);
-    });
-
-    it('should return null if user message rating does not exist', async () => {
-      const userId = 'test-user-id';
-      const messageId = 'test-message-id';
-
-      findOneSpy.mockResolvedValue(null);
-
-      const result = await repository.getUserMessageRating(userId, messageId);
-
-      expect(findOneSpy).toHaveBeenCalledWith({
-        where: {
-          userId,
-          messageId,
-        },
-      });
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('rateMessage', () => {
-    it('should rate a message', async () => {
-      const userId = 'test-user-id';
-      const messageId = 'test-message-id';
-      const rating = MessageRating.like;
-
-      const result = await repository.rateMessage(userId, messageId, rating);
-
-      expect(result).toBeTruthy();
-      expect(updateIncomeUserMessageSpy).toHaveBeenCalledWith(
-        {
-          rating,
-        },
-        {
-          where: {
-            userId,
-            messageId,
-          },
-        },
-      );
     });
   });
 });
