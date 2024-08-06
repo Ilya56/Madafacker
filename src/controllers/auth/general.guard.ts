@@ -5,7 +5,7 @@ import { ApiKeyData, IS_API_KEY } from './api-key.guard';
 import { ConfigService } from '@nestjs/config';
 
 /**
- * This guard is created to store all common guard logic that is not depend on the implementation
+ * This guard is created to store all common guard logic that does not depend on the implementation
  */
 @Injectable()
 export class GeneralGuard {

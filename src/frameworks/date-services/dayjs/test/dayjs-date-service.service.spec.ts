@@ -20,7 +20,7 @@ describe('DayjsDateService', () => {
     const DAY = HOUR * 24;
     const WEEK = DAY * 7;
     /* eslint-disable-next-line @typescript-eslint/no-loss-of-precision */
-    const MONTH = DAY * 30.416666666666666; // idk why, maybe average value
+    const MONTH = DAY * 30.416666666666666; // IDK why, maybe average value
     const YEAR = MONTH * 12;
 
     expect(service.getIntervalDuration(1, 'millisecond')).toEqual(MILLISECOND);

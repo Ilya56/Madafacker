@@ -32,7 +32,7 @@ export class SequelizeUserRepository
   }
 
   /**
-   * Sort users in a random way and takes first quantity of them using limit.
+   * Sort users randomly and takes first quantity of them using limit.
    * Retrieve only id field.
    * Returns a plain array of ids (strings)
    * @param quantity quantity of the random users to retrieve

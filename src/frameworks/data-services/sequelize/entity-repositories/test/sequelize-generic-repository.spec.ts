@@ -90,7 +90,7 @@ describe('SequelizeGenericRepository', () => {
   describe('update', () => {
     it('should update an entity and return the updated entity', async () => {
       const updatedModel = new TestModel();
-      // because of sequelize has two update functions, it creates an issue that here should be only one return item,
+      // because sequelize has two update functions, it creates an issue that here should be only one return item,
       //  but the function is used with returning: true, so here should be 2 items
       const mockUpdateResult: [number] = [1, [updatedModel]] as never as [number];
 
