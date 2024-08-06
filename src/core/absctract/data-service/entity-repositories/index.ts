@@ -5,3 +5,4 @@
 export * from './user-repository.abstract';
 export * from './message-repository.abstract';
 export * from './reply-repository.abstract';
+export * from './income-user-message-repository.abstract';
