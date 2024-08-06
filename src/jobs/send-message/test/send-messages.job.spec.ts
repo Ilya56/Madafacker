@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SendMessagesJob } from '../send-messages.job';
+import { SendMessagesJob } from '@jobs';
 import { DataServiceAbstract, Message, TaskServiceAbstract } from '@core';
 import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
