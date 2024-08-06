@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateUserUseCase } from '@use-cases/user';
-import { DataServiceAbstract, UserServiceAbstract } from '@core';
+import { DataServiceAbstract, User, UserServiceAbstract } from '@core';
 import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
 jest.mock('sequelize-transactional-decorator', () => ({
@@ -31,7 +31,7 @@ describe('UpdateUserUseCase', () => {
     const currentUser = { id: '123', name: 'Test', incomeMessages: [], outcomeMessages: [] };
 
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(currentUser);
-    jest.spyOn(dataService.users, 'update').mockImplementation(async (id, user) => ({ ...user, id }));
+    jest.spyOn(dataService.users, 'update').mockImplementation(async (id, user) => ({ ...(user as User), id }));
 
     const result = await updateUserUseCase.execute(newUserData);
 

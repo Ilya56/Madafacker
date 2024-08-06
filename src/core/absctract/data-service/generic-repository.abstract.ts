@@ -34,5 +34,5 @@ export interface GenericRepositoryAbstract<T> {
    * @param id of the entity to update
    * @param entity update data
    */
-  update(id: Entity['id'], entity: T): Promise<T | null>;
+  update(id: Entity['id'], entity: Partial<T>): Promise<T | null>;
 }
