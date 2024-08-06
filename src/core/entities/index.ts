@@ -7,3 +7,4 @@ export * from './entity';
 export * from './user.entity';
 export * from './message.entity';
 export * from './reply.entity';
+export * from './income-user-message.entity';
