@@ -7,7 +7,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.addColumn('IncomeUserMessagesModels', 'rating', {
-      type: Sequelize.DataTypes.STRING,
+      type: Sequelize.STRING,
       defaultValue: null,
     });
   },
