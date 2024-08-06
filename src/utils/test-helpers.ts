@@ -21,13 +21,15 @@ export const SERVICES_PROVIDER = [
         getIncomingByUserId: jest.fn(),
         markAsSent: jest.fn(),
         getNotSentMessages: jest.fn(),
-        getUserMessageRating: jest.fn(),
-        rateMessage: jest.fn(),
       },
       replies: {
         create: jest.fn(),
         update: jest.fn(),
         getByIdWithPopulatedReplies: jest.fn(),
+      },
+      incomeUserMessage: {
+        getUserMessageRating: jest.fn(),
+        rateMessage: jest.fn(),
       },
       transactional: jest.fn().mockImplementation(async (fn: any) => fn()),
     },

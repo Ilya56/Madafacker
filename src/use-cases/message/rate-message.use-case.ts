@@ -27,13 +27,13 @@ export class RateMessageUseCase extends CommandAbstract<RateMessageInput, void> 
       throw new OperationNotAllowedException('Cannot rate own message');
     }
 
-    const messageRating = await this.dataService.messages.getUserMessageRating(user.id, messageId);
+    const messageRating = await this.dataService.incomeUserMessage.getUserMessageRating(user.id, messageId);
 
     if (messageRating) {
       throw new OperationNotAllowedException('Rating can only be set once and cannot be changed');
     }
 
-    const rated = await this.dataService.messages.rateMessage(user.id, messageId, rating);
+    const rated = await this.dataService.incomeUserMessage.rateMessage(user.id, messageId, rating);
 
     if (!rated) {
       throw new NotFoundError(`Cannot rate because message with id ${messageId} not found for current user ${user.id}`);
