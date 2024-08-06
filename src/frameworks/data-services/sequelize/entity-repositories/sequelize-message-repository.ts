@@ -120,7 +120,7 @@ export class SequelizeMessageRepository
 
   /**
    * Update income user message model rating field on the message from user
-   * If at least one row was updated it returns true. Otherwise - false
+   * If at least one row was updated, it returns true. Otherwise - false
    * @param userId
    * @param messageId
    * @param rating

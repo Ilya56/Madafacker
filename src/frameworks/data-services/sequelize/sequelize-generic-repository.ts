@@ -23,7 +23,7 @@ export class SequelizeGenericRepository<T extends Model<any, any>, R extends Mod
   }
 
   /**
-   * Returns all records by using find all method
+   * Returns all records by using find all methods
    */
   getAll(): Promise<T[]> {
     return this.repository.findAll();
