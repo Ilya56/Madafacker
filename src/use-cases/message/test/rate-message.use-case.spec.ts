@@ -36,7 +36,7 @@ describe('RateMessageUseCase', () => {
     it('should throw OperationNotAllowedException when a message has already been rated', async () => {
       const user = { id: 'user1', outcomeMessages: [] } as any as User;
       jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
-      jest.spyOn(dataService.messages, 'getUserMessageRating').mockResolvedValue(MessageRating.like);
+      jest.spyOn(dataService.incomeUserMessage, 'getUserMessageRating').mockResolvedValue(MessageRating.like);
 
       const rateMessageInput = { messageId: 'message2', rating: MessageRating.like };
 
@@ -46,8 +46,8 @@ describe('RateMessageUseCase', () => {
     it('should throw NotFoundError when the message does not exist', async () => {
       const user = { id: 'user1', outcomeMessages: [] } as any as User;
       jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
-      jest.spyOn(dataService.messages, 'getUserMessageRating').mockResolvedValue(null);
-      jest.spyOn(dataService.messages, 'rateMessage').mockResolvedValue(false);
+      jest.spyOn(dataService.incomeUserMessage, 'getUserMessageRating').mockResolvedValue(null);
+      jest.spyOn(dataService.incomeUserMessage, 'rateMessage').mockResolvedValue(false);
 
       const rateMessageInput = { messageId: 'nonexistent', rating: MessageRating.like };
 
@@ -57,14 +57,14 @@ describe('RateMessageUseCase', () => {
     it('should rate the message successfully when all conditions are met', async () => {
       const user = { id: 'user1', outcomeMessages: [] } as any as User;
       jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
-      jest.spyOn(dataService.messages, 'getUserMessageRating').mockResolvedValue(null);
-      jest.spyOn(dataService.messages, 'rateMessage').mockResolvedValue(true);
+      jest.spyOn(dataService.incomeUserMessage, 'getUserMessageRating').mockResolvedValue(null);
+      jest.spyOn(dataService.incomeUserMessage, 'rateMessage').mockResolvedValue(true);
 
       const rateMessageInput = { messageId: 'message2', rating: MessageRating.like };
 
       await expect(service.execute(rateMessageInput)).resolves.toBeUndefined();
-      expect(dataService.messages.getUserMessageRating).toHaveBeenCalledWith('user1', 'message2');
-      expect(dataService.messages.rateMessage).toHaveBeenCalledWith('user1', 'message2', MessageRating.like);
+      expect(dataService.incomeUserMessage.getUserMessageRating).toHaveBeenCalledWith('user1', 'message2');
+      expect(dataService.incomeUserMessage.rateMessage).toHaveBeenCalledWith('user1', 'message2', MessageRating.like);
     });
   });
 });
