@@ -91,11 +91,10 @@ export class SequelizeMessageRepository
 
   /**
    * Set wasSent = true
-   * @param message message to mark was sent
+   * @param messageId message id to mark was sent
    */
-  async markAsSent(message: Message): Promise<void> {
-    const messageModel = Object.assign(message, { wasSent: true }) as MessageModel;
-    await this.update(message.id, messageModel);
+  async markAsSent(messageId: Message['id']): Promise<void> {
+    await this.update(messageId, { wasSent: true });
   }
 
   /**

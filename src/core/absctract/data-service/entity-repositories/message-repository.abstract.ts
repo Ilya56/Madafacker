@@ -35,10 +35,9 @@ export interface MessageRepositoryAbstract extends GenericRepositoryAbstract<Mes
 
   /**
    * Mark the message as sent. By the fact make wasSent = true
-   * @param message message to mark as sent
+   * @param messageId message id to mark as sent
    */
-  // TODO: update message -> message id ?
-  markAsSent(message: Message): Promise<void>;
+  markAsSent(messageId: Message['id']): Promise<void>;
 
   /**
    * Returns user rate on the message
