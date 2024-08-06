@@ -1,4 +1,9 @@
-import { MessageRepositoryAbstract, UserRepositoryAbstract, ReplyRepositoryAbstract } from './entity-repositories';
+import {
+  MessageRepositoryAbstract,
+  UserRepositoryAbstract,
+  ReplyRepositoryAbstract,
+  IncomeUserMessageRepositoryAbstract,
+} from './entity-repositories';
 
 /**
  * This class defines what repositories should store a data service
@@ -12,6 +17,7 @@ export abstract class DataServiceAbstract {
   abstract users: UserRepositoryAbstract;
   abstract messages: MessageRepositoryAbstract;
   abstract replies: ReplyRepositoryAbstract;
+  abstract incomeUserMessage: IncomeUserMessageRepositoryAbstract;
 
   /**
    * Transactional decorator to make all requests in the function in one transaction
