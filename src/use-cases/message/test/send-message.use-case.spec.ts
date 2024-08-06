@@ -67,7 +67,7 @@ describe('SendMessageUseCase', () => {
       await service.execute(message);
 
       expect(algoService.selectUsersShowMessage).toHaveBeenCalledWith(message);
-      expect(dataService.messages.markAsSent).toHaveBeenCalledWith(message);
+      expect(dataService.messages.markAsSent).toHaveBeenCalledWith(message.id);
     });
 
     it('should handle the case when both usersCount and wasSent are true', async () => {
@@ -86,7 +86,7 @@ describe('SendMessageUseCase', () => {
       expect(algoService.selectUsersShowMessage).toHaveBeenCalledWith(message);
       expect(dataService.users.getRandomUserIds).toHaveBeenCalledWith(sendMessageData.usersCount);
       expect(dataService.users.sendMessageToUsers).toHaveBeenCalledWith(message, userIds);
-      expect(dataService.messages.markAsSent).toHaveBeenCalledWith(message);
+      expect(dataService.messages.markAsSent).toHaveBeenCalledWith(message.id);
     });
   });
 });

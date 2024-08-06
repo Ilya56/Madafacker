@@ -2,7 +2,6 @@ import { SequelizeMessageRepository } from '../sequelize-message-repository';
 import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
 import { IncomeUserMessagesModel, MessageModel } from '../../models';
 import { MessageRating } from '@core';
-import { Message } from '@core';
 
 describe('SequelizeMessageRepository', () => {
   let repository: SequelizeMessageRepository;
@@ -137,17 +136,11 @@ describe('SequelizeMessageRepository', () => {
 
   describe('markAsSent', () => {
     it('should mark a message as sent', async () => {
-      const message = {
-        id: 1,
-        text: 'Message 1',
-        wasSent: false,
-      } as unknown as Message;
+      const messageId = '1';
 
-      const messageModel = { ...message, wasSent: true } as MessageModel;
+      await repository.markAsSent(messageId);
 
-      await repository.markAsSent(message);
-
-      expect(updateSpy).toHaveBeenCalledWith(message.id, messageModel);
+      expect(updateSpy).toHaveBeenCalledWith(messageId, { wasSent: true });
     });
   });
 
