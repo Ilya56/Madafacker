@@ -7,7 +7,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.addColumn('MessageModels', 'wasSent', {
-      type: Sequelize.DataTypes.BOOLEAN,
+      type: Sequelize.BOOLEAN,
       defaultValue: false,
     });
   },
