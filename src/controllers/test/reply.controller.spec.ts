@@ -69,16 +69,22 @@ describe('ReplyController', () => {
   });
 
   describe('update', () => {
-    it('should update an existing reply', async () => {
-      const dto = new UpdateReplyDto();
+    let dto: UpdateReplyDto;
+    let reply: Reply;
+
+    beforeEach(() => {
+      dto = new UpdateReplyDto();
       dto.id = 'reply-id';
       dto.public = false;
 
-      const reply = new Reply();
+      reply = new Reply();
       reply.id = dto.id;
       reply.public = dto.public;
 
       jest.spyOn(factoryService, 'updateReply').mockReturnValue(reply);
+    });
+
+    it('should update an existing reply', async () => {
       jest.spyOn(updateReplyUseCase, 'execute').mockResolvedValue(reply);
 
       const result = await controller.update(dto);
@@ -89,15 +95,6 @@ describe('ReplyController', () => {
     });
 
     it('should throw NotFoundException if the reply is not found', async () => {
-      const dto = new UpdateReplyDto();
-      dto.id = 'reply-id';
-      dto.public = false;
-
-      const reply = new Reply();
-      reply.id = dto.id;
-      reply.public = dto.public;
-
-      jest.spyOn(factoryService, 'updateReply').mockReturnValue(reply);
       jest.spyOn(updateReplyUseCase, 'execute').mockResolvedValue(null);
 
       await expect(controller.update(dto)).rejects.toThrow(NotFoundException);
