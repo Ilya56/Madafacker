@@ -1,5 +1,5 @@
 import { Controller, Post } from '@nestjs/common';
-import { SendMessagesJob } from '@jobs';
+import { SendMessagesJob } from '@listeners';
 import { ApiKey } from './auth/api-key.guard';
 
 /**

@@ -4,7 +4,7 @@ import { Logger, OnApplicationBootstrap } from '@nestjs/common';
  * Listener abstract class
  * Each listener should subscribe on the events in the method subscribe
  */
-export abstract class ListenersAbstract implements OnApplicationBootstrap {
+export abstract class TaskListenersAbstract implements OnApplicationBootstrap {
   /**
    * Listeners logger
    * @protected
