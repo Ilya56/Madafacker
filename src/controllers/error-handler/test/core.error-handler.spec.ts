@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CallHandler, ExecutionContext } from '@nestjs/common';
 import { CoreErrorHandler } from '../core.error-handler';
-import { DuplicateNotAllowedError, NotFoundError } from '@core';
+import { DuplicateNotAllowedError, NotFoundError, OperationNotAllowedException } from '@core';
 import { of, throwError } from 'rxjs';
 
 describe('CoreErrorHandler', () => {
@@ -46,6 +46,15 @@ describe('CoreErrorHandler', () => {
       expect(result.status).toBe(400);
       expect(result.name).toBe('BadRequestException');
       expect(result.message).toBe('Duplicated value is not allowed: Duplicate not allowed');
+    });
+
+    it('should handle OperationNotAllowedException as BadRequestException', () => {
+      const operationNotAllowedException = new OperationNotAllowedException('Operation not allowed');
+      const result = interceptor.catch(operationNotAllowedException);
+      expect(result.response).toBeDefined();
+      expect(result.status).toBe(400);
+      expect(result.name).toBe('BadRequestException');
+      expect(result.message).toBe('Operation not allowed: Operation not allowed');
     });
   });
 
