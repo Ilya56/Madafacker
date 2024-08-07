@@ -7,7 +7,7 @@ import { MessageController } from './message.controller';
 import { MessageUseCasesModule } from '@use-cases/message';
 import { ReplyController } from './reply.controller';
 import { ReplyUseCasesModule } from '@use-cases/reply';
-import { JobsModule } from '@jobs';
+import { JobsModule } from '@listeners';
 import { CronController } from './cron.controller';
 import { CustomClsModule } from './cls';
 

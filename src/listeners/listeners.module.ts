@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { SendMessageModule } from './send-message';
+import { TaskListenersModule } from './tasks';
+import { JobsModule } from './jobs';
 
 /**
  * Listeners module.
  * Import all listener modules
  */
 @Module({
-  imports: [SendMessageModule],
+  imports: [TaskListenersModule, JobsModule],
 })
 export class ListenersModule {}
