@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MessageController } from '../message.controller';
 import { MessageFactoryService } from '../factories';
 import { CreateMessageUseCase } from '@use-cases/message/create-message.use-case';
-import { CreateMessageDto } from '../dtos';
-import { Message, MessageMode } from '@core';
+import { CreateMessageDto, RatingDto } from '../dtos';
+import { Message, MessageMode, MessageRating } from '@core';
 import { RateMessageUseCase, RetrieveIncomeMessagesUseCase, RetrieveOutcomeMessagesUseCase } from '@use-cases/message';
 
 describe('MessageController', () => {
@@ -12,6 +12,7 @@ describe('MessageController', () => {
   let createMessageUseCase: CreateMessageUseCase;
   let retrieveIncomeMessagesUseCase: RetrieveIncomeMessagesUseCase;
   let retrieveOutcomeMessagesUseCase: RetrieveOutcomeMessagesUseCase;
+  let rateMessageUseCase: RateMessageUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,6 +46,7 @@ describe('MessageController', () => {
     createMessageUseCase = module.get<CreateMessageUseCase>(CreateMessageUseCase);
     retrieveIncomeMessagesUseCase = module.get<RetrieveIncomeMessagesUseCase>(RetrieveIncomeMessagesUseCase);
     retrieveOutcomeMessagesUseCase = module.get<RetrieveOutcomeMessagesUseCase>(RetrieveOutcomeMessagesUseCase);
+    rateMessageUseCase = module.get<RateMessageUseCase>(RateMessageUseCase);
   });
 
   describe('create', () => {
@@ -81,8 +83,8 @@ describe('MessageController', () => {
     });
   });
 
-  describe('retrieveIncoming', () => {
-    it('should retrieve incoming messages for the current user', async () => {
+  describe('retrieveOutcome', () => {
+    it('should retrieve outcoming messages for the current user', async () => {
       const messages = [new Message(), new Message()];
 
       jest.spyOn(retrieveOutcomeMessagesUseCase, 'execute').mockResolvedValue(messages);
@@ -91,6 +93,21 @@ describe('MessageController', () => {
 
       expect(retrieveOutcomeMessagesUseCase.execute).toHaveBeenCalled();
       expect(result).toEqual(messages);
+    });
+  });
+
+  describe('rate', () => {
+    it('should rate a message', async () => {
+      const messageId = '123e4567-e89b-12d3-a456-426614174000';
+      const ratingDto = new RatingDto();
+      ratingDto.rating = MessageRating.like;
+
+      jest.spyOn(rateMessageUseCase, 'execute').mockResolvedValue(undefined);
+
+      const result = await controller.rate(messageId, ratingDto);
+
+      expect(rateMessageUseCase.execute).toHaveBeenCalledWith({ messageId, rating: ratingDto.rating });
+      expect(result).toBeUndefined();
     });
   });
 });
