@@ -1,4 +1,4 @@
-import { QueueAbstract } from '@core';
+import { ConvertObjectsToStringType, QueueAbstract } from '@core';
 import Bull, { Queue } from 'bull';
 import { ConfigService } from '@nestjs/config';
 import { ConfigType } from '@config';
@@ -35,7 +35,7 @@ export class BullQueue<T> extends QueueAbstract<T> {
    * Adds a processor to the queue. Don't send any data about job, only data from the task
    * @param processor processor function, should be void
    */
-  async processQueue(processor: (data: T) => Promise<void> | void): Promise<void> {
-    await this.queue.process((job) => processor(job.data));
+  async processQueue(processor: (data: ConvertObjectsToStringType<T>) => Promise<void> | void): Promise<void> {
+    await this.queue.process((job) => processor(job.data as ConvertObjectsToStringType<T>));
   }
 }

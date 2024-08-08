@@ -1,4 +1,4 @@
-import { Message, TaskServiceAbstract } from '@core';
+import { Message, TaskServiceAbstract, User, ConvertObjectsToStringType, MessageMode } from '@core';
 import { SendMessageUseCase } from '@use-cases/message';
 import { Injectable } from '@nestjs/common';
 import { TaskListenersAbstract } from '../task-listeners.abstract';
@@ -27,11 +27,27 @@ export class SendMessageListener extends TaskListenersAbstract {
 
   /**
    * Fix a message object after send throw the task service, such transform date fields in date objects
-   * @param message message object to fix
+   * @param rawMessage message object to fix
    * @private
    */
-  private prepareMessage(message: Message): Message {
-    message.createdAt = new Date(message.createdAt);
+  private prepareMessage(rawMessage: ConvertObjectsToStringType<Message>): Message {
+    const message = new Message();
+    message.id = rawMessage.id;
+    message.body = rawMessage.body;
+    message.wasSent = rawMessage.wasSent;
+
+    message.mode = rawMessage.mode as MessageMode;
+    message.createdAt = new Date(rawMessage.createdAt);
+
+    if (rawMessage.author) {
+      const author = new User();
+      author.id = rawMessage.author.id;
+      author.name = rawMessage.author.name;
+      author.outcomeMessages = rawMessage.author.outcomeMessages?.map((m) => this.prepareMessage(m));
+      author.incomeMessages = rawMessage.author.incomeMessages?.map((m) => this.prepareMessage(m));
+      message.author = author;
+    }
+
     return message;
   }
 }
