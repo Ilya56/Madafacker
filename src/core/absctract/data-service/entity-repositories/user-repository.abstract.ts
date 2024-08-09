@@ -27,4 +27,12 @@ export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> 
    * @param userIds user ids array
    */
   sendMessageToUsers(message: Message, userIds: User['id'][]): Promise<void>;
+
+  /**
+   * Add some number of coins to the user
+   * @param userId user to change coins number
+   * @param coinsNumber coins number can be negative if you want to decrease user coins
+   * @returns new user coins value
+   */
+  addCoins(userId: User['id'], coinsNumber: number): Promise<number>;
 }
