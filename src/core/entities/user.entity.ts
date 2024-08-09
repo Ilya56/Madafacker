@@ -17,4 +17,8 @@ export class User extends Entity {
    * This is an array of messages, that were created by the current user
    */
   outcomeMessages: Message[];
+  /**
+   * User coins number
+   */
+  coins: number;
 }
