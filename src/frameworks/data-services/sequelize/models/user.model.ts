@@ -53,6 +53,10 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
   @BelongsToMany(() => MessageModel, () => IncomeUserMessagesModel)
   incomeMessages: NonAttribute<MessageModel[]>;
 
+  @Default(0)
+  @Column(DataType.NUMBER)
+  coins: number;
+
   /**
    * When a user was created
    */
