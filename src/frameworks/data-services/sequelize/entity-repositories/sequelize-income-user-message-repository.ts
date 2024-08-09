@@ -4,7 +4,7 @@ import { SequelizeGenericRepository } from '../sequelize-generic-repository';
 import { IncomeUserMessageRepositoryAbstract, Message, User } from '@core';
 
 /**
- * Sequelize message repository implementation
+ * Sequelize income user message repository implementation
  */
 export class SequelizeIncomeUserMessageRepository
   extends SequelizeGenericRepository<IncomeUserMessagesModel, typeof IncomeUserMessagesModel>

@@ -2,7 +2,7 @@ import { IncomeUserMessagesModel } from '../../models';
 import { MessageRating } from '@core';
 import { SequelizeIncomeUserMessageRepository } from '@frameworks/data-services/sequelize/entity-repositories';
 
-describe('SequelizeMessageRepository', () => {
+describe('SequelizeIncomeUserMessageRepository', () => {
   let repository: SequelizeIncomeUserMessageRepository;
   let findOneSpy: jest.SpyInstance;
   let updateIncomeUserMessageSpy: jest.SpyInstance;
