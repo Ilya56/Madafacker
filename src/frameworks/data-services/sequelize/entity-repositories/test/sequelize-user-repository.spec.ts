@@ -24,6 +24,7 @@ describe('SequelizeUserRepository', () => {
             update: jest.fn(),
             count: jest.fn(),
             findAll: jest.fn(),
+            increment: jest.fn(),
           },
         },
         {
@@ -90,6 +91,34 @@ describe('SequelizeUserRepository', () => {
       await userRepository.sendMessageToUsers(message, userIds);
 
       expect(IncomeUserMessagesModel.bulkCreate).toHaveBeenCalledWith(expectedBulkCreateData);
+    });
+  });
+
+  describe('addCoins', () => {
+    it("should increment the user's coins by the specified number", async () => {
+      const userId = 'user1';
+      const coinsNumber = 10;
+      const newCoinsValue: [UserModel[], number] = [[{} as UserModel], 50]; // Mocked increment response
+
+      jest.spyOn(UserModel, 'increment').mockResolvedValue(newCoinsValue);
+
+      const result = await userRepository.addCoins(userId, coinsNumber);
+
+      expect(UserModel.increment).toHaveBeenCalledWith({ coins: coinsNumber }, { where: { id: userId } });
+      expect(result).toEqual(50);
+    });
+
+    it('should return 0 if no new coins value is returned', async () => {
+      const userId = 'user1';
+      const coinsNumber = 10;
+      const newCoinsValue: [UserModel[]] = [[{} as UserModel]]; // Mocked increment response with no value
+
+      jest.spyOn(UserModel, 'increment').mockResolvedValue(newCoinsValue);
+
+      const result = await userRepository.addCoins(userId, coinsNumber);
+
+      expect(UserModel.increment).toHaveBeenCalledWith({ coins: coinsNumber }, { where: { id: userId } });
+      expect(result).toEqual(0);
     });
   });
 });

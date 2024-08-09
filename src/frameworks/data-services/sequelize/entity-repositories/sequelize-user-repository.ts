@@ -58,4 +58,20 @@ export class SequelizeUserRepository
     }));
     await IncomeUserMessagesModel.bulkCreate(incomeUserMessageData);
   }
+
+  /**
+   * Add some number of coins to the user
+   * @param userId user to change coins number
+   * @param coinsNumber coins number can be negative if you want to decrease user coins
+   */
+  async addCoins(userId: User['id'], coinsNumber: number): Promise<number> {
+    const [, newCoinsValue] = await this.repository.increment(
+      { coins: coinsNumber },
+      {
+        where: { id: userId },
+      },
+    );
+
+    return newCoinsValue ?? 0;
+  }
 }
