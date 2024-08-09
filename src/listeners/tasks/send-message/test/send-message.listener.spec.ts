@@ -47,6 +47,7 @@ describe('SendMessageListener', () => {
           name: 'Author Name',
           outcomeMessages: [],
           incomeMessages: [],
+          coins: 0,
         },
       };
 
@@ -72,6 +73,7 @@ describe('SendMessageListener', () => {
         author: {
           id: 'user1',
           name: 'Author Name',
+          coins: 0,
           outcomeMessages: [
             {
               id: '2',
