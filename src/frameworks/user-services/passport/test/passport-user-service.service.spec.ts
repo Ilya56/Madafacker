@@ -32,6 +32,9 @@ describe('PassportUserServiceService', () => {
         {
           provide: DataServiceAbstract,
           useValue: {
+            users: {
+              lock: jest.fn().mockResolvedValue(mockUser),
+            },
             messages: {
               getIncomingByUserId: jest.fn().mockResolvedValue(['message1', 'message2']),
               getOutcomingByUserId: jest.fn().mockResolvedValue(['message3', 'message4']),
@@ -51,38 +54,59 @@ describe('PassportUserServiceService', () => {
   });
 
   describe('getCurrentUser', () => {
-    it('should return the user from ClsService', async () => {
-      const result = await service.getCurrentUser();
-      expect(result).toEqual(mockUser);
+    describe('General Behavior', () => {
+      it('should return the user from ClsService', async () => {
+        const result = await service.getCurrentUser();
+        expect(result).toEqual(mockUser);
+      });
+
+      it('should throw NotFoundError if no user in ClsService', async () => {
+        jest.spyOn(clsService, 'get').mockReturnValueOnce(undefined);
+        await expect(service.getCurrentUser()).rejects.toThrow(NotFoundError);
+      });
     });
 
-    it('should throw NotFoundError if no user in ClsService', async () => {
-      jest.spyOn(clsService, 'get').mockReturnValueOnce(undefined);
-      await expect(service.getCurrentUser()).rejects.toThrow(NotFoundError);
+    describe('Message Fetching', () => {
+      it('should return the user with incoming messages if options.withIncomingMessages is true', async () => {
+        const result = await service.getCurrentUser({ withIncomingMessages: true });
+        expect(result.incomeMessages).toEqual(['message1', 'message2']);
+        expect(dataService.messages.getIncomingByUserId).toHaveBeenCalledWith(mockUser.id, 1);
+      });
+
+      it('should not fetch incoming messages if options.withIncomingMessages is false', async () => {
+        const result = await service.getCurrentUser({ withIncomingMessages: false });
+        expect(result.incomeMessages).toEqual([]);
+        expect(dataService.messages.getIncomingByUserId).not.toHaveBeenCalled();
+      });
+
+      it('should return the user with outcoming messages if options.withOutcomingMessages is true', async () => {
+        const result = await service.getCurrentUser({ withOutcomingMessages: true });
+        expect(result.outcomeMessages).toEqual(['message3', 'message4']);
+        expect(dataService.messages.getOutcomingByUserId).toHaveBeenCalledWith(mockUser.id, 1);
+      });
+
+      it('should not fetch outcoming messages if options.withOutcomingMessages is false', async () => {
+        const result = await service.getCurrentUser({ withOutcomingMessages: false });
+        expect(result.outcomeMessages).toEqual([]);
+        expect(dataService.messages.getOutcomingByUserId).not.toHaveBeenCalled();
+      });
     });
 
-    it('should return the user with incoming messages if options.withIncomingMessages is true', async () => {
-      const result = await service.getCurrentUser({ withIncomingMessages: true });
-      expect(result.incomeMessages).toEqual(['message1', 'message2']);
-      expect(dataService.messages.getIncomingByUserId).toHaveBeenCalledWith(mockUser.id, 1);
-    });
+    describe('Locking Behavior', () => {
+      it('should lock the user if options.lock is true', async () => {
+        await service.getCurrentUser({ lock: true });
+        expect(dataService.users.lock).toHaveBeenCalledWith(mockUser.id);
+      });
 
-    it('should not fetch incoming messages if options.withIncomingMessages is false', async () => {
-      const result = await service.getCurrentUser({ withIncomingMessages: false });
-      expect(result.incomeMessages).toEqual([]);
-      expect(dataService.messages.getIncomingByUserId).not.toHaveBeenCalled();
-    });
+      it('should not lock the user if options.lock is false', async () => {
+        await service.getCurrentUser({ lock: false });
+        expect(dataService.users.lock).not.toHaveBeenCalled();
+      });
 
-    it('should return the user with outcoming messages if options.withOutcomingMessages is true', async () => {
-      const result = await service.getCurrentUser({ withOutcomingMessages: true });
-      expect(result.outcomeMessages).toEqual(['message3', 'message4']);
-      expect(dataService.messages.getOutcomingByUserId).toHaveBeenCalledWith(mockUser.id, 1);
-    });
-
-    it('should not fetch outcoming messages if options.withOutcomingMessages is false', async () => {
-      const result = await service.getCurrentUser({ withOutcomingMessages: false });
-      expect(result.outcomeMessages).toEqual([]);
-      expect(dataService.messages.getOutcomingByUserId).not.toHaveBeenCalled();
+      it('should not lock the user if options.lock is not provided', async () => {
+        await service.getCurrentUser();
+        expect(dataService.users.lock).not.toHaveBeenCalled();
+      });
     });
   });
 });
