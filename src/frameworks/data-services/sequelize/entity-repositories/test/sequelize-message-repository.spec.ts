@@ -1,6 +1,7 @@
 import { SequelizeMessageRepository } from '../sequelize-message-repository';
 import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
-import { IncomeUserMessagesModel, MessageModel } from '../../models';
+import { IncomeUserMessagesModel, MessageModel, UserModel } from '../../models';
+import { GetByIdOptions } from '@core';
 
 describe('SequelizeMessageRepository', () => {
   let repository: SequelizeMessageRepository;
@@ -8,6 +9,8 @@ describe('SequelizeMessageRepository', () => {
   let findAllSpy: jest.SpyInstance;
   let findAllMessageSpy: jest.SpyInstance;
   let updateSpy: jest.SpyInstance;
+  let superGetByIdSpy: jest.SpyInstance;
+  let findOneSpy: jest.SpyInstance;
 
   beforeEach(() => {
     repository = new SequelizeMessageRepository();
@@ -18,6 +21,12 @@ describe('SequelizeMessageRepository', () => {
     findAllSpy = jest.spyOn(IncomeUserMessagesModel, 'findAll').mockImplementation(async () => []);
     findAllMessageSpy = jest.spyOn(MessageModel, 'findAll').mockImplementation(async () => []);
     updateSpy = jest.spyOn(repository, 'update').mockImplementation(async () => null);
+
+    superGetByIdSpy = jest.spyOn(SequelizeGenericRepository.prototype, 'getById').mockImplementation(async (id) => {
+      return { id } as MessageModel;
+    });
+
+    findOneSpy = jest.spyOn(MessageModel, 'findOne').mockImplementation(async () => null);
   });
 
   afterEach(() => {
@@ -136,6 +145,48 @@ describe('SequelizeMessageRepository', () => {
       await repository.markAsSent(messageId);
 
       expect(updateSpy).toHaveBeenCalledWith(messageId, { wasSent: true });
+    });
+  });
+
+  describe('getById', () => {
+    it('should retrieve message by id without including author when withAuthor is false or undefined', async () => {
+      const messageId = 'test-message-id';
+      const result = await repository.getById(messageId);
+
+      expect(superGetByIdSpy).toHaveBeenCalledWith(messageId);
+      expect(findOneSpy).not.toHaveBeenCalled();
+      expect(result).toEqual({ id: messageId });
+    });
+
+    it('should retrieve message by id and include author when withAuthor is true', async () => {
+      const messageId = 'test-message-id';
+      const messageWithAuthor = { id: messageId, author: { id: 'author-id' } } as MessageModel;
+
+      findOneSpy.mockResolvedValue(messageWithAuthor);
+
+      const options: GetByIdOptions = { withAuthor: true };
+      const result = await repository.getById(messageId, options);
+
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { id: messageId },
+        include: UserModel,
+      });
+      expect(result).toEqual(messageWithAuthor);
+    });
+
+    it('should return null if no message is found when withAuthor is true', async () => {
+      const messageId = 'non-existent-message-id';
+
+      findOneSpy.mockResolvedValue(null);
+
+      const options: GetByIdOptions = { withAuthor: true };
+      const result = await repository.getById(messageId, options);
+
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { id: messageId },
+        include: UserModel,
+      });
+      expect(result).toBeNull();
     });
   });
 });

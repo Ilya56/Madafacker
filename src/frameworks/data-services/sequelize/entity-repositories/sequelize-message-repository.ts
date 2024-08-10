@@ -1,6 +1,6 @@
-import { IncomeUserMessagesModel, MessageModel } from '../models';
+import { IncomeUserMessagesModel, MessageModel, UserModel } from '../models';
 import { SequelizeGenericRepository } from '../sequelize-generic-repository';
-import { Message, MessageRepositoryAbstract, User } from '@core';
+import { GetByIdOptions, Message, MessageRepositoryAbstract, User } from '@core';
 import { IncludeOptions } from 'sequelize';
 
 /**
@@ -94,5 +94,24 @@ export class SequelizeMessageRepository
    */
   async markAsSent(messageId: Message['id']): Promise<void> {
     await this.update(messageId, { wasSent: true });
+  }
+
+  /**
+   * Extends generic method by adding new options.
+   * For example, withAuthor option includes a User model to the result
+   * @param id message id to retrieve
+   * @param options retrieving options
+   */
+  async getById(id: Message['id'], options?: GetByIdOptions): Promise<MessageModel | null> {
+    if (options?.withAuthor) {
+      return this.repository.findOne({
+        where: {
+          id,
+        },
+        include: UserModel,
+      });
+    } else {
+      return super.getById(id);
+    }
   }
 }
