@@ -12,6 +12,10 @@ export type GetUserOptions = {
    * If true - should return user entity with a populated array of the outcoming messages
    */
   withOutcomingMessages?: boolean;
+  /**
+   * If true - should block user row in the DB. For example, for PG it's SELECT ... FROM UPDATE statement.
+   */
+  lock?: boolean;
 };
 
 /**

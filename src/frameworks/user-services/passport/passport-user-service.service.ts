@@ -28,6 +28,10 @@ export class PassportUserServiceService extends UserServiceAbstract {
       throw new NotFoundError('Current user not found');
     }
 
+    if (options?.lock) {
+      await this.dataService.users.lock(user.id);
+    }
+
     if (options?.withIncomingMessages) {
       user.incomeMessages = await this.dataService.messages.getIncomingByUserId(user.id, 1);
     }
