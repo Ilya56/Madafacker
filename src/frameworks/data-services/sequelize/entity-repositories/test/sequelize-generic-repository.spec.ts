@@ -112,4 +112,23 @@ describe('SequelizeGenericRepository', () => {
       expect(repository.update).toHaveBeenCalledWith(updatedModel, { where: { id: 1 }, returning: true });
     });
   });
+
+  describe('lock', () => {
+    it('should lock an entity by id and return the locked entity', async () => {
+      const lockedModel = new TestModel();
+      jest.spyOn(repository, 'findOne').mockResolvedValue(lockedModel);
+
+      const result = await sequelizeGenericRepository.lock(1);
+      expect(result).toEqual(lockedModel);
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 1 }, lock: true });
+    });
+
+    it('should return null if the entity is not found during lock', async () => {
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+
+      const result = await sequelizeGenericRepository.lock(1);
+      expect(result).toBeNull();
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 1 }, lock: true });
+    });
+  });
 });

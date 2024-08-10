@@ -78,4 +78,15 @@ export class SequelizeGenericRepository<T extends Model<any, any>, R extends Mod
     });
     return updatedRows?.[0] ?? null;
   }
+
+  /**
+   * Returns model instance by id with row lock
+   * @param id instance id to search and lock
+   */
+  async lock(id: any): Promise<T | null> {
+    return this.repository.findOne({
+      where: { id },
+      lock: true,
+    });
+  }
 }
