@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest --passWithNoTests",
+    "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -91,6 +91,55 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 85,
+        "functions": 85,
+        "lines": 90,
+        "statements": 90
+      },
+      "./src/controllers": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      },
+      "./src/core": {
+        "branches": 95,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      },
+      "./src/frameworks": {
+        "branches": 75,
+        "functions": 75,
+        "lines": 85,
+        "statements": 75
+      },
+      "./src/listeners": {
+        "branches": 95,
+        "functions": 80,
+        "lines": 95,
+        "statements": 95
+      },
+      "./src/use-cases": {
+        "branches": 88,
+        "functions": 100,
+        "lines": 99,
+        "statements": 99
+      }
+    },
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/src/config/",
+      "/src/app.module.ts",
+      "/src/main.ts",
+      "/src/frameworks/data-services/sequelize/migrations/",
+      "/src/frameworks/data-services/sequelize/models/",
+      "/src/frameworks/data-services/sequelize/seeders/",
+      "/src/frameworks/data-services/sequelize/config"
+    ],
     "moduleNameMapper": {
       "@config": [
         "<rootDir>/config"
