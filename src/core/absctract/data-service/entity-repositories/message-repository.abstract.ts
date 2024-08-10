@@ -1,6 +1,16 @@
 import { GenericRepositoryAbstract, Message, User } from '@core';
 
 /**
+ * getById method options
+ */
+export type GetByIdOptions = {
+  /**
+   * If true - should return a message with an author object
+   */
+  withAuthor?: boolean;
+};
+
+/**
  * This interface is created to extend generic repository with a methods that are useful for a message entity
  */
 export interface MessageRepositoryAbstract extends GenericRepositoryAbstract<Message> {
@@ -37,4 +47,11 @@ export interface MessageRepositoryAbstract extends GenericRepositoryAbstract<Mes
    * @param messageId message id to mark as sent
    */
   markAsSent(messageId: Message['id']): Promise<void>;
+
+  /**
+   * Returns message by id with additional options
+   * @param id message id to retrieve
+   * @param options please check type to get more info
+   */
+  getById(id: Message['id'], options?: GetByIdOptions): Promise<Message | null>;
 }
