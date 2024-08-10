@@ -35,4 +35,11 @@ export interface GenericRepositoryAbstract<T> {
    * @param entity update data
    */
   update(id: Entity['id'], entity: Partial<T>): Promise<T | null>;
+
+  /**
+   * Should lock entity while transaction is running
+   * @param id row id to lock
+   * @returns It returns locked entity or null if entity not found
+   */
+  lock(id: Entity['id']): Promise<T | null>;
 }
