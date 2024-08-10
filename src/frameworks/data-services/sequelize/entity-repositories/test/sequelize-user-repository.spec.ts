@@ -104,7 +104,10 @@ describe('SequelizeUserRepository', () => {
 
       const result = await userRepository.addCoins(userId, coinsNumber);
 
-      expect(UserModel.increment).toHaveBeenCalledWith({ coins: coinsNumber }, { where: { id: userId } });
+      expect(UserModel.increment).toHaveBeenCalledWith(
+        { coins: coinsNumber },
+        { where: { id: userId }, returning: true },
+      );
       expect(result).toEqual(50);
     });
 
@@ -117,7 +120,10 @@ describe('SequelizeUserRepository', () => {
 
       const result = await userRepository.addCoins(userId, coinsNumber);
 
-      expect(UserModel.increment).toHaveBeenCalledWith({ coins: coinsNumber }, { where: { id: userId } });
+      expect(UserModel.increment).toHaveBeenCalledWith(
+        { coins: coinsNumber },
+        { where: { id: userId }, returning: true },
+      );
       expect(result).toEqual(0);
     });
   });

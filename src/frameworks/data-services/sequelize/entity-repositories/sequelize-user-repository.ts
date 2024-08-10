@@ -3,6 +3,12 @@ import { SequelizeGenericRepository } from '../sequelize-generic-repository';
 import { IncomeUserMessagesModel, UserModel } from '../models';
 import { Sequelize } from 'sequelize-typescript';
 
+declare module 'sequelize' {
+  export interface IncrementDecrementOptions {
+    returning?: boolean;
+  }
+}
+
 /**
  * Sequelize user repository implementation
  */
@@ -69,6 +75,7 @@ export class SequelizeUserRepository
       { coins: coinsNumber },
       {
         where: { id: userId },
+        returning: true,
       },
     );
 
