@@ -14,6 +14,7 @@ export const SERVICES_PROVIDER = [
         getById: jest.fn(),
         getRandomUserIds: jest.fn(),
         sendMessageToUsers: jest.fn(),
+        addCoins: jest.fn(),
       },
       messages: {
         getById: jest.fn(),
@@ -21,6 +22,7 @@ export const SERVICES_PROVIDER = [
         getIncomingByUserId: jest.fn(),
         markAsSent: jest.fn(),
         getNotSentMessages: jest.fn(),
+        getByIdWithAuthor: jest.fn(),
       },
       replies: {
         create: jest.fn(),
