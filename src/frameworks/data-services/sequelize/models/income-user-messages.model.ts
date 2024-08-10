@@ -1,5 +1,5 @@
 import { ForeignKey as ForeignKeyType, InferAttributes, InferCreationAttributes, NonAttribute } from 'sequelize';
-import { Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Model, Table, ForeignKey, BelongsTo, Column, DataType } from 'sequelize-typescript';
 import { UserModel } from './user.model';
 import { MessageModel } from './message.model';
 import { User } from '@core';
@@ -33,5 +33,6 @@ export class IncomeUserMessagesModel extends Model<
   /**
    * Message rating from user
    */
+  @Column(DataType.STRING)
   rating?: MessageRating;
 }
