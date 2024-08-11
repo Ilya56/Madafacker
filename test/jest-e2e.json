@@ -1,9 +1,47 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "collectCoverage": true,
+  "coverageDirectory": "./coverage-e2e",
+  "coveragePathIgnorePatterns": [
+    "/node_modules/",
+    "/src/frameworks/data-services/sequelize/migrations/",
+    "/src/frameworks/data-services/sequelize/seeders/",
+    "/src/frameworks/data-services/sequelize/config"
+  ],
+  "moduleNameMapper": {
+    "@config": [
+      "<rootDir>/src/config"
+    ],
+    "@controllers": [
+      "<rootDir>/src/controllers"
+    ],
+    "@core": [
+      "<rootDir>/src/core"
+    ],
+    "@frameworks/(.*)": [
+      "<rootDir>/src/frameworks/$1"
+    ],
+    "@listeners": [
+      "<rootDir>/src/listeners"
+    ],
+    "@services": [
+      "<rootDir>/src/services"
+    ],
+    "@use-cases/(.*)": [
+      "<rootDir>/src/use-cases/$1"
+    ],
+    "@utils/(.*)": [
+      "<rootDir>/src/utils/$1"
+    ]
   }
 }
