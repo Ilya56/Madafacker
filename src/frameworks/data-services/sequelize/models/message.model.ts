@@ -29,8 +29,8 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
   @PrimaryKey
   @IsUUID('4')
   @Default(DataType.UUIDV4)
-  @Column({ unique: true })
-  id: string;
+  @Column({ unique: true, type: DataType.UUIDV4 })
+  id: CreationOptional<string>;
 
   /**
    * Message body
@@ -96,5 +96,5 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    */
   @Default(false)
   @Column(DataType.BOOLEAN)
-  wasSent: boolean;
+  wasSent: CreationOptional<boolean>;
 }
