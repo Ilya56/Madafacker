@@ -5,10 +5,7 @@ import { AppModule } from '../src/app.module';
 import { v4 as uuidv4 } from 'uuid';
 import { MessageModel, UserModel, IncomeUserMessagesModel } from '@frameworks/data-services/sequelize/models';
 import { MessageMode } from '@core';
-
-function delay(ms: number): Promise<void> {
-  return new Promise((res) => setTimeout(res, ms));
-}
+import { delay } from './utils/delay';
 
 describe('Message Endpoints (e2e)', () => {
   let app: INestApplication;
