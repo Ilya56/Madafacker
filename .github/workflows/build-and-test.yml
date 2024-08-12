@@ -10,16 +10,12 @@ on:
         default: '20.x'
 
 jobs:
-  checkout:
+  checkout-and-setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-  setup-node:
-    runs-on: ubuntu-latest
-    needs: checkout
-    steps:
       - name: List files in the current directory
         run: ls -alh
 
