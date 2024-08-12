@@ -1,4 +1,4 @@
-name: Node.js CI v2
+name: Node.js CI
 
 on:
   pull_request:
@@ -6,8 +6,8 @@ on:
       - develop
   push:
     branches:
-      - main
       - develop
+      - master
 
 jobs:
   build-and-test:
