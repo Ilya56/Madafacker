@@ -11,7 +11,7 @@ describe('Cron Jobs (e2e)', () => {
   let app: INestApplication;
   const createdMessages: MessageModel[] = [];
   const createdUsers: UserModel[] = [];
-  const apiKey = 'ellg0ysVnSAdo6ggGLMYPcqa4ecojDXPZCnmYOk6v9VIqEfo3NzA1ROSKz22Uo0r'; // Replace with your actual test API key
+  const apiKey = process.env.API_KEY || '';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
