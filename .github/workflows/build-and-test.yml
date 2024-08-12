@@ -21,7 +21,7 @@ jobs:
     needs: checkout
     steps:
       - name: Show current directory and files
-        run: cwd && ls
+        run: echo ${{ github.workspace }}
       - name: Use Node.js ${{ inputs.node-version }}
         uses: actions/setup-node@v4
         with:
