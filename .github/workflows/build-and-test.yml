@@ -20,8 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: checkout
     steps:
-      - name: Show current directory and files
-        run: ls
+      - name: List files in the current directory
+        run: ls -alh
+
       - name: Use Node.js ${{ inputs.node-version }}
         uses: actions/setup-node@v4
         with:
