@@ -31,7 +31,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    needs: setup-node
+    needs: checkout-and-setup
     steps:
       - name: Run format check
         run: npm run format
@@ -41,7 +41,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: setup-node
+    needs: checkout-and-setup
     steps:
       - name: Build the project
         run: npm run build
