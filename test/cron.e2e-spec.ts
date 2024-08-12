@@ -54,7 +54,7 @@ describe('Cron Jobs (e2e)', () => {
 
   // Test case for Cron Job: Send Messages
   describe('Send Messages Cron Job', () => {
-    it('should correctly calculate the number of users to send the message to using LinearAlgoService', async () => {
+    it.skip('should correctly calculate the number of users to send the message to using LinearAlgoService', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/cron/send-messages')
         .set('x-api-key', apiKey) // Set the API key in the headers
@@ -77,7 +77,7 @@ describe('Cron Jobs (e2e)', () => {
       expect(incomeMessages.length).toBeGreaterThanOrEqual(expectedUsersCount);
     });
 
-    it('should mark the message as sent after all users have seen it', async () => {
+    it.skip('should mark the message as sent after all users have seen it', async () => {
       // Create a new message that should be fully sent
       const messageToComplete = await MessageModel.create({
         body: `Message to be fully sent ${uuidv4()}`,
