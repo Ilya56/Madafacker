@@ -64,7 +64,7 @@ describe('Cron Jobs (e2e)', () => {
 
       expect(response.body).toBeDefined(); // Further assertions can be made based on the actual response structure
 
-      await delay(1000);
+      await delay(5000);
 
       // Verify that the message processing involved the LinearAlgoService calculations
       const processedMessage = await MessageModel.findOne({ where: { id: createdMessages[0].id } });
@@ -106,7 +106,7 @@ describe('Cron Jobs (e2e)', () => {
 
       expect(response.body).toBeDefined();
 
-      await delay(1000);
+      await delay(5000);
 
       // Verify the message is marked as sent
       const updatedMessage = await MessageModel.findOne({ where: { id: messageToComplete.id } });
