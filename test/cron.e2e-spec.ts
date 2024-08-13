@@ -54,7 +54,7 @@ describe('Cron Jobs (e2e)', () => {
 
   // Test case for Cron Job: Send Messages
   describe('Send Messages Cron Job', () => {
-    it.skip('should correctly calculate the number of users to send the message to using LinearAlgoService', async () => {
+    it('should correctly calculate the number of users to send the message to using LinearAlgoService', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/cron/send-messages')
         .set('x-api-key', apiKey) // Set the API key in the headers
@@ -62,7 +62,7 @@ describe('Cron Jobs (e2e)', () => {
 
       expect(response.body).toBeDefined(); // Further assertions can be made based on the actual response structure
 
-      await delay(500);
+      await delay(1000);
 
       // Verify that the message processing involved the LinearAlgoService calculations
       const processedMessage = await MessageModel.findOne({ where: { id: createdMessages[0].id } });
@@ -75,9 +75,9 @@ describe('Cron Jobs (e2e)', () => {
       const incomeMessages = await IncomeUserMessagesModel.findAll({ where: { messageId: processedMessage?.id } });
       const expectedUsersCount = Math.floor(totalUsers * 0.1);
       expect(incomeMessages.length).toBeGreaterThanOrEqual(expectedUsersCount);
-    });
+    }, 10000);
 
-    it.skip('should mark the message as sent after all users have seen it', async () => {
+    it('should mark the message as sent after all users have seen it', async () => {
       // Create a new message that should be fully sent
       const messageToComplete = await MessageModel.create({
         body: `Message to be fully sent ${uuidv4()}`,
@@ -104,12 +104,12 @@ describe('Cron Jobs (e2e)', () => {
 
       expect(response.body).toBeDefined();
 
-      await delay(500);
+      await delay(1000);
 
       // Verify the message is marked as sent
       const updatedMessage = await MessageModel.findOne({ where: { id: messageToComplete.id } });
       expect(updatedMessage?.wasSent).toBe(true);
-    });
+    }, 10000);
 
     it('should return 401 if the API key is missing', async () => {
       const response = await request(app.getHttpServer()).post('/api/cron/send-messages').expect(403);
