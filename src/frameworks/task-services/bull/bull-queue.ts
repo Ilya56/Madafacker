@@ -38,4 +38,11 @@ export class BullQueue<T> extends QueueAbstract<T> {
   async processQueue(processor: (data: ConvertObjectsToStringType<T>) => Promise<void> | void): Promise<void> {
     await this.queue.process((job) => processor(job.data as ConvertObjectsToStringType<T>));
   }
+
+  /**
+   * Close the queue. Is used to stop listener when application is stooped
+   */
+  close() {
+    return this.queue.close();
+  }
 }
