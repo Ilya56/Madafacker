@@ -123,10 +123,7 @@ describe('ReplyController', () => {
 
       jest.spyOn(getReplyByIdUseCase, 'execute').mockResolvedValue(null);
 
-      const result = await controller.getById(id);
-
-      expect(getReplyByIdUseCase.execute).toHaveBeenCalledWith(id);
-      expect(result).toEqual(null);
+      await expect(controller.getById(id)).rejects.toThrow(new NotFoundException(`Reply with id ${id} was not found`));
     });
   });
 });

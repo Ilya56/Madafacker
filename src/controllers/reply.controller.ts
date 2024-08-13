@@ -46,7 +46,13 @@ export class ReplyController {
    * @param id id of the reply to retrieve
    */
   @Get('/:id')
-  getById(@Param('id') id: string) {
-    return this.getReplyByIdUseCase.execute(id);
+  async getById(@Param('id') id: string) {
+    const reply = await this.getReplyByIdUseCase.execute(id);
+
+    if (!reply) {
+      throw new NotFoundException(`Reply with id ${id} was not found`);
+    }
+
+    return reply;
   }
 }
