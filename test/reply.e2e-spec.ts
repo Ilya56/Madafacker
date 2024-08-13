@@ -206,7 +206,7 @@ describe('Reply Endpoints (e2e)', () => {
       expect(response.body.body).toBe(createdReply.body);
     });
 
-    it.skip('should return 404 if the reply does not exist', async () => {
+    it('should return 404 if the reply does not exist', async () => {
       const nonExistentReplyId = uuidv4(); // Non-existent UUID
 
       const response = await request(app.getHttpServer())
@@ -214,10 +214,10 @@ describe('Reply Endpoints (e2e)', () => {
         .set('token', createdUser.id)
         .expect(404);
 
-      expect(response.body.message).toContain('Reply with such id was not found');
+      expect(response.body.message).toContain(`Reply with id ${nonExistentReplyId} was not found`);
     });
 
-    it.skip('should return 400 if the reply id is not a valid UUID', async () => {
+    it('should return 400 if the reply id is not a valid UUID', async () => {
       const invalidReplyId = 'invalid_uuid'; // Invalid UUID
 
       const response = await request(app.getHttpServer())
@@ -225,7 +225,7 @@ describe('Reply Endpoints (e2e)', () => {
         .set('token', createdUser.id)
         .expect(400);
 
-      expect(response.body.message).toContain('id must be a UUID');
+      expect(response.body.message).toContain('Validation failed (uuid is expected)');
     });
   });
 });
