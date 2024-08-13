@@ -2,7 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { UserModel } from '@frameworks/data-services/sequelize/models';
+import { IncomeUserMessagesModel, MessageModel, UserModel } from '@frameworks/data-services/sequelize/models';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('User Endpoints (e2e)', () => {
@@ -22,6 +22,8 @@ describe('User Endpoints (e2e)', () => {
   afterEach(async () => {
     // Delete only the users created during the tests
     for (const user of createdUsers) {
+      await IncomeUserMessagesModel.destroy({ where: { userId: user.id } });
+      await MessageModel.destroy({ where: { authorId: user.id } });
       await UserModel.destroy({ where: { id: user.id } });
     }
     createdUsers = [];

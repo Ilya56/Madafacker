@@ -46,6 +46,8 @@ describe('Cron Jobs (e2e)', () => {
     }
 
     for (const user of createdUsers) {
+      await IncomeUserMessagesModel.destroy({ where: { userId: user.id } });
+      await MessageModel.destroy({ where: { authorId: user.id } });
       await UserModel.destroy({ where: { id: user.id } });
     }
 

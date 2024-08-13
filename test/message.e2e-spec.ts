@@ -40,7 +40,10 @@ describe('Message Endpoints (e2e)', () => {
 
   afterAll(async () => {
     // Clean up by deleting the created user
+    await IncomeUserMessagesModel.destroy({ where: { userId: createdUser.id } });
+    await MessageModel.destroy({ where: { authorId: createdUser.id } });
     await UserModel.destroy({ where: { id: createdUser.id } });
+
     await app.close();
   });
 
