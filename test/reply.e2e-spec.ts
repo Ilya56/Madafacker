@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { v4 as uuidv4 } from 'uuid';
-import { MessageModel, UserModel } from '@frameworks/data-services/sequelize/models';
+import { IncomeUserMessagesModel, MessageModel, UserModel } from '@frameworks/data-services/sequelize/models';
 import { MessageMode } from '@core';
 
 describe('Reply Endpoints (e2e)', () => {
@@ -46,9 +46,14 @@ describe('Reply Endpoints (e2e)', () => {
   afterAll(async () => {
     // Clean up by deleting the created messages and user
     for (const message of createdMessages) {
+      await IncomeUserMessagesModel.destroy({ where: { messageId: message.id } });
       await MessageModel.destroy({ where: { id: message.id } });
     }
+
+    await IncomeUserMessagesModel.destroy({ where: { userId: createdUser.id } });
+    await MessageModel.destroy({ where: { authorId: createdUser.id } });
     await UserModel.destroy({ where: { id: createdUser.id } });
+
     await app.close();
   });
 
