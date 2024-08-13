@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { UniqueTokenStrategy } from 'passport-unique-token';
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataServiceAbstract, User } from '@core';
 
 /**
@@ -22,7 +22,7 @@ export class UniqueTokenPassportStrategy extends PassportStrategy(UniqueTokenStr
       const user = await this.dataService.users.getById(id);
 
       if (!user) {
-        throw new UnauthorizedException('User not found');
+        throw new NotFoundException('User not found');
       }
 
       return user;

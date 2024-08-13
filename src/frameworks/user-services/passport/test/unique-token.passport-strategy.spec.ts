@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { DataServiceAbstract, User } from '@core';
 import { UniqueTokenPassportStrategy } from '../unique-token.passport-strategy';
 
@@ -42,7 +42,7 @@ describe('UniqueTokenPassportStrategy', () => {
     it('should throw an UnauthorizedException when the user is not found', async () => {
       jest.spyOn(dataService.users, 'getById').mockResolvedValue(null);
 
-      await expect(strategy.validate('nonexistent')).rejects.toThrow(UnauthorizedException);
+      await expect(strategy.validate('nonexistent')).rejects.toThrow(NotFoundException);
       expect(dataService.users.getById).toHaveBeenCalledWith('nonexistent');
     });
 
