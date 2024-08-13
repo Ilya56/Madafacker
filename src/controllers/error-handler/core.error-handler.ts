@@ -2,6 +2,7 @@ import {
   BadRequestException,
   CallHandler,
   ExecutionContext,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NestInterceptor,
@@ -20,9 +21,10 @@ export class CoreErrorHandler implements NestInterceptor {
    * @param exception core type exception
    */
   catch(exception: Error | CoreError): any {
-    if (!(exception instanceof CoreError)) {
-      return new InternalServerErrorException(exception);
+    if (exception instanceof HttpException) {
+      return exception;
     }
+
     if (exception instanceof NotFoundError) {
       return new NotFoundException(exception.message);
     }
@@ -32,6 +34,8 @@ export class CoreErrorHandler implements NestInterceptor {
     if (exception instanceof OperationNotAllowedException) {
       return new BadRequestException(`Operation not allowed: ${exception.message}`);
     }
+
+    return new InternalServerErrorException(exception);
   }
 
   /**
@@ -41,7 +45,7 @@ export class CoreErrorHandler implements NestInterceptor {
    * @param next a reference to the `CallHandler`, which provides access to an
    * `Observable` representing the response stream from the route handler.
    */
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> | Promise<Observable<any>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(catchError((err) => throwError(() => this.catch(err))));
   }
 }
