@@ -318,7 +318,7 @@ describe('Message Endpoints (e2e)', () => {
       // Further assertions can be made based on the expected structure of the messages
     });
 
-    it.skip('should return 200 with an empty array when there are no outcoming messages', async () => {
+    it('should return 200 with an empty array when there are no outcoming messages', async () => {
       // Assuming the test user has no outcoming messages
       const response = await request(app.getHttpServer())
         .get('/api/message/current/outcoming')
