@@ -96,7 +96,7 @@ describe('Reply Endpoints (e2e)', () => {
       expect(response.body.message).toContain('Message with id');
     });
 
-    it.skip('should return 400 if the parentId is not a valid UUID', async () => {
+    it('should return 400 if the parentId is not a valid UUID', async () => {
       const replyData = {
         body: 'Nice message',
         public: false,
@@ -147,7 +147,7 @@ describe('Reply Endpoints (e2e)', () => {
       expect(response.body.updatedAt).not.toBe(response.body.createdAt);
     });
 
-    it.skip('should return 404 if the reply does not exist', async () => {
+    it('should return 404 if the reply does not exist', async () => {
       const updateData = {
         id: uuidv4(), // Non-existent UUID
         public: true,
@@ -162,7 +162,7 @@ describe('Reply Endpoints (e2e)', () => {
       expect(response.body.message).toContain('Reply with such id was not found');
     });
 
-    it.skip('should return 400 if the reply id is not a valid UUID', async () => {
+    it('should return 400 if the reply id is not a valid UUID', async () => {
       const updateData = {
         id: 'invalid_uuid', // Invalid UUID
         public: true,

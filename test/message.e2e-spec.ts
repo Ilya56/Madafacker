@@ -79,7 +79,7 @@ describe('Message Endpoints (e2e)', () => {
       createdMessages.push(createdMessage as MessageModel);
     });
 
-    it.skip('should return 400 for missing message body', async () => {
+    it('should return 400 for missing message body', async () => {
       const messageData = {
         mode: 'dark',
       };
@@ -93,7 +93,7 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.message).toContain('body should not be empty');
     });
 
-    it.skip('should return 400 for missing message mode', async () => {
+    it('should return 400 for missing message mode', async () => {
       const messageData = {
         body: 'Test message',
       };
@@ -107,7 +107,7 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.message[0]).toContain('mode must be one of the following values');
     });
 
-    it.skip('should return 400 for invalid mode value', async () => {
+    it('should return 400 for invalid mode value', async () => {
       const messageData = {
         body: 'Test message',
         mode: 'invalid_mode',
@@ -210,7 +210,7 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.message).toBe('Operation not allowed: Cannot rate own message');
     });
 
-    it.skip('should return 400 for missing rating', async () => {
+    it('should return 400 for missing rating', async () => {
       const messageData = {
         body: 'Test message for missing rating',
         mode: MessageMode.light,
@@ -233,7 +233,7 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.message).toContain('rating should not be empty');
     });
 
-    it.skip('should return 400 for invalid rating value', async () => {
+    it('should return 400 for invalid rating value', async () => {
       const messageData = {
         body: 'Test message for invalid rating',
         mode: MessageMode.light,
