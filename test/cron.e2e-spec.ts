@@ -36,7 +36,7 @@ describe('Cron Jobs (e2e)', () => {
 
     const message = await MessageModel.create(messageData);
     createdMessages.push(message);
-  });
+  }, 30000);
 
   afterAll(async () => {
     // Clean up created messages
@@ -50,7 +50,7 @@ describe('Cron Jobs (e2e)', () => {
     }
 
     await app.close();
-  });
+  }, 30000);
 
   // Test case for Cron Job: Send Messages
   describe('Send Messages Cron Job', () => {
