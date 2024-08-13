@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { CreateReplyUseCase, GetReplyByIdUseCase, UpdateReplyUseCase } from '@use-cases/reply';
 import { CreateReplyDto, UpdateReplyDto } from './dtos';
 import { ReplyFactoryService } from './factories';
@@ -46,7 +46,7 @@ export class ReplyController {
    * @param id id of the reply to retrieve
    */
   @Get('/:id')
-  async getById(@Param('id') id: string) {
+  async getById(@Param('id', ParseUUIDPipe) id: string) {
     const reply = await this.getReplyByIdUseCase.execute(id);
 
     if (!reply) {
