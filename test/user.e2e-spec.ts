@@ -81,7 +81,7 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body.message).toBe('Unauthorized');
     });
 
-    it.skip('should return 404 if no user is found', async () => {
+    it('should return 404 if no user is found', async () => {
       const response = await request(app.getHttpServer()).get('/api/user/current').set('token', uuidv4()).expect(404);
 
       expect(response.body.message).toBe('User not found');
