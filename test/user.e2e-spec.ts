@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
@@ -15,6 +15,7 @@ describe('User Endpoints (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
 
@@ -56,7 +57,7 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body.message).toContain('Duplicated value is not allowed');
     });
 
-    it.skip('should return 400 for invalid data', async () => {
+    it('should return 400 for invalid data', async () => {
       const response = await request(app.getHttpServer()).post('/api/user').send({}).expect(400);
 
       expect(response.body.message).toContain('name should not be empty');
