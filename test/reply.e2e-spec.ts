@@ -23,7 +23,7 @@ describe('Reply Endpoints (e2e)', () => {
 
     // Create a user to use in the tests
     const userName = `user_${uuidv4()}`;
-    createdUser = await UserModel.create({ name: userName });
+    createdUser = await UserModel.create({ name: userName, coins: 10 });
 
     // Create a message to use as parent for replies
     const parentMessageData = {
@@ -115,6 +115,33 @@ describe('Reply Endpoints (e2e)', () => {
         .expect(400);
 
       expect(response.body.message).toContain('parentId must be a UUID');
+    });
+
+    it('should return 400 if user has no enough coins to reply', async () => {
+      await UserModel.update(
+        {
+          coins: 1,
+        },
+        {
+          where: {
+            id: createdUser.id,
+          },
+        },
+      );
+
+      const replyData = {
+        body: 'Nice message',
+        public: false,
+        parentId: createdMessages[0].id,
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/api/reply')
+        .set('token', createdUser.id)
+        .send(replyData)
+        .expect(400);
+
+      expect(response.body.message).toContain(`User with id ${createdUser.id} has not enough coins to create reply`);
     });
   });
 
