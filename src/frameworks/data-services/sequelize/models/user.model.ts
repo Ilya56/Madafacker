@@ -55,7 +55,7 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
 
   @Default(0)
   @Column(DataType.NUMBER)
-  coins: number;
+  coins: CreationOptional<number>;
 
   /**
    * When a user was created
