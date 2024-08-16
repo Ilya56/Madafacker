@@ -7,9 +7,6 @@ env:
   DB_USERNAME: ${{ secrets.DB_USERNAME }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_NAME: ${{ secrets.DB_NAME }}
-  REDIS_HOST: ${{ secrets.REDIS_HOST }}
-  REDIS_PORT: ${{ secrets.REDIS_PORT }}
-  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
   API_KEY: ${{ secrets.API_KEY }}
 
 name: PR in develop CI
@@ -24,6 +21,12 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     environment: preview
+
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
 
     strategy:
       matrix:
