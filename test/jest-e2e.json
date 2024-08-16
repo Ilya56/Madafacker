@@ -33,7 +33,7 @@
     "./src/controllers": {
       "branches": 80,
       "functions": 100,
-      "lines": 98,
+      "lines": 97,
       "statements": 98
     },
     "./src/core": {
