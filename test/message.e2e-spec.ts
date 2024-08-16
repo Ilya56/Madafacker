@@ -217,6 +217,31 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.message).toBe('Operation not allowed: Cannot rate own message');
     });
 
+    it('should return 404 when trying to rate that not receiver', async () => {
+      const messageData = {
+        body: 'Test message for rating',
+        mode: MessageMode.light,
+        authorId: anotherUser.id,
+      };
+
+      const createdMessage = await MessageModel.create(messageData);
+      createdMessages.push(createdMessage);
+
+      const rateData = {
+        rating: 'like',
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/api/message/${createdMessage.id}/rate`)
+        .set('token', createdUser.id)
+        .send(rateData)
+        .expect(404);
+
+      expect(response.body.message).toBe(
+        `Cannot rate because message with id ${createdMessage.id} not found for current user ${createdUser.id}`,
+      );
+    });
+
     it('should return 400 for missing rating', async () => {
       const messageData = {
         body: 'Test message for missing rating',
@@ -280,9 +305,7 @@ describe('Message Endpoints (e2e)', () => {
         .send(rateData)
         .expect(404);
 
-      expect(response.body.message).toBe(
-        `Cannot rate because message with id ${nonExistentMessageId} not found for current user ${createdUser.id}`,
-      );
+      expect(response.body.message).toBe(`Message with id ${nonExistentMessageId} was not found`);
     });
   });
 
