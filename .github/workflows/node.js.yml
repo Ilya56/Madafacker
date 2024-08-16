@@ -3,7 +3,7 @@
 
 env:
   DB_PASSWORD: pg-password
-  API_KEY: ${{ secrets.API_KEY }}
+  API_KEY: test-api-key
 
 name: PR in develop CI
 
@@ -16,9 +16,8 @@ on:
     branches: [ "develop", "main" ]
 
 jobs:
-  build-and-test:
+  build-and-unit-test:
     runs-on: ubuntu-latest
-    environment: preview
 
     services:
       redis:
