@@ -25,7 +25,7 @@ export class RateMessageUseCase extends CommandAbstract<RateMessageInput, void> 
    * Users cannot rate their own message.
    * If a message does not exist, it throws an exception.
    * Users cannot rate a message not received previously.
-   * After message rated, it adds coins to the message author
+   * After a message rated, it adds coins to the message author
    * @param messageId message id to rate
    * @param rating user rating
    */
@@ -48,10 +48,6 @@ export class RateMessageUseCase extends CommandAbstract<RateMessageInput, void> 
 
     if (!message) {
       throw new NotFoundError(`Message with id ${messageId} was not found`);
-    }
-
-    if (!message.author) {
-      throw new NotFoundError(`Author of the message ${messageId} was not found`);
     }
 
     const rated = await this.dataService.incomeUserMessage.rateMessage(user.id, messageId, rating);
