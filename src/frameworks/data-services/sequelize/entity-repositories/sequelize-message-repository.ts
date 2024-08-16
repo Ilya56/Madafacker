@@ -1,6 +1,6 @@
 import { IncomeUserMessagesModel, MessageModel, UserModel } from '../models';
 import { SequelizeGenericRepository } from '../sequelize-generic-repository';
-import { GetByIdOptions, Message, MessageRepositoryAbstract, User } from '@core';
+import { GetByIdOptions, Message, MessageRepositoryAbstract, NotFoundError, User } from '@core';
 import { IncludeOptions } from 'sequelize';
 
 /**
@@ -104,12 +104,18 @@ export class SequelizeMessageRepository
    */
   async getById(id: Message['id'], options?: GetByIdOptions): Promise<MessageModel | null> {
     if (options?.withAuthor) {
-      return this.repository.findOne({
+      const message = await this.repository.findOne({
         where: {
           id,
         },
         include: UserModel,
       });
+
+      if (message && !message.author) {
+        throw new NotFoundError(`Author of the message ${id} was not found`);
+      }
+
+      return message;
     } else {
       return super.getById(id);
     }
