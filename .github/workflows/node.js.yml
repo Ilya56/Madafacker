@@ -9,9 +9,7 @@ name: PR in develop CI
 
 on:
   push:
-    ### TEST ###
-    branches: [ "release/*", "feature/MF-122-*" ]
-    ### END TEST ###
+    branches: [ "release/*" ]
   pull_request:
     branches: [ "develop", "main" ]
 
