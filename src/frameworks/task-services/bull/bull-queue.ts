@@ -20,7 +20,15 @@ export class BullQueue<T> extends QueueAbstract<T> {
    */
   public constructor(configService: ConfigService, name: string) {
     super();
-    this.queue = new Bull<T>(name, { redis: configService.get<ConfigType['redis']>('redis') });
+    this.queue = new Bull<T>(name, {
+      redis: configService.get<ConfigType['redis']>('redis'),
+      defaultJobOptions: {
+        removeOnComplete: {
+          count: 500,
+          age: 60 * 60 * 24, // 24 hours in seconds
+        },
+      },
+    });
   }
 
   /**
