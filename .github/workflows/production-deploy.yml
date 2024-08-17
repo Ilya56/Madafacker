@@ -2,9 +2,7 @@ name: Production CI/CD
 
 on:
   push:
-    ### TEST ###
-    branches: [ "main", "feature/MF-122-*" ]
-    ### END TEST ###
+    branches: [ "main" ]
 
 jobs:
   build-and-unit-test:
@@ -135,8 +133,8 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
-#      - name: Deploy Project Artifacts to Vercel
-#        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Notify of successful deployment
         run: echo "Production deployment successful!"
