@@ -35,4 +35,11 @@ export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> 
    * @returns new user coins value
    */
   addCoins(userId: User['id'], coinsNumber: number): Promise<number>;
+
+  /**
+   * Returns user found by name or null.
+   * Name is unique so not more one user can be returned
+   * @param name user name to search
+   */
+  getByName(name: User['name']): Promise<User | null>;
 }
