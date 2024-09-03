@@ -81,4 +81,16 @@ export class SequelizeUserRepository
 
     return newCoinsValue ?? 0;
   }
+
+  /**
+   * Search user using findOne and return it
+   * @param name user name to search
+   */
+  getByName(name: User['name']): Promise<User | null> {
+    return this.repository.findOne({
+      where: {
+        name,
+      },
+    });
+  }
 }
