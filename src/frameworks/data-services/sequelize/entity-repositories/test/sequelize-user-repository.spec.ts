@@ -127,4 +127,29 @@ describe('SequelizeUserRepository', () => {
       expect(result).toEqual(0);
     });
   });
+
+  describe('getByName', () => {
+    it('should return the user with the specified name', async () => {
+      const mockUser = { id: '1', name: 'John Doe' } as UserModel;
+      jest.spyOn(UserModel, 'findOne').mockResolvedValue(mockUser as any);
+
+      const result = await userRepository.getByName('John Doe');
+
+      expect(result).toEqual(mockUser);
+      expect(UserModel.findOne).toHaveBeenCalledWith({
+        where: { name: 'John Doe' },
+      });
+    });
+
+    it('should return null if no user is found', async () => {
+      jest.spyOn(UserModel, 'findOne').mockResolvedValue(null);
+
+      const result = await userRepository.getByName('NonExistentUser');
+
+      expect(result).toBeNull();
+      expect(UserModel.findOne).toHaveBeenCalledWith({
+        where: { name: 'NonExistentUser' },
+      });
+    });
+  });
 });
