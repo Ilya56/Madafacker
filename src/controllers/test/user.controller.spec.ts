@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from '../user.controller';
 import { CreateUserDto, UpdateUserDto } from '../dtos';
-import { CreateUserUseCase, GetCurrentUserUseCase, UpdateUserUseCase } from '@use-cases/user';
+import {
+  CheckUsernameAvailableUseCase,
+  CreateUserUseCase,
+  GetCurrentUserUseCase,
+  UpdateUserUseCase,
+} from '@use-cases/user';
 import { UserFactoryService } from '../factories';
 import { User } from '@core';
 import { NotFoundException } from '@nestjs/common';
@@ -12,6 +17,7 @@ describe('UserController', () => {
   let createUserUseCase: CreateUserUseCase;
   let getUserByIdUseCase: GetCurrentUserUseCase;
   let updateUserUseCase: UpdateUserUseCase;
+  let checkUsernameAvailableUseCase: CheckUsernameAvailableUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,6 +42,10 @@ describe('UserController', () => {
           provide: UpdateUserUseCase,
           useValue: { execute: jest.fn() },
         },
+        {
+          provide: CheckUsernameAvailableUseCase,
+          useValue: { execute: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -44,6 +54,7 @@ describe('UserController', () => {
     createUserUseCase = module.get<CreateUserUseCase>(CreateUserUseCase);
     getUserByIdUseCase = module.get<GetCurrentUserUseCase>(GetCurrentUserUseCase);
     updateUserUseCase = module.get<UpdateUserUseCase>(UpdateUserUseCase);
+    checkUsernameAvailableUseCase = module.get<CheckUsernameAvailableUseCase>(CheckUsernameAvailableUseCase);
   });
 
   describe('create', () => {
@@ -97,6 +108,28 @@ describe('UserController', () => {
       await expect(userController.update(mockUpdateUserDto)).rejects.toThrow(
         new NotFoundException('Current user not found'),
       );
+    });
+  });
+
+  describe('checkNameAvailable', () => {
+    it('should return true if the username is available', async () => {
+      const name = 'testuser';
+      jest.spyOn(checkUsernameAvailableUseCase, 'execute').mockResolvedValue(true);
+
+      const result = await userController.checkNameAvailable({ name });
+
+      expect(result).toEqual({ nameIsAvailable: true });
+      expect(checkUsernameAvailableUseCase.execute).toHaveBeenCalledWith(name);
+    });
+
+    it('should return false if the username is not available', async () => {
+      const name = 'testuser';
+      jest.spyOn(checkUsernameAvailableUseCase, 'execute').mockResolvedValue(false);
+
+      const result = await userController.checkNameAvailable({ name });
+
+      expect(result).toEqual({ nameIsAvailable: false });
+      expect(checkUsernameAvailableUseCase.execute).toHaveBeenCalledWith(name);
     });
   });
 });
