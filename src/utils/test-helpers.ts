@@ -15,6 +15,7 @@ export const SERVICES_PROVIDER = [
         getRandomUserIds: jest.fn(),
         sendMessageToUsers: jest.fn(),
         addCoins: jest.fn(),
+        getByName: jest.fn(),
       },
       messages: {
         getById: jest.fn(),
