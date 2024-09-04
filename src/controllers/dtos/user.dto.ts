@@ -7,3 +7,13 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto extends CreateUserDto {}
+
+export class CheckNameAvailableDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}
+
+export class NameIsAvailableResponseDto {
+  nameIsAvailable: boolean;
+}

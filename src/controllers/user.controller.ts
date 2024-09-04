@@ -1,6 +1,11 @@
-import { Body, Controller, Get, NotFoundException, Patch, Post } from '@nestjs/common';
-import { CreateUserUseCase, GetCurrentUserUseCase, UpdateUserUseCase } from '@use-cases/user';
-import { CreateUserDto, UpdateUserDto } from './dtos';
+import { Body, Controller, Get, NotFoundException, Patch, Post, Query } from '@nestjs/common';
+import {
+  CreateUserUseCase,
+  GetCurrentUserUseCase,
+  UpdateUserUseCase,
+  CheckUsernameAvailableUseCase,
+} from '@use-cases/user';
+import { CheckNameAvailableDto, CreateUserDto, NameIsAvailableResponseDto, UpdateUserDto } from './dtos';
 import { User } from '@core';
 import { UserFactoryService } from './factories';
 import { Public } from './auth';
@@ -15,6 +20,7 @@ export class UserController {
     private createUserUseCase: CreateUserUseCase,
     private getUserByIdUseCase: GetCurrentUserUseCase,
     private updateUserUseCase: UpdateUserUseCase,
+    private checkUsernameAvailableUseCase: CheckUsernameAvailableUseCase,
   ) {}
 
   /**
@@ -50,5 +56,19 @@ export class UserController {
     }
 
     return updatedUser;
+  }
+
+  /**
+   * Checks that given name is available to create a user
+   * @param query query object with name to check
+   */
+  @Public()
+  @Get('/check-name-availability')
+  async checkNameAvailable(@Query() query: CheckNameAvailableDto): Promise<NameIsAvailableResponseDto> {
+    const nameIsAvailable = await this.checkUsernameAvailableUseCase.execute(query.name);
+
+    return {
+      nameIsAvailable,
+    };
   }
 }
