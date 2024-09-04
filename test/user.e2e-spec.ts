@@ -127,4 +127,39 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body.message).toBe('Unauthorized');
     });
   });
+
+  describe('Check Username Availability', () => {
+    it('should return true if the username is available', async () => {
+      const availableName = `user_${uuidv4()}`;
+
+      const response = await request(app.getHttpServer())
+        .get('/api/user/check-name-availability')
+        .query({ name: availableName })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('nameIsAvailable', true);
+    });
+
+    it('should return false if the username is already taken', async () => {
+      const takenName = `user_${uuidv4()}`;
+      const existingUser = await UserModel.create({ name: takenName });
+      createdUsers.push(existingUser);
+
+      const response = await request(app.getHttpServer())
+        .get('/api/user/check-name-availability')
+        .query({ name: takenName })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('nameIsAvailable', false);
+    });
+
+    it('should return 400 if no name is provided', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/user/check-name-availability')
+        .query({})
+        .expect(400);
+
+      expect(response.body.message).toContain('name must be a string');
+    });
+  });
 });
