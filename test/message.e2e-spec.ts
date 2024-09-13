@@ -310,50 +310,92 @@ describe('Message Endpoints (e2e)', () => {
   });
 
   // Test cases for Get Incoming Messages
-  describe('Get Incoming Messages', () => {
-    it('should retrieve incoming messages successfully', async () => {
+  describe('Get Incoming Messages with Replies', () => {
+    it('should retrieve incoming messages with 1 level depth replies', async () => {
+      const parentMessageData = {
+        body: 'Parent message',
+        mode: MessageMode.light,
+        authorId: anotherUser.id,
+      };
+
+      const parentMessage = await MessageModel.create(parentMessageData);
+
+      // Create a reply to the parent message
+      const replyMessageData = {
+        body: 'Reply to parent message',
+        mode: MessageMode.light,
+        authorId: anotherUser.id,
+        parentId: parentMessage.id, // Setting parentId to establish the reply relationship
+      };
+
+      const replyMessage = await MessageModel.create(replyMessageData);
+      createdMessages.push(replyMessage);
+      createdMessages.push(parentMessage);
+
+      // Associate messages with the created user
+      await IncomeUserMessagesModel.create({
+        userId: createdUser.id,
+        messageId: parentMessage.id,
+      });
+      await IncomeUserMessagesModel.create({
+        userId: createdUser.id,
+        messageId: replyMessage.id,
+      });
+
       const response = await request(app.getHttpServer())
         .get('/api/message/current/incoming')
         .set('token', createdUser.id)
         .expect(200);
 
       expect(response.body).toBeInstanceOf(Array);
-      // Further assertions can be made based on the expected structure of the messages
-    });
+      expect(response.body.length).toBeGreaterThan(0);
 
-    it('should return 200 with an empty array when there are no incoming messages', async () => {
-      // Assuming the test user has no incoming messages
-      const response = await request(app.getHttpServer())
-        .get('/api/message/current/incoming')
-        .set('token', createdUser.id)
-        .expect(200);
-
-      expect(response.body).toBeInstanceOf(Array);
-      expect(response.body.length).toBe(0);
+      // Check that the parent message has replies with a depth of 1
+      const parentMessageInResponse = response.body.find((msg: any) => msg.id === parentMessage.id);
+      expect(parentMessageInResponse).toBeDefined();
+      expect(parentMessageInResponse.replies).toBeInstanceOf(Array);
+      expect(parentMessageInResponse.replies.length).toBe(1);
+      expect(parentMessageInResponse.replies[0].body).toBe(replyMessage.body);
     });
   });
 
   // Test cases for Get Outcoming Messages
-  describe('Get Outcoming Messages', () => {
-    it('should retrieve outcoming messages successfully', async () => {
+  describe('Get Outcoming Messages with Replies', () => {
+    it('should retrieve outcoming messages with 1 level depth replies', async () => {
+      const parentMessageData = {
+        body: 'Parent message',
+        mode: MessageMode.light,
+        authorId: createdUser.id,
+      };
+
+      const parentMessage = await MessageModel.create(parentMessageData);
+
+      // Create a reply to the parent message
+      const replyMessageData = {
+        body: 'Reply to parent message',
+        mode: MessageMode.light,
+        authorId: anotherUser.id,
+        parentId: parentMessage.id, // Setting parentId to establish the reply relationship
+      };
+
+      const replyMessage = await MessageModel.create(replyMessageData);
+      createdMessages.push(replyMessage);
+      createdMessages.push(parentMessage);
+
       const response = await request(app.getHttpServer())
         .get('/api/message/current/outcoming')
         .set('token', createdUser.id)
         .expect(200);
 
       expect(response.body).toBeInstanceOf(Array);
-      // Further assertions can be made based on the expected structure of the messages
-    });
+      expect(response.body.length).toBeGreaterThan(0);
 
-    it('should return 200 with an empty array when there are no outcoming messages', async () => {
-      // Assuming the test user has no outcoming messages
-      const response = await request(app.getHttpServer())
-        .get('/api/message/current/outcoming')
-        .set('token', createdUser.id)
-        .expect(200);
-
-      expect(response.body).toBeInstanceOf(Array);
-      expect(response.body.length).toBe(0);
+      // Check that the parent message has replies with a depth of 1
+      const parentMessageInResponse = response.body.find((msg: any) => msg.id === parentMessage.id);
+      expect(parentMessageInResponse).toBeDefined();
+      expect(parentMessageInResponse.replies).toBeInstanceOf(Array);
+      expect(parentMessageInResponse.replies.length).toBe(1);
+      expect(parentMessageInResponse.replies[0].body).toBe(replyMessage.body);
     });
   });
 });
