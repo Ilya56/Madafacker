@@ -21,4 +21,8 @@ export class User extends Entity {
    * User coins number
    */
   coins: number;
+  /**
+   * User registration token to identify user in notify systems
+   */
+  registrationToken: string;
 }
