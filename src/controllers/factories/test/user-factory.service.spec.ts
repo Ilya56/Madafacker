@@ -16,7 +16,7 @@ describe('UserFactoryService', () => {
 
   describe('createNewUser', () => {
     it('should create a new user with the correct name from CreateUserDto', () => {
-      const createUserDto: CreateUserDto = { name: 'John Doe' };
+      const createUserDto: CreateUserDto = { name: 'John Doe', registrationToken: 'token' };
 
       const expectedUser = new User();
       expectedUser.name = 'John Doe';
