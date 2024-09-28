@@ -59,7 +59,7 @@ describe('UserController', () => {
 
   describe('create', () => {
     it('should create a user and return the created entity', async () => {
-      const mockUserDto: CreateUserDto = { name: 'John Doe' };
+      const mockUserDto: CreateUserDto = { name: 'John Doe', registrationToken: 'token' };
       const expectedUser = new User();
 
       jest.spyOn(userFactoryService, 'createNewUser').mockReturnValue(expectedUser);

@@ -4,9 +4,17 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  registrationToken: string;
 }
 
-export class UpdateUserDto extends CreateUserDto {}
+export class UpdateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}
 
 export class CheckNameAvailableDto {
   @IsString()

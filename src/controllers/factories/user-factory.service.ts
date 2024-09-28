@@ -14,6 +14,7 @@ export class UserFactoryService {
   createNewUser(createUserDto: CreateUserDto): User {
     const user = new User();
     user.name = createUserDto.name;
+    user.registrationToken = createUserDto.registrationToken;
     return user;
   }
 
