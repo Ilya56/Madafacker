@@ -44,6 +44,7 @@ describe('User Endpoints (e2e)', () => {
 
       expect(response.body).toHaveProperty('id');
       expect(response.body.name).toBe(name);
+      expect(response.body.registrationToken).toBe(registrationToken);
       expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('updatedAt');
 
@@ -71,6 +72,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer()).post('/api/user').send({}).expect(400);
 
       expect(response.body.message).toContain('name should not be empty');
+      expect(response.body.message).toContain('registrationToken should not be empty');
     });
   });
 
@@ -83,6 +85,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer()).get('/api/user/current').set('token', user.id).expect(200);
 
       expect(response.body.name).toBe(user.name);
+      expect(response.body.registrationToken).toBe(user.registrationToken);
     });
 
     it('should return 401 if no token provided', async () => {
@@ -126,6 +129,18 @@ describe('User Endpoints (e2e)', () => {
       const updatedUser = await UserModel.findOne({ where: { id: user.id } });
       expect(updatedUser).not.toBeNull();
       expect(updatedUser?.name).toBe(updatedName);
+    });
+
+    it('should cannot update registration token of the current user', async () => {
+      const uuid = uuidv4();
+      const user = await UserModel.create({ name: `user_${uuid}`, registrationToken: 'token' });
+      createdUsers.push(user);
+
+      await request(app.getHttpServer())
+        .patch('/api/user/current')
+        .send({ registrationToken: 'new_token' })
+        .set('token', user.id)
+        .expect(400);
     });
 
     it('should return 401 if the user is not found', async () => {
