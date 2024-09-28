@@ -23,7 +23,7 @@ describe('Cron Jobs (e2e)', () => {
 
     // Prepopulate users with unique names
     for (let i = 0; i < 10; i++) {
-      const user = await UserModel.create({ name: `test_user_${uuidv4()}` });
+      const user = await UserModel.create({ name: `test_user_${uuidv4()}`, registrationToken: `token-${i}` });
       createdUsers.push(user);
     }
 

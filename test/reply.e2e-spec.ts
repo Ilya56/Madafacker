@@ -23,7 +23,7 @@ describe('Reply Endpoints (e2e)', () => {
 
     // Create a user to use in the tests
     const userName = `user_${uuidv4()}`;
-    createdUser = await UserModel.create({ name: userName, coins: 10 });
+    createdUser = await UserModel.create({ name: userName, coins: 10, registrationToken: 'token' });
 
     // Create a message to use as parent for replies
     const parentMessageData = {
