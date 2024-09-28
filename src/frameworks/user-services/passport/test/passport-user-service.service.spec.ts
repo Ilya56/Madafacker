@@ -18,6 +18,7 @@ describe('PassportUserServiceService', () => {
       incomeMessages: [],
       outcomeMessages: [],
       coins: 0,
+      registrationToken: '',
     };
 
     const module: TestingModule = await Test.createTestingModule({

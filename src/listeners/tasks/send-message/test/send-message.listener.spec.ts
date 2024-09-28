@@ -48,6 +48,7 @@ describe('SendMessageListener', () => {
           outcomeMessages: [],
           incomeMessages: [],
           coins: 0,
+          registrationToken: '',
         },
       };
 
@@ -74,6 +75,7 @@ describe('SendMessageListener', () => {
           id: 'user1',
           name: 'Author Name',
           coins: 0,
+          registrationToken: '',
           outcomeMessages: [
             {
               id: '2',
