@@ -25,8 +25,8 @@ describe('Message Endpoints (e2e)', () => {
     // Create a user to use in the tests
     const userName = `user_${uuidv4()}`;
     const user2Name = `user_${uuidv4()}`;
-    createdUser = await UserModel.create({ name: userName });
-    anotherUser = await UserModel.create({ name: user2Name });
+    createdUser = await UserModel.create({ name: userName, registrationToken: 'token' });
+    anotherUser = await UserModel.create({ name: user2Name, registrationToken: 'token2' });
   });
 
   afterEach(async () => {

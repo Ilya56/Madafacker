@@ -36,7 +36,11 @@ describe('User Endpoints (e2e)', () => {
   describe('Create User', () => {
     it('should create a user successfully', async () => {
       const name = `user_${uuidv4()}`;
-      const response = await request(app.getHttpServer()).post('/api/user').send({ name }).expect(201);
+      const registrationToken = 'token';
+      const response = await request(app.getHttpServer())
+        .post('/api/user')
+        .send({ name, registrationToken })
+        .expect(201);
 
       expect(response.body).toHaveProperty('id');
       expect(response.body.name).toBe(name);
@@ -51,10 +55,14 @@ describe('User Endpoints (e2e)', () => {
 
     it('should return 400 for duplicated user', async () => {
       const name = `user_${uuidv4()}`;
-      const existingUser = await UserModel.create({ name });
+      const registrationToken = 'token';
+      const existingUser = await UserModel.create({ name, registrationToken });
       createdUsers.push(existingUser);
 
-      const response = await request(app.getHttpServer()).post('/api/user').send({ name }).expect(400);
+      const response = await request(app.getHttpServer())
+        .post('/api/user')
+        .send({ name, registrationToken })
+        .expect(400);
 
       expect(response.body.message).toContain('Duplicated value is not allowed');
     });
@@ -69,7 +77,7 @@ describe('User Endpoints (e2e)', () => {
   describe('Get Current User', () => {
     it('should return the current user', async () => {
       const name = `user_${uuidv4()}`;
-      const user = await UserModel.create({ name });
+      const user = await UserModel.create({ name, registrationToken: 'token' });
       createdUsers.push(user);
 
       const response = await request(app.getHttpServer()).get('/api/user/current').set('token', user.id).expect(200);
@@ -104,7 +112,7 @@ describe('User Endpoints (e2e)', () => {
       const uuid = uuidv4();
       const name = `user_${uuid}`;
       const updatedName = `updated_user_${uuid}`;
-      const user = await UserModel.create({ name });
+      const user = await UserModel.create({ name, registrationToken: 'token' });
       createdUsers.push(user);
 
       const response = await request(app.getHttpServer())
@@ -142,7 +150,7 @@ describe('User Endpoints (e2e)', () => {
 
     it('should return false if the username is already taken', async () => {
       const takenName = `user_${uuidv4()}`;
-      const existingUser = await UserModel.create({ name: takenName });
+      const existingUser = await UserModel.create({ name: takenName, registrationToken: 'token' });
       createdUsers.push(existingUser);
 
       const response = await request(app.getHttpServer())
