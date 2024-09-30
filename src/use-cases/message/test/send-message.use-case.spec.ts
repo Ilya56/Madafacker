@@ -1,6 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SendMessageUseCase } from '@use-cases/message';
-import { AlgoServiceAbstract, DataServiceAbstract, Message, MessageMode, NotifyServiceAbstract, User } from '@core';
+import {
+  AlgoServiceAbstract,
+  DataServiceAbstract,
+  InvalidNotifyServiceTokenException,
+  Message,
+  MessageMode,
+  NotifyServiceAbstract,
+  User,
+} from '@core';
 import { SERVICES_PROVIDER } from '@utils/test-helpers';
 import { Logger } from '@nestjs/common';
 
@@ -58,6 +66,7 @@ describe('SendMessageUseCase', () => {
     });
     jest.spyOn(notifyService, 'notify').mockResolvedValue();
     jest.spyOn(Logger.prototype, 'warn').mockImplementation();
+    jest.spyOn(Logger.prototype, 'error').mockImplementation();
   };
 
   describe('implementation', () => {
@@ -123,6 +132,30 @@ describe('SendMessageUseCase', () => {
       expect(dataService.users.getById).toHaveBeenCalledWith('user1');
       expect(dataService.users.getById).toHaveBeenCalledWith('user2');
       expect(Logger.prototype.warn).toHaveBeenCalledWith('Cannot find user with id user2 but algo returns it');
+    });
+
+    it('should log an error if InvalidNotifyServiceTokenException is thrown', async () => {
+      setupMocks();
+
+      const invalidTokenException = new InvalidNotifyServiceTokenException('Invalid Token', 'user-token1');
+      jest.spyOn(notifyService, 'notify').mockRejectedValue(invalidTokenException);
+
+      await service.execute(message);
+
+      expect(Logger.prototype.error).toHaveBeenCalledWith(
+        'Invalid user registration token: Invalid Token : user-token1',
+      );
+    });
+
+    it('should log a generic error if a non-InvalidNotifyServiceTokenException is thrown', async () => {
+      setupMocks();
+
+      const genericError = new Error('Notify error');
+      jest.spyOn(notifyService, 'notify').mockRejectedValue(genericError);
+
+      await service.execute(message);
+
+      expect(Logger.prototype.error).toHaveBeenCalledWith('Error while notify users about message: Notify error');
     });
   });
 });
