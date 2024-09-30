@@ -1,4 +1,10 @@
-import { AlgoServiceAbstract, DataServiceAbstract, TaskServiceAbstract, UserServiceAbstract } from '@core';
+import {
+  AlgoServiceAbstract,
+  DataServiceAbstract,
+  NotifyServiceAbstract,
+  TaskServiceAbstract,
+  UserServiceAbstract,
+} from '@core';
 import { Inject } from '@nestjs/common';
 
 /**
@@ -30,6 +36,8 @@ export abstract class CommandAbstract<I, O> {
   protected algoService: AlgoServiceAbstract;
   @Inject()
   protected taskService: TaskServiceAbstract;
+  @Inject()
+  protected notifyService: NotifyServiceAbstract;
 
   /**
    * Constructor is created to change options if needed

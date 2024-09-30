@@ -1,4 +1,10 @@
-import { AlgoServiceAbstract, DataServiceAbstract, TaskServiceAbstract, UserServiceAbstract } from '@core';
+import {
+  AlgoServiceAbstract,
+  DataServiceAbstract,
+  NotifyServiceAbstract,
+  TaskServiceAbstract,
+  UserServiceAbstract,
+} from '@core';
 
 /**
  * This variable is useful to create tests for a use cases
@@ -55,6 +61,12 @@ export const SERVICES_PROVIDER = [
       sendMessage: {
         addTask: jest.fn(),
       },
+    },
+  },
+  {
+    provide: NotifyServiceAbstract,
+    useValue: {
+      notify: jest.fn(),
     },
   },
 ];
