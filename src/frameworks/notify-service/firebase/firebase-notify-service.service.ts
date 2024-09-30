@@ -59,4 +59,17 @@ export class FirebaseNotifyServiceService extends NotifyServiceAbstract {
       throw err;
     }
   }
+
+  /**
+   * Verifies that provided token is valid and can be used to send notification to the user
+   * @param token token to check
+   */
+  public async verifyToken(token: string): Promise<boolean> {
+    try {
+      await this.fcm.send({ token }, true);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

@@ -67,6 +67,7 @@ export const SERVICES_PROVIDER = [
     provide: NotifyServiceAbstract,
     useValue: {
       notify: jest.fn(),
+      verifyToken: jest.fn(),
     },
   },
 ];
