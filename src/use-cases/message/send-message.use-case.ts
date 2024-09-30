@@ -1,5 +1,5 @@
 import { CommandAbstract } from '@use-cases/abstract';
-import { Message } from '@core';
+import { InvalidNotifyServiceTokenException, Message } from '@core';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
@@ -49,7 +49,14 @@ export class SendMessageUseCase extends CommandAbstract<Message, void> {
         continue;
       }
 
-      await this.notifyService.notify(user.registrationToken, notificationText);
+      try {
+        await this.notifyService.notify(user.registrationToken, notificationText);
+      } catch (e) {
+        if (e instanceof InvalidNotifyServiceTokenException) {
+          return this.logger.error(`Invalid user registration token: ${e.message} : ${e.token}`);
+        }
+        return this.logger.error(`Error while notify users about message: ${e.message}`);
+      }
     }
   }
 }
