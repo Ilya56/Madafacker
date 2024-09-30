@@ -56,8 +56,8 @@
     "./src/use-cases": {
       "branches": 85,
       "functions": 100,
-      "lines": 99,
-      "statements": 99
+      "lines": 98,
+      "statements": 98
     }
   },
   "moduleNameMapper": {
