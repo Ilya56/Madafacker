@@ -6,6 +6,9 @@
  */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Install the UUID extension to this database
+    await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+
     await queryInterface.addColumn('UserModels', 'registrationToken', {
       type: Sequelize.STRING,
       allowNull: true,
