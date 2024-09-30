@@ -8,7 +8,13 @@ import {
   NestInterceptor,
   NotFoundException,
 } from '@nestjs/common';
-import { CoreError, DuplicateNotAllowedError, NotFoundError, OperationNotAllowedException } from '@core';
+import {
+  CoreError,
+  DuplicateNotAllowedError,
+  InvalidNotifyServiceTokenException,
+  NotFoundError,
+  OperationNotAllowedException,
+} from '@core';
 import { catchError, Observable, throwError } from 'rxjs';
 
 /**
@@ -33,6 +39,9 @@ export class CoreErrorHandler implements NestInterceptor {
     }
     if (exception instanceof OperationNotAllowedException) {
       return new BadRequestException(`Operation not allowed: ${exception.message}`);
+    }
+    if (exception instanceof InvalidNotifyServiceTokenException) {
+      return new BadRequestException(`Invalid notify service token ${exception.token}: ${exception.message}`);
     }
 
     return new InternalServerErrorException(exception);

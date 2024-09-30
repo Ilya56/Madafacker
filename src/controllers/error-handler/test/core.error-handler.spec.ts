@@ -7,7 +7,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CoreErrorHandler } from '../core.error-handler';
-import { DuplicateNotAllowedError, NotFoundError, OperationNotAllowedException } from '@core';
+import {
+  DuplicateNotAllowedError,
+  InvalidNotifyServiceTokenException,
+  NotFoundError,
+  OperationNotAllowedException,
+} from '@core';
 import { of, throwError } from 'rxjs';
 
 describe('CoreErrorHandler', () => {
@@ -71,6 +76,16 @@ describe('CoreErrorHandler', () => {
       expect(result.getStatus()).toBe(400);
       expect(result.name).toBe('BadRequestException');
       expect(result.message).toBe('Operation not allowed: Operation not allowed');
+    });
+
+    it('should handle InvalidNotifyServiceTokenException as BadRequestException', () => {
+      const invalidNotifyServiceTokenException = new InvalidNotifyServiceTokenException('Invalid token', 'test-token');
+      const result = interceptor.catch(invalidNotifyServiceTokenException);
+      expect(result).toBeInstanceOf(BadRequestException);
+      expect(result.getResponse()).toBeDefined();
+      expect(result.getStatus()).toBe(400);
+      expect(result.name).toBe('BadRequestException');
+      expect(result.message).toBe('Invalid notify service token test-token: Invalid token');
     });
   });
 
