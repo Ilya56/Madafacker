@@ -18,6 +18,11 @@ export default () =>
       port: numberValue('REDIS_PORT', '6379'),
       password: stringValue('REDIS_PASSWORD', ''),
     },
+    firebase: {
+      projectId: stringValue('FIREBASE_PROJECT_ID', ''),
+      clientEmail: stringValue('FIREBASE_CLIENT_EMAIL', ''),
+      privateKey: stringValue('FIREBASE_PRIVATE_KEY', ''),
+    },
   } as const);
 
 /**
