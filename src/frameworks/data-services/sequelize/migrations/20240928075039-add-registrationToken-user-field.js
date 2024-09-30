@@ -10,7 +10,7 @@ module.exports = {
     await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 
     await queryInterface.addColumn('UserModels', 'registrationToken', {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       allowNull: true,
       unique: true,
     });
@@ -20,7 +20,7 @@ module.exports = {
     `);
 
     await queryInterface.changeColumn('UserModels', 'registrationToken', {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       allowNull: false,
       unique: true,
     });
