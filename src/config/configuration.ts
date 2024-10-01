@@ -22,6 +22,7 @@ export default () =>
       projectId: stringValue('FIREBASE_PROJECT_ID', ''),
       clientEmail: stringValue('FIREBASE_CLIENT_EMAIL', ''),
       privateKey: stringValue('FIREBASE_PRIVATE_KEY', ''),
+      isFirebaseEnabled: booleanValue('FIREBASE_ENABLED', 'true'),
     },
   } as const);
 
@@ -43,4 +44,14 @@ function stringValue(name: string, defaultValue: string): string {
  */
 function numberValue(name: string, defaultValue: string): number {
   return +stringValue(name, defaultValue);
+}
+
+/**
+ * Retrieves boolean value from process env.
+ * It's true only when value is 'true', otherwise it's false
+ * @param name key of the property to retrieve
+ * @param defaultValue default value if env value not found
+ */
+function booleanValue(name: string, defaultValue: string): boolean {
+  return stringValue(name, defaultValue) === 'true';
 }
