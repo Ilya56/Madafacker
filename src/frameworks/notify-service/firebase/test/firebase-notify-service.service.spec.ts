@@ -18,7 +18,9 @@ describe('FirebaseNotifyServiceService', () => {
   let mockMessaging: jest.Mocked<messaging.Messaging>;
 
   const mockConfigService = {
-    get: jest.fn(),
+    get: () => ({
+      isFirebaseEnabled: true,
+    }),
   };
 
   beforeEach(async () => {

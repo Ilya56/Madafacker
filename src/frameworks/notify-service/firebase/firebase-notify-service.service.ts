@@ -1,9 +1,10 @@
 import { InvalidNotifyServiceTokenException, NotifyServiceAbstract } from '@core';
 import { Injectable, Logger } from '@nestjs/common';
-import { initializeApp, messaging } from 'firebase-admin';
-import Messaging = messaging.Messaging;
+import * as firebase from 'firebase-admin';
+import Messaging = firebase.messaging.Messaging;
 import { ConfigService } from '@nestjs/config';
 import { ConfigType } from '@config';
+import { FirebaseAdminMock } from '@frameworks/notify-service/firebase/mocks/firebase-admin.mock';
 
 /**
  * Firebase error code
@@ -22,13 +23,21 @@ export class FirebaseNotifyServiceService extends NotifyServiceAbstract {
 
   /**
    * Creates new instance of the Firebase notify service using config service to configure it
-   * @param configService
+   * If isFirebaseEnabled is false, mocked class is used instead of real FCM
+   * Real value exists if no FIREBASE_ENABLED in envs or FIREBASE_ENABLED is true
+   * @param configService nestjs config service
    */
   constructor(private configService: ConfigService) {
     super();
 
     const config = this.configService.get<ConfigType['firebase']>('firebase');
-    this.fcm = initializeApp(config).messaging();
+
+    if (!config || !config.isFirebaseEnabled) {
+      this.fcm = new FirebaseAdminMock().messaging();
+    } else {
+      const app = firebase.initializeApp(config);
+      this.fcm = app.messaging();
+    }
 
     this.logger = new Logger(FirebaseNotifyServiceService.name);
   }
