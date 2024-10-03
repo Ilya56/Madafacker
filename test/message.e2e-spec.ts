@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
@@ -10,8 +10,25 @@ import { delay } from './utils/delay';
 describe('Message Endpoints (e2e)', () => {
   let app: INestApplication;
   let createdMessages: MessageModel[] = [];
+  let createdUsers: UserModel[] = [];
   let createdUser: UserModel;
   let anotherUser: UserModel;
+
+  const createUsers = async (token: string) => {
+    for (let i = 0; i < 10; i++) {
+      const user = await UserModel.create({ name: `test_user_${uuidv4()}`, registrationToken: `${token}-${i}` });
+      createdUsers.push(user);
+    }
+  };
+
+  const clearUsers = async () => {
+    for (const user of createdUsers) {
+      await IncomeUserMessagesModel.destroy({ where: { userId: user.id } });
+      await MessageModel.destroy({ where: { authorId: user.id } });
+      await UserModel.destroy({ where: { id: user.id } });
+    }
+    createdUsers = [];
+  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,11 +39,10 @@ describe('Message Endpoints (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    // Create a user to use in the tests
-    const userName = `user_${uuidv4()}`;
-    const user2Name = `user_${uuidv4()}`;
-    createdUser = await UserModel.create({ name: userName, registrationToken: 'token' });
-    anotherUser = await UserModel.create({ name: user2Name, registrationToken: 'token2' });
+    await createUsers('token');
+
+    createdUser = createdUsers[0];
+    anotherUser = createdUsers[1];
   });
 
   afterEach(async () => {
@@ -40,13 +56,7 @@ describe('Message Endpoints (e2e)', () => {
 
   afterAll(async () => {
     // Clean up by deleting the created users
-    await IncomeUserMessagesModel.destroy({ where: { userId: createdUser.id } });
-    await MessageModel.destroy({ where: { authorId: createdUser.id } });
-    await UserModel.destroy({ where: { id: createdUser.id } });
-
-    await IncomeUserMessagesModel.destroy({ where: { userId: anotherUser.id } });
-    await MessageModel.destroy({ where: { authorId: anotherUser.id } });
-    await UserModel.destroy({ where: { id: anotherUser.id } });
+    await clearUsers();
 
     await app.close();
   });
@@ -397,5 +407,59 @@ describe('Message Endpoints (e2e)', () => {
       expect(parentMessageInResponse.replies.length).toBe(1);
       expect(parentMessageInResponse.replies[0].body).toBe(replyMessage.body);
     });
+  });
+
+  it('should create a message successfully and handle fcm invalid token error', async () => {
+    const loggerSpy = jest.spyOn(Logger.prototype, 'error');
+
+    await clearUsers();
+    await createUsers('invalid-token');
+
+    const messageData = {
+      body: 'Test message',
+      mode: 'dark',
+    };
+
+    const response = await request(app.getHttpServer())
+      .post('/api/message')
+      .set('token', createdUsers[0].id)
+      .send(messageData)
+      .expect(201);
+
+    await delay(200);
+
+    expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
+
+    const createdMessage = await MessageModel.findOne({ where: { id: response.body.id } });
+    createdMessages.push(createdMessage as MessageModel);
+
+    loggerSpy.mockRestore();
+  });
+
+  it('should create a message successfully and handle fcm unknown error', async () => {
+    const loggerSpy = jest.spyOn(Logger.prototype, 'error');
+
+    await clearUsers();
+    await createUsers('error');
+
+    const messageData = {
+      body: 'Test message',
+      mode: 'dark',
+    };
+
+    const response = await request(app.getHttpServer())
+      .post('/api/message')
+      .set('token', createdUsers[0].id)
+      .send(messageData)
+      .expect(201);
+
+    await delay(200);
+
+    expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
+
+    const createdMessage = await MessageModel.findOne({ where: { id: response.body.id } });
+    createdMessages.push(createdMessage as MessageModel);
+
+    loggerSpy.mockRestore();
   });
 });
