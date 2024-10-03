@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FirebaseNotifyServiceService } from '../firebase-notify-service.service';
 import { ConfigService } from '@nestjs/config';
 import { messaging } from 'firebase-admin';
+import { InvalidNotifyServiceTokenException } from '@core';
 
 // Mock firebase-admin methods
 jest.mock('firebase-admin', () => ({
@@ -57,5 +58,15 @@ describe('FirebaseNotifyServiceService', () => {
     mockMessaging.send.mockRejectedValue(error);
 
     await expect(service.notify(token, message)).rejects.toThrow('Failed to send');
+  });
+
+  it('should throw an error if Firebase messaging fails', async () => {
+    const token = 'test-token';
+    const message = 'test-message';
+    const error = { code: 'messaging/invalid-argument' };
+
+    mockMessaging.send.mockRejectedValue(error);
+
+    await expect(service.notify(token, message)).rejects.toThrow(InvalidNotifyServiceTokenException);
   });
 });
