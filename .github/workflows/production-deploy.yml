@@ -46,6 +46,7 @@ jobs:
     env:
       DB_PASSWORD: pg-password
       API_KEY: test-api-key
+      FIREBASE_ENABLED: false
 
     services:
       redis:
