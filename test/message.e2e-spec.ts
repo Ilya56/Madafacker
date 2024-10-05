@@ -110,6 +110,21 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.message).toContain('body should not be empty');
     });
 
+    it('should return 400 for too long message body', async () => {
+      const messageData = {
+        mode: 'dark',
+        body: 'A'.repeat(1001),
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/api/message')
+        .set('token', createdUser.id)
+        .send(messageData)
+        .expect(400);
+
+      expect(response.body.message).toContain('body must be shorter than or equal to 1000 characters');
+    });
+
     it('should return 400 for missing message mode', async () => {
       const messageData = {
         body: 'Test message',
