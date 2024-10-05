@@ -74,6 +74,18 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body.message).toContain('name should not be empty');
       expect(response.body.message).toContain('registrationToken should not be empty');
     });
+
+    it('should return 400 for invalid registration token', async () => {
+      const name = `user_${uuidv4()}`;
+      const registrationToken = 'invalid-token';
+
+      const response = await request(app.getHttpServer())
+        .post('/api/user')
+        .send({ name, registrationToken })
+        .expect(400);
+
+      expect(response.body.message).toContain('Invalid notify service token');
+    });
   });
 
   describe('Get Current User', () => {
