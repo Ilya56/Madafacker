@@ -11,6 +11,9 @@ jest.mock('firebase-admin', () => ({
       send: jest.fn(),
     }),
   }),
+  credential: {
+    cert: jest.fn(),
+  },
 }));
 
 describe('FirebaseNotifyServiceService', () => {
