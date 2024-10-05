@@ -15,7 +15,7 @@ describe('User Endpoints (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
     await app.init();
   });
 
@@ -50,6 +50,7 @@ describe('User Endpoints (e2e)', () => {
 
       const createdUser = await UserModel.findOne({ where: { name } });
       expect(createdUser).toBeDefined();
+      expect(createdUser?.registrationToken).toBe(registrationToken);
 
       createdUsers.push(createdUser as UserModel);
     });
@@ -68,14 +69,14 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body.message).toContain('Duplicated value is not allowed');
     });
 
-    it('should return 400 for invalid data', async () => {
+    it('should return 400 for invalid data (empty body)', async () => {
       const response = await request(app.getHttpServer()).post('/api/user').send({}).expect(400);
 
       expect(response.body.message).toContain('name should not be empty');
       expect(response.body.message).toContain('registrationToken should not be empty');
     });
 
-    it('should return 400 for invalid registration token', async () => {
+    it('should return 400 for invalid registration token format', async () => {
       const name = `user_${uuidv4()}`;
       const registrationToken = 'invalid-token';
 
@@ -85,6 +86,19 @@ describe('User Endpoints (e2e)', () => {
         .expect(400);
 
       expect(response.body.message).toContain('Invalid notify service token');
+    });
+
+    it('should return 400 for too long name or registration token', async () => {
+      const name = 'a'.repeat(256); // exceeds 255 characters
+      const registrationToken = 'b'.repeat(1001); // exceeds 1000 characters
+
+      const response = await request(app.getHttpServer())
+        .post('/api/user')
+        .send({ name, registrationToken })
+        .expect(400);
+
+      expect(response.body.message).toContain('name must be shorter than or equal to 255 characters');
+      expect(response.body.message).toContain('registrationToken must be shorter than or equal to 1000 characters');
     });
   });
 
@@ -143,16 +157,19 @@ describe('User Endpoints (e2e)', () => {
       expect(updatedUser?.name).toBe(updatedName);
     });
 
-    it('should cannot update registration token of the current user', async () => {
+    it('should not allow updating registration token of the current user', async () => {
       const uuid = uuidv4();
-      const user = await UserModel.create({ name: `user_${uuid}`, registrationToken: 'token' });
+      const name = `user_${uuid}`;
+      const user = await UserModel.create({ name, registrationToken: 'token' });
       createdUsers.push(user);
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .patch('/api/user/current')
-        .send({ registrationToken: 'new_token' })
+        .send({ name, registrationToken: 'new_token' })
         .set('token', user.id)
         .expect(400);
+
+      expect(response.body.message).toContain('property registrationToken should not exist');
     });
 
     it('should return 401 if the user is not found', async () => {
@@ -160,6 +177,14 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer()).patch('/api/user/current').send({ name }).expect(401);
 
       expect(response.body.message).toBe('Unauthorized');
+    });
+
+    it('should return 400 for too long name or registration token', async () => {
+      const name = 'a'.repeat(256); // exceeds 255 characters
+
+      const response = await request(app.getHttpServer()).post('/api/user').send({ name }).expect(400);
+
+      expect(response.body.message).toContain('name must be shorter than or equal to 255 characters');
     });
   });
 

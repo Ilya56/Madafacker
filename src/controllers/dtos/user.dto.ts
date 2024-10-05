@@ -1,18 +1,21 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   name: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(1000)
   registrationToken: string;
 }
 
 export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   name: string;
 }
 
