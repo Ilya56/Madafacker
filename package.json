@@ -23,7 +23,8 @@
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
     "seed": "npx sequelize-cli db:seed:all",
     "seed:undo": "npx sequelize-cli db:seed:undo",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate:migration": "npx sequelize-cli migration:generate --config ./src/frameworks/data-service/sequelize/config.js --name %npm_config_name%"
   },
   "dependencies": {
     "@nestjs/class-validator": "^0.13.4",

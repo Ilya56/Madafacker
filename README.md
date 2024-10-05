@@ -43,6 +43,15 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Migrations
+
+In this project, the migrations folder is contained not in the root of the application but inside a specific data service provider.
+
+```bash 
+# generate migration with some name
+$ npm run generate:migration --name=migration-name
+```
+
 ## Overview
 
 The Basic principle is to use [The Clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
