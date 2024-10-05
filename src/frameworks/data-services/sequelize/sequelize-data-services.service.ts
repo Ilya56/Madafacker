@@ -1,4 +1,4 @@
-import { DataServiceAbstract } from '@core';
+import { CoreError, DataServiceAbstract } from '@core';
 import { Injectable, Logger } from '@nestjs/common';
 import {
   SequelizeUserRepository,
@@ -51,7 +51,10 @@ export class SequelizeDataServices extends DataServiceAbstract {
     try {
       return await func();
     } catch (e) {
-      this.logger.error(e);
+      // log only unknown errors
+      if (!(e instanceof CoreError)) {
+        this.logger.error(e);
+      }
       throw e;
     }
   }
