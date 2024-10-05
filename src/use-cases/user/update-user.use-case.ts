@@ -2,10 +2,8 @@ import { CommandAbstract } from '@use-cases/abstract';
 import { User } from '@core';
 import { Injectable } from '@nestjs/common';
 
-type UpdateUserOutput = User | null;
-
 @Injectable()
-export class UpdateUserUseCase extends CommandAbstract<User, UpdateUserOutput> {
+export class UpdateUserUseCase extends CommandAbstract<User, User | null> {
   /**
    * Updates current user data and returns updated user or null if user not found
    * @param user new user data
