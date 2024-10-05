@@ -35,7 +35,9 @@ export class FirebaseNotifyServiceService extends NotifyServiceAbstract {
     if (!config || !config.isFirebaseEnabled) {
       this.fcm = new FirebaseAdminMock().messaging();
     } else {
-      const app = firebase.initializeApp(config);
+      const app = firebase.initializeApp({
+        credential: firebase.credential.cert(config),
+      });
       this.fcm = app.messaging();
     }
 
