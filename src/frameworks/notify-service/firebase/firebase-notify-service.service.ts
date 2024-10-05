@@ -1,5 +1,5 @@
 import { InvalidNotifyServiceTokenException, NotifyServiceAbstract } from '@core';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as firebase from 'firebase-admin';
 import Messaging = firebase.messaging.Messaging;
 import { ConfigService } from '@nestjs/config';
@@ -18,8 +18,6 @@ const INVALID_TOKEN_ERROR_CODE = 'messaging/invalid-argument';
 export class FirebaseNotifyServiceService extends NotifyServiceAbstract {
   /** Firebase Messaging Module instance */
   private readonly fcm: Messaging;
-  /** Logger */
-  private readonly logger: Logger;
 
   /**
    * Creates new instance of the Firebase notify service using config service to configure it
@@ -40,8 +38,6 @@ export class FirebaseNotifyServiceService extends NotifyServiceAbstract {
       });
       this.fcm = app.messaging();
     }
-
-    this.logger = new Logger(FirebaseNotifyServiceService.name);
   }
 
   /**
