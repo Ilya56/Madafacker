@@ -2,15 +2,14 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { v4 as uuidv4 } from 'uuid';
-import { IncomeUserMessagesModel, MessageModel, UserModel } from '@frameworks/data-services/sequelize/models';
+import { TestDataService } from './utils/TestDataService'; // Import the TestDataService
 import { MessageMode } from '@core';
 
 describe('Reply Endpoints (e2e)', () => {
   let app: INestApplication;
-  let createdReplies: MessageModel[] = [];
-  const createdMessages: MessageModel[] = [];
-  let createdUser: UserModel;
+  let testDataService: TestDataService;
+  let createdUser: any;
+  let parentMessage: any;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -21,56 +20,41 @@ describe('Reply Endpoints (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    // Create a user to use in the tests
-    const userName = `user_${uuidv4()}`;
-    createdUser = await UserModel.create({ name: userName, coins: 10, registrationToken: 'token' });
+    // Initialize the TestDataService
+    testDataService = new TestDataService();
 
-    // Create a message to use as parent for replies
-    const parentMessageData = {
-      body: 'Parent message',
-      mode: MessageMode.dark,
-      authorId: createdUser.id,
-    };
-    const parentMessage = await MessageModel.create(parentMessageData);
-    createdMessages.push(parentMessage);
+    await testDataService.cleanupAll();
+  });
+
+  beforeEach(async () => {
+    // Create user and parent message for each test
+    createdUser = await testDataService.createUser('token', 10);
+    parentMessage = await testDataService.createMessage(createdUser.id, 'Parent message', MessageMode.dark);
   });
 
   afterEach(async () => {
-    // Delete the replies created during the tests
-    for (const reply of createdReplies) {
-      await MessageModel.destroy({ where: { id: reply.id } });
-    }
-    createdReplies = [];
+    // Cleanup all created data after each test
+    await testDataService.cleanupAll();
   });
 
   afterAll(async () => {
-    // Clean up by deleting the created messages and user
-    for (const message of createdMessages) {
-      await IncomeUserMessagesModel.destroy({ where: { messageId: message.id } });
-      await MessageModel.destroy({ where: { id: message.id } });
-    }
-
-    await IncomeUserMessagesModel.destroy({ where: { userId: createdUser.id } });
-    await MessageModel.destroy({ where: { authorId: createdUser.id } });
-    await UserModel.destroy({ where: { id: createdUser.id } });
-
     await app.close();
   });
 
-  // Test cases for Create Reply
   describe('Create Reply', () => {
     it('should create a reply successfully', async () => {
       const replyData = {
         body: 'Nice message',
         public: false,
-        parentId: createdMessages[0].id, // Use the parent message created in beforeAll
+        parentId: parentMessage.id,
       };
 
       const response = await request(app.getHttpServer())
         .post('/api/reply')
         .set('token', createdUser.id)
-        .send(replyData)
-        .expect(201);
+        .send(replyData);
+
+      // console.log(response);
 
       expect(response.body).toHaveProperty('id');
       expect(response.body.body).toBe(replyData.body);
@@ -79,17 +63,17 @@ describe('Reply Endpoints (e2e)', () => {
       expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('updatedAt');
 
-      const createdReply = await MessageModel.findOne({ where: { id: response.body.id } });
+      const createdReply = await testDataService.findMessage({ id: response.body.id });
       expect(createdReply).toBeDefined();
 
-      createdReplies.push(createdReply as MessageModel);
+      testDataService.addCreatedMessage(createdReply);
     });
 
     it('should return 404 if the parent message does not exist', async () => {
       const replyData = {
         body: 'Nice message',
         public: false,
-        parentId: uuidv4(), // Use a random UUID for a non-existent parent
+        parentId: testDataService.getNonExistentId(), // Simulate non-existent parent message
       };
 
       const response = await request(app.getHttpServer())
@@ -118,21 +102,13 @@ describe('Reply Endpoints (e2e)', () => {
     });
 
     it('should return 400 if user has no enough coins to reply', async () => {
-      await UserModel.update(
-        {
-          coins: 1,
-        },
-        {
-          where: {
-            id: createdUser.id,
-          },
-        },
-      );
+      // Simulate the user having not enough coins
+      await testDataService.updateUserCoins(createdUser.id, 1);
 
       const replyData = {
         body: 'Nice message',
         public: false,
-        parentId: createdMessages[0].id,
+        parentId: parentMessage.id,
       };
 
       const response = await request(app.getHttpServer())
@@ -145,21 +121,17 @@ describe('Reply Endpoints (e2e)', () => {
     });
   });
 
-  // Test cases for Update Reply
   describe('Update Reply', () => {
-    let createdReply: MessageModel;
+    let createdReply: any;
 
     beforeEach(async () => {
-      // Create a reply to use in the update tests
-      const replyData = {
-        body: 'Initial message',
-        public: false,
-        mode: MessageMode.light,
-        parentId: createdMessages[0].id, // Use the parent message created in beforeAll
-        authorId: createdUser.id,
-      };
-      createdReply = await MessageModel.create(replyData);
-      createdReplies.push(createdReply);
+      // Create a reply for each update test
+      createdReply = await testDataService.createMessage(
+        createdUser.id,
+        'Initial message',
+        MessageMode.light,
+        parentMessage.id,
+      );
     });
 
     it('should update a reply successfully', async () => {
@@ -181,7 +153,7 @@ describe('Reply Endpoints (e2e)', () => {
 
     it('should return 404 if the reply does not exist', async () => {
       const updateData = {
-        id: uuidv4(), // Non-existent UUID
+        id: testDataService.getNonExistentId(), // Non-existent UUID
         public: true,
       };
 
@@ -210,21 +182,17 @@ describe('Reply Endpoints (e2e)', () => {
     });
   });
 
-  // Test cases for Get Reply by ID
   describe('Get Reply by ID', () => {
-    let createdReply: MessageModel;
+    let createdReply: any;
 
     beforeEach(async () => {
-      // Create a reply to use in the get tests
-      const replyData = {
-        body: 'Initial message',
-        public: false,
-        mode: MessageMode.light,
-        parentId: createdMessages[0].id, // Use the parent message created in beforeAll
-        authorId: createdUser.id,
-      };
-      createdReply = await MessageModel.create(replyData);
-      createdReplies.push(createdReply);
+      // Create a reply for each get test
+      createdReply = await testDataService.createMessage(
+        createdUser.id,
+        'Initial message',
+        MessageMode.light,
+        parentMessage.id,
+      );
     });
 
     it('should retrieve a reply by ID successfully', async () => {
@@ -239,7 +207,7 @@ describe('Reply Endpoints (e2e)', () => {
     });
 
     it('should return 404 if the reply does not exist', async () => {
-      const nonExistentReplyId = uuidv4(); // Non-existent UUID
+      const nonExistentReplyId = testDataService.getNonExistentId(); // Non-existent UUID
 
       const response = await request(app.getHttpServer())
         .get(`/api/reply/${nonExistentReplyId}`)

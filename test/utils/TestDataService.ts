@@ -21,9 +21,10 @@ export class TestDataService {
   /**
    * Create a user and store it for later cleanup
    * @param token optional token value
+   * @param coins optional coins number
    */
-  async createUser(token = 'token'): Promise<UserModel> {
-    const user = await UserModel.create({ name: `user_${uuidv4()}`, registrationToken: token });
+  async createUser(token = 'token', coins = 0): Promise<UserModel> {
+    const user = await UserModel.create({ name: `user_${uuidv4()}`, registrationToken: token, coins });
     this.createdUsers.push(user);
     return user;
   }
@@ -88,6 +89,22 @@ export class TestDataService {
    */
   addCreatedMessage(message: MessageModel | null): void {
     message && this.createdMessages.push(message);
+  }
+
+  /**
+   * Get a non-existent ID (simulates a random UUID for testing purposes)
+   */
+  getNonExistentId(): string {
+    return uuidv4(); // Generates a random UUID to simulate non-existent entity
+  }
+
+  /**
+   * Update the number of coins for a specific user
+   * @param userId user id to update coins
+   * @param coins new counts count
+   */
+  async updateUserCoins(userId: string, coins: number): Promise<void> {
+    await UserModel.update({ coins }, { where: { id: userId } });
   }
 
   /**
