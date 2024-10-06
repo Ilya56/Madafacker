@@ -42,6 +42,13 @@ export class TestDataService {
   }
 
   /**
+   * Get all created users
+   */
+  getFirstCreatedUser(): UserModel {
+    return this.createdUsers[0];
+  }
+
+  /**
    * Find a user by their ID or name
    * @param query data to search
    */
@@ -58,28 +65,65 @@ export class TestDataService {
   }
 
   /**
+   * Get the total number of users
+   */
+  async getUsersCount(): Promise<number> {
+    return await UserModel.count();
+  }
+
+  /**
+   * Get all existing users
+   */
+  async getAllUsers(): Promise<UserModel[]> {
+    return await UserModel.findAll();
+  }
+
+  /**
    * Create a message and store it for later cleanup
-   * @param authorId message author id
-   * @param body optional message body
-   * @param mode optional message mode
-   * @param parentId optional parent message id
+   * @param messageData message data
    */
   async createMessage(
-    authorId: string,
-    body = 'Test message',
-    mode: MessageMode = MessageMode.dark,
-    parentId?: string,
+    messageData: Partial<Omit<MessageModel, 'authorId'>> & Pick<MessageModel, 'authorId'>,
   ): Promise<MessageModel> {
-    const message = await MessageModel.create({ body, mode, authorId, parentId });
+    const filledMessageData = Object.assign(
+      {
+        body: 'Test message',
+        mode: MessageMode.dark,
+      },
+      messageData,
+    );
+    const message = await MessageModel.create(filledMessageData);
     this.createdMessages.push(message);
     return message;
+  }
+
+  /**
+   * Find all income messages for a specific messageId
+   */
+  async findIncomeMessages(messageId: string): Promise<IncomeUserMessagesModel[]> {
+    return await IncomeUserMessagesModel.findAll({ where: { messageId } });
+  }
+
+  /**
+   * Bulk create income messages for users
+   */
+  async bulkCreateIncomeMessages(users: UserModel[], messageId: string): Promise<void> {
+    const incomeMessagesData = users.map((user) => ({ userId: user.id, messageId }));
+    await IncomeUserMessagesModel.bulkCreate(incomeMessagesData);
+  }
+
+  /**
+   * Get the first created message
+   */
+  getFirstCreatedMessage(): MessageModel {
+    return this.createdMessages[0];
   }
 
   /**
    * Find a message by query (id, body, etc.)
    * @param query
    */
-  async findMessage(query: Partial<{ id: number; body: string }>): Promise<MessageModel | null> {
+  async findMessage(query: Partial<{ id: string; body: string }>): Promise<MessageModel | null> {
     return await MessageModel.findOne({ where: query });
   }
 
@@ -117,13 +161,6 @@ export class TestDataService {
       userId,
       messageId,
     });
-  }
-
-  /**
-   * Get all created users
-   */
-  getFirstCreatedUser(): UserModel {
-    return this.createdUsers[0];
   }
 
   /**
