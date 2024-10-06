@@ -29,6 +29,18 @@ export class TestDataService {
   }
 
   /**
+   * Create multiple users
+   * @param count number of new users
+   * @param token token prefix
+   */
+  async createMultipleUsers(count: number, token = 'token'): Promise<void> {
+    for (let i = 0; i < count; i++) {
+      const user = await this.createUser(`${token}-${i}`);
+      this.createdUsers.push(user);
+    }
+  }
+
+  /**
    * Find a user by their ID or name
    * @param query data to search
    */
@@ -37,7 +49,7 @@ export class TestDataService {
   }
 
   /**
-   * Save user to created users to clean up after test
+   * Save user to created users array to clean up after test
    * @param user
    */
   addCreatedUser(user: UserModel | null) {
@@ -49,15 +61,52 @@ export class TestDataService {
    * @param authorId message author id
    * @param body optional message body
    * @param mode optional message mode
+   * @param parentId optional parent message id
    */
   async createMessage(
     authorId: string,
     body = 'Test message',
     mode: MessageMode = MessageMode.dark,
+    parentId?: string,
   ): Promise<MessageModel> {
-    const message = await MessageModel.create({ body, mode, authorId });
+    const message = await MessageModel.create({ body, mode, authorId, parentId });
     this.createdMessages.push(message);
     return message;
+  }
+
+  /**
+   * Find a message by query (id, body, etc.)
+   * @param query
+   */
+  async findMessage(query: Partial<{ id: number; body: string }>): Promise<MessageModel | null> {
+    return await MessageModel.findOne({ where: query });
+  }
+
+  /**
+   * Add a created message to the list for cleanup later
+   * @param message
+   */
+  addCreatedMessage(message: MessageModel | null): void {
+    message && this.createdMessages.push(message);
+  }
+
+  /**
+   * Add a message to a user's inbox (creates IncomeUserMessagesModel)
+   * @param userId
+   * @param messageId
+   */
+  async addMessageToUserInbox(userId: string, messageId: string): Promise<void> {
+    await IncomeUserMessagesModel.create({
+      userId,
+      messageId,
+    });
+  }
+
+  /**
+   * Get all created users
+   */
+  getFirstCreatedUser(): UserModel {
+    return this.createdUsers[0];
   }
 
   /**
@@ -76,7 +125,7 @@ export class TestDataService {
    * Cleanup created messages
    */
   async cleanupMessages(): Promise<void> {
-    for (const message of this.createdMessages) {
+    for (const message of this.createdMessages.reverse()) {
       await IncomeUserMessagesModel.destroy({ where: { messageId: message.id } });
       await MessageModel.destroy({ where: { id: message.id } });
     }
