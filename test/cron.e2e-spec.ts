@@ -2,7 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { TestDataService } from './utils/TestDataService'; // Import the TestDataService
+import { TestDataService } from './utils/TestDataService';
 import { delay } from './utils/delay';
 
 describe('Cron Jobs (e2e)', () => {
@@ -30,22 +30,22 @@ describe('Cron Jobs (e2e)', () => {
       authorId: testDataService.getFirstCreatedUser().id,
       body: 'Message to be sent via cron job',
     });
-  }, 30000);
+  });
 
   afterAll(async () => {
     // Clean up created data
     await testDataService.cleanupAll();
     await app.close();
-  }, 30000);
+  });
 
   describe('Send Messages Cron Job', () => {
     it('should correctly calculate the number of users to send the message to using LinearAlgoService', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/cron/send-messages')
-        .set('x-api-key', apiKey) // Set the API key in the headers
-        .expect(201); // Assuming 201 is returned on success
+        .set('x-api-key', apiKey)
+        .expect(201);
 
-      expect(response.body).toBeDefined(); // Further assertions can be made based on the actual response structure
+      expect(response.body).toBeDefined();
 
       await delay(5000);
 
@@ -76,8 +76,8 @@ describe('Cron Jobs (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/cron/send-messages')
-        .set('x-api-key', apiKey) // Set the API key in the headers
-        .expect(201); // Assuming 201 is returned on success
+        .set('x-api-key', apiKey)
+        .expect(201);
 
       expect(response.body).toBeDefined();
 
