@@ -164,6 +164,14 @@ export class TestDataService {
   }
 
   /**
+   * Returns income user message model
+   * @param messageId message to retrieve where was send
+   */
+  getInboxMessageById(messageId: string) {
+    return IncomeUserMessagesModel.findOne({ where: { messageId: messageId } });
+  }
+
+  /**
    * Cleanup created users
    */
   async cleanupUsers(): Promise<void> {

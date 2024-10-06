@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { MessageModel } from '@frameworks/data-services/sequelize/models';
 import { TestDataService } from './utils/TestDataService';
 import { delay } from './utils/delay';
-import { MessageMode } from '@core';
 
 describe('Message Endpoints (e2e)', () => {
   let app: INestApplication;
@@ -71,8 +70,8 @@ describe('Message Endpoints (e2e)', () => {
       await delay(100);
 
       // Check that the message was sent to users (i.e., entries exist in IncomeUserMessagesModel)
-      // const incomeUserMessages = await IncomeUserMessagesModel.findAll({ where: { messageId: response.body.id } });
-      // expect(incomeUserMessages.length).toBeGreaterThan(0);
+      const incomeUserMessage = await testDataService.getInboxMessageById(response.body.id);
+      expect(incomeUserMessage).toBeDefined();
 
       testDataService.addCreatedMessage(createdMessage);
     });
@@ -134,18 +133,78 @@ describe('Message Endpoints (e2e)', () => {
 
       expect(response.body.message).toContain('mode must be one of the following values: light, dark');
     });
+
+    describe('FCM check', () => {
+      let loggerSpy: jest.SpyInstance;
+
+      const messageData = {
+        body: 'Test message',
+        mode: 'dark',
+      };
+
+      beforeAll(async () => {
+        // remove created users and create new users with required token
+        await testDataService.cleanupUsers();
+      });
+
+      beforeEach(() => {
+        loggerSpy = jest.spyOn(Logger.prototype, 'error');
+      });
+
+      afterEach(() => {
+        loggerSpy.mockRestore();
+      });
+
+      it('should create a message successfully and handle fcm invalid token error', async () => {
+        await testDataService.createMultipleUsers(10, 'invalid-token');
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('token', testDataService.getFirstCreatedUser().id)
+          .send(messageData)
+          .expect(201);
+
+        await delay(500);
+
+        expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
+
+        const createdMessage = await testDataService.findMessage({ id: response.body.id });
+        testDataService.addCreatedMessage(createdMessage);
+      });
+
+      it('should create a message successfully and handle fcm unknown error', async () => {
+        // remove created users and create new users with required token
+        await testDataService.createMultipleUsers(10, 'error');
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('token', testDataService.getFirstCreatedUser().id)
+          .send(messageData)
+          .expect(201);
+
+        await delay(500);
+
+        expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
+
+        const createdMessage = await testDataService.findMessage({ id: response.body.id });
+        testDataService.addCreatedMessage(createdMessage);
+      });
+    });
   });
 
   // Test cases for Rate Message
   describe('Rate Message', () => {
-    it('should rate a message successfully', async () => {
-      const message = await testDataService.createMessage({
+    let message: MessageModel;
+
+    beforeEach(async () => {
+      message = await testDataService.createMessage({
         authorId: anotherUser.id,
         body: 'Test message for rating',
       });
-
       await testDataService.addMessageToUserInbox(createdUser.id, message.id);
+    });
 
+    it('should rate a message successfully', async () => {
       const rateData = {
         rating: 'like',
       };
@@ -160,12 +219,6 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 when trying to rate the message again', async () => {
-      const message = await testDataService.createMessage({
-        authorId: anotherUser.id,
-        body: 'Test message for rating',
-      });
-      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
-
       const rateData = { rating: 'like' };
 
       // First rate (success)
@@ -222,13 +275,6 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 for missing rating', async () => {
-      const message = await testDataService.createMessage({
-        authorId: anotherUser.id,
-        body: 'Test message for missing rating',
-      });
-
-      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
-
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
@@ -239,13 +285,6 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 for invalid rating value', async () => {
-      const message = await testDataService.createMessage({
-        authorId: anotherUser.id,
-        body: 'Test message for invalid rating',
-      });
-
-      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
-
       const rateData = {
         rating: 'invalid_rating',
       };
@@ -264,7 +303,7 @@ describe('Message Endpoints (e2e)', () => {
         rating: 'like',
       };
 
-      const nonExistentMessageId = uuidv4();
+      const nonExistentMessageId = testDataService.getNonExistentId();
 
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${nonExistentMessageId}/rate`)
@@ -308,6 +347,10 @@ describe('Message Endpoints (e2e)', () => {
 
   // Test cases for Get Outcoming Messages
   describe('Get Outcoming Messages with Replies', () => {
+    // beforeEach(async () => {
+    //
+    // });
+
     it('should retrieve outcoming messages with 1 level depth replies', async () => {
       const parentMessage = await testDataService.createMessage({ authorId: createdUser.id, body: 'Parent message' });
       const replyMessage = await testDataService.createMessage({
@@ -331,59 +374,5 @@ describe('Message Endpoints (e2e)', () => {
       expect(parentMessageInResponse.replies.length).toBe(1);
       expect(parentMessageInResponse.replies[0].body).toBe(replyMessage.body);
     });
-  });
-
-  it('should create a message successfully and handle fcm invalid token error', async () => {
-    const loggerSpy = jest.spyOn(Logger.prototype, 'error');
-
-    await testDataService.cleanupUsers();
-    await testDataService.createMultipleUsers(10, 'invalid-token');
-
-    const messageData = {
-      body: 'Test message',
-      mode: 'dark',
-    };
-
-    const response = await request(app.getHttpServer())
-      .post('/api/message')
-      .set('token', testDataService.getFirstCreatedUser().id)
-      .send(messageData)
-      .expect(201);
-
-    await delay(200);
-
-    expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
-
-    const createdMessage = await testDataService.findMessage({ id: response.body.id });
-    testDataService.addCreatedMessage(createdMessage);
-
-    loggerSpy.mockRestore();
-  });
-
-  it('should create a message successfully and handle fcm unknown error', async () => {
-    const loggerSpy = jest.spyOn(Logger.prototype, 'error');
-
-    await testDataService.cleanupUsers();
-    await testDataService.createMultipleUsers(10, 'error');
-
-    const messageData = {
-      body: 'Test message',
-      mode: 'dark',
-    };
-
-    const response = await request(app.getHttpServer())
-      .post('/api/message')
-      .set('token', testDataService.getFirstCreatedUser().id)
-      .send(messageData)
-      .expect(201);
-
-    await delay(200);
-
-    expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
-
-    const createdMessage = await testDataService.findMessage({ id: response.body.id });
-    testDataService.addCreatedMessage(createdMessage);
-
-    loggerSpy.mockRestore();
   });
 });
