@@ -70,12 +70,12 @@ describe('User Endpoints (e2e)', () => {
     });
 
     it('should return 400 for invalid registration token format', async () => {
-      const user = await testDataService.createUser();
+      const name = testDataService.getUserName();
       const registrationToken = 'invalid-token';
 
       const response = await request(app.getHttpServer())
         .post('/api/user')
-        .send({ name: user.name, registrationToken })
+        .send({ name, registrationToken })
         .expect(400);
 
       expect(response.body.message).toContain('Invalid notify service token');
@@ -114,7 +114,7 @@ describe('User Endpoints (e2e)', () => {
     it('should return 404 if no user is found', async () => {
       const response = await request(app.getHttpServer())
         .get('/api/user/current')
-        .set('token', 'random-id')
+        .set('token', testDataService.getNonExistentId())
         .expect(404);
 
       expect(response.body.message).toBe('User not found');
