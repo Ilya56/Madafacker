@@ -2,12 +2,11 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { IncomeUserMessagesModel, MessageModel, UserModel } from '@frameworks/data-services/sequelize/models';
-import { v4 as uuidv4 } from 'uuid';
+import { TestDataService } from './utils/TestDataService';
 
 describe('User Endpoints (e2e)', () => {
   let app: INestApplication;
-  let createdUsers: UserModel[] = [];
+  let testDataService: TestDataService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -17,16 +16,13 @@ describe('User Endpoints (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
     await app.init();
+
+    // Initialize the TestDataService
+    testDataService = new TestDataService();
   });
 
   afterEach(async () => {
-    // Delete only the users created during the tests
-    for (const user of createdUsers) {
-      await IncomeUserMessagesModel.destroy({ where: { userId: user.id } });
-      await MessageModel.destroy({ where: { authorId: user.id } });
-      await UserModel.destroy({ where: { id: user.id } });
-    }
-    createdUsers = [];
+    await testDataService.cleanupAll();
   });
 
   afterAll(async () => {
@@ -35,11 +31,12 @@ describe('User Endpoints (e2e)', () => {
 
   describe('Create User', () => {
     it('should create a user successfully', async () => {
-      const name = `user_${uuidv4()}`;
+      const name = testDataService.getUserName();
       const registrationToken = 'token';
+
       const response = await request(app.getHttpServer())
         .post('/api/user')
-        .send({ name, registrationToken })
+        .send({ name, registrationToken: 'token' })
         .expect(201);
 
       expect(response.body).toHaveProperty('id');
@@ -48,22 +45,18 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('updatedAt');
 
-      const createdUser = await UserModel.findOne({ where: { name } });
+      const createdUser = await testDataService.findUser({ name: name });
       expect(createdUser).toBeDefined();
       expect(createdUser?.registrationToken).toBe(registrationToken);
-
-      createdUsers.push(createdUser as UserModel);
+      testDataService.addCreatedUser(createdUser);
     });
 
     it('should return 400 for duplicated user', async () => {
-      const name = `user_${uuidv4()}`;
-      const registrationToken = 'token';
-      const existingUser = await UserModel.create({ name, registrationToken });
-      createdUsers.push(existingUser);
+      const user = await testDataService.createUser();
 
       const response = await request(app.getHttpServer())
         .post('/api/user')
-        .send({ name, registrationToken })
+        .send({ name: user.name, registrationToken: 'token' })
         .expect(400);
 
       expect(response.body.message).toContain('Duplicated value is not allowed');
@@ -77,12 +70,12 @@ describe('User Endpoints (e2e)', () => {
     });
 
     it('should return 400 for invalid registration token format', async () => {
-      const name = `user_${uuidv4()}`;
+      const user = await testDataService.createUser();
       const registrationToken = 'invalid-token';
 
       const response = await request(app.getHttpServer())
         .post('/api/user')
-        .send({ name, registrationToken })
+        .send({ name: user.name, registrationToken })
         .expect(400);
 
       expect(response.body.message).toContain('Invalid notify service token');
@@ -104,9 +97,7 @@ describe('User Endpoints (e2e)', () => {
 
   describe('Get Current User', () => {
     it('should return the current user', async () => {
-      const name = `user_${uuidv4()}`;
-      const user = await UserModel.create({ name, registrationToken: 'token' });
-      createdUsers.push(user);
+      const user = await testDataService.createUser();
 
       const response = await request(app.getHttpServer()).get('/api/user/current').set('token', user.id).expect(200);
 
@@ -121,7 +112,10 @@ describe('User Endpoints (e2e)', () => {
     });
 
     it('should return 404 if no user is found', async () => {
-      const response = await request(app.getHttpServer()).get('/api/user/current').set('token', uuidv4()).expect(404);
+      const response = await request(app.getHttpServer())
+        .get('/api/user/current')
+        .set('token', 'random-id')
+        .expect(404);
 
       expect(response.body.message).toBe('User not found');
     });
@@ -138,11 +132,8 @@ describe('User Endpoints (e2e)', () => {
 
   describe('Update Current User', () => {
     it('should update the current user successfully', async () => {
-      const uuid = uuidv4();
-      const name = `user_${uuid}`;
-      const updatedName = `updated_user_${uuid}`;
-      const user = await UserModel.create({ name, registrationToken: 'token' });
-      createdUsers.push(user);
+      const user = await testDataService.createUser();
+      const updatedName = `updated_user_${user.name}`;
 
       const response = await request(app.getHttpServer())
         .patch('/api/user/current')
@@ -152,20 +143,17 @@ describe('User Endpoints (e2e)', () => {
 
       expect(response.body.name).toBe(updatedName);
 
-      const updatedUser = await UserModel.findOne({ where: { id: user.id } });
+      const updatedUser = await testDataService.findUser({ id: user.id });
       expect(updatedUser).not.toBeNull();
       expect(updatedUser?.name).toBe(updatedName);
     });
 
     it('should not allow updating registration token of the current user', async () => {
-      const uuid = uuidv4();
-      const name = `user_${uuid}`;
-      const user = await UserModel.create({ name, registrationToken: 'token' });
-      createdUsers.push(user);
+      const user = await testDataService.createUser();
 
       const response = await request(app.getHttpServer())
         .patch('/api/user/current')
-        .send({ name, registrationToken: 'new_token' })
+        .send({ name: user.name, registrationToken: 'new_token' })
         .set('token', user.id)
         .expect(400);
 
@@ -173,8 +161,10 @@ describe('User Endpoints (e2e)', () => {
     });
 
     it('should return 401 if the user is not found', async () => {
-      const name = `user_${uuidv4()}`;
-      const response = await request(app.getHttpServer()).patch('/api/user/current').send({ name }).expect(401);
+      const response = await request(app.getHttpServer())
+        .patch('/api/user/current')
+        .send({ name: 'some_name' })
+        .expect(401);
 
       expect(response.body.message).toBe('Unauthorized');
     });
@@ -190,7 +180,7 @@ describe('User Endpoints (e2e)', () => {
 
   describe('Check Username Availability', () => {
     it('should return true if the username is available', async () => {
-      const availableName = `user_${uuidv4()}`;
+      const availableName = testDataService.getUserName();
 
       const response = await request(app.getHttpServer())
         .get('/api/user/check-name-availability')
@@ -201,13 +191,11 @@ describe('User Endpoints (e2e)', () => {
     });
 
     it('should return false if the username is already taken', async () => {
-      const takenName = `user_${uuidv4()}`;
-      const existingUser = await UserModel.create({ name: takenName, registrationToken: 'token' });
-      createdUsers.push(existingUser);
+      const user = await testDataService.createUser();
 
       const response = await request(app.getHttpServer())
         .get('/api/user/check-name-availability')
-        .query({ name: takenName })
+        .query({ name: user.name })
         .expect(200);
 
       expect(response.body).toHaveProperty('nameIsAvailable', false);
