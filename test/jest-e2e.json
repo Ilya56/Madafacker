@@ -15,7 +15,8 @@
     "/node_modules/",
     "/src/frameworks/data-services/sequelize/migrations/",
     "/src/frameworks/data-services/sequelize/seeders/",
-    "/src/frameworks/data-services/sequelize/config"
+    "/src/frameworks/data-services/sequelize/config",
+    "/test/utils/TestDataService"
   ],
   "coverageThreshold": {
     "global": {
