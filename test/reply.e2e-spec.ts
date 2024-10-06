@@ -29,7 +29,7 @@ describe('Reply Endpoints (e2e)', () => {
   beforeEach(async () => {
     // Create user and parent message for each test
     createdUser = await testDataService.createUser('token', 10);
-    parentMessage = await testDataService.createMessage(createdUser.id, 'Parent message', MessageMode.dark);
+    parentMessage = await testDataService.createMessage({ authorId: createdUser.id, body: 'Parent message' });
   });
 
   afterEach(async () => {
@@ -126,12 +126,11 @@ describe('Reply Endpoints (e2e)', () => {
 
     beforeEach(async () => {
       // Create a reply for each update test
-      createdReply = await testDataService.createMessage(
-        createdUser.id,
-        'Initial message',
-        MessageMode.light,
-        parentMessage.id,
-      );
+      createdReply = await testDataService.createMessage({
+        authorId: createdUser.id,
+        body: 'Initial message',
+        parentId: parentMessage.id,
+      });
     });
 
     it('should update a reply successfully', async () => {
@@ -187,12 +186,11 @@ describe('Reply Endpoints (e2e)', () => {
 
     beforeEach(async () => {
       // Create a reply for each get test
-      createdReply = await testDataService.createMessage(
-        createdUser.id,
-        'Initial message',
-        MessageMode.light,
-        parentMessage.id,
-      );
+      createdReply = await testDataService.createMessage({
+        authorId: createdUser.id,
+        body: 'Initial message',
+        parentId: parentMessage.id,
+      });
     });
 
     it('should retrieve a reply by ID successfully', async () => {

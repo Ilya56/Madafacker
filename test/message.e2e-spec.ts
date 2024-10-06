@@ -139,7 +139,10 @@ describe('Message Endpoints (e2e)', () => {
   // Test cases for Rate Message
   describe('Rate Message', () => {
     it('should rate a message successfully', async () => {
-      const message = await testDataService.createMessage(anotherUser.id, 'Test message for rating');
+      const message = await testDataService.createMessage({
+        authorId: anotherUser.id,
+        body: 'Test message for rating',
+      });
 
       await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
@@ -157,7 +160,10 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 when trying to rate the message again', async () => {
-      const message = await testDataService.createMessage(anotherUser.id, 'Test message for rating');
+      const message = await testDataService.createMessage({
+        authorId: anotherUser.id,
+        body: 'Test message for rating',
+      });
       await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
       const rateData = { rating: 'like' };
@@ -180,7 +186,10 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 when trying to rate own message', async () => {
-      const message = await testDataService.createMessage(createdUser.id, 'Test message to self-rate');
+      const message = await testDataService.createMessage({
+        authorId: createdUser.id,
+        body: 'Test message to self-rate',
+      });
 
       const rateData = { rating: 'like' };
 
@@ -194,7 +203,10 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 404 when trying to rate a message not received by the user', async () => {
-      const message = await testDataService.createMessage(anotherUser.id, 'Test message for rating');
+      const message = await testDataService.createMessage({
+        authorId: anotherUser.id,
+        body: 'Test message for rating',
+      });
 
       const rateData = { rating: 'like' };
 
@@ -210,7 +222,10 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 for missing rating', async () => {
-      const message = await testDataService.createMessage(anotherUser.id, 'Test message for missing rating');
+      const message = await testDataService.createMessage({
+        authorId: anotherUser.id,
+        body: 'Test message for missing rating',
+      });
 
       await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
@@ -224,7 +239,10 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 for invalid rating value', async () => {
-      const message = await testDataService.createMessage(anotherUser.id, 'Test message for invalid rating');
+      const message = await testDataService.createMessage({
+        authorId: anotherUser.id,
+        body: 'Test message for invalid rating',
+      });
 
       await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
@@ -261,13 +279,12 @@ describe('Message Endpoints (e2e)', () => {
   // Test cases for Get Incoming Messages
   describe('Get Incoming Messages with Replies', () => {
     it('should retrieve incoming messages with 1 level depth replies', async () => {
-      const parentMessage = await testDataService.createMessage(anotherUser.id, 'Parent message');
-      const replyMessage = await testDataService.createMessage(
-        anotherUser.id,
-        'Reply to parent message',
-        MessageMode.dark,
-        parentMessage.id,
-      );
+      const parentMessage = await testDataService.createMessage({ authorId: anotherUser.id, body: 'Parent message' });
+      const replyMessage = await testDataService.createMessage({
+        authorId: anotherUser.id,
+        body: 'Reply to parent message',
+        parentId: parentMessage.id,
+      });
 
       await testDataService.addMessageToUserInbox(createdUser.id, parentMessage.id);
       await testDataService.addMessageToUserInbox(createdUser.id, replyMessage.id);
@@ -292,13 +309,12 @@ describe('Message Endpoints (e2e)', () => {
   // Test cases for Get Outcoming Messages
   describe('Get Outcoming Messages with Replies', () => {
     it('should retrieve outcoming messages with 1 level depth replies', async () => {
-      const parentMessage = await testDataService.createMessage(createdUser.id, 'Parent message');
-      const replyMessage = await testDataService.createMessage(
-        anotherUser.id,
-        'Reply to parent message',
-        MessageMode.dark,
-        parentMessage.id,
-      );
+      const parentMessage = await testDataService.createMessage({ authorId: createdUser.id, body: 'Parent message' });
+      const replyMessage = await testDataService.createMessage({
+        authorId: anotherUser.id,
+        body: 'Reply to parent message',
+        parentId: parentMessage.id,
+      });
 
       const response = await request(app.getHttpServer())
         .get('/api/message/current/outcoming')
