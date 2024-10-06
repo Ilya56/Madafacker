@@ -2,8 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { TestDataService } from './utils/TestDataService'; // Import the TestDataService
-import { MessageMode } from '@core';
+import { TestDataService } from './utils/TestDataService';
 
 describe('Reply Endpoints (e2e)', () => {
   let app: INestApplication;
@@ -22,8 +21,6 @@ describe('Reply Endpoints (e2e)', () => {
 
     // Initialize the TestDataService
     testDataService = new TestDataService();
-
-    await testDataService.cleanupAll();
   });
 
   beforeEach(async () => {
@@ -54,8 +51,6 @@ describe('Reply Endpoints (e2e)', () => {
         .set('token', createdUser.id)
         .send(replyData);
 
-      // console.log(response);
-
       expect(response.body).toHaveProperty('id');
       expect(response.body.body).toBe(replyData.body);
       expect(response.body.public).toBe(replyData.public);
@@ -73,7 +68,7 @@ describe('Reply Endpoints (e2e)', () => {
       const replyData = {
         body: 'Nice message',
         public: false,
-        parentId: testDataService.getNonExistentId(), // Simulate non-existent parent message
+        parentId: testDataService.getNonExistentId(),
       };
 
       const response = await request(app.getHttpServer())
@@ -89,7 +84,7 @@ describe('Reply Endpoints (e2e)', () => {
       const replyData = {
         body: 'Nice message',
         public: false,
-        parentId: 'invalid_uuid', // Invalid UUID
+        parentId: 'invalid_uuid',
       };
 
       const response = await request(app.getHttpServer())
@@ -152,7 +147,7 @@ describe('Reply Endpoints (e2e)', () => {
 
     it('should return 404 if the reply does not exist', async () => {
       const updateData = {
-        id: testDataService.getNonExistentId(), // Non-existent UUID
+        id: testDataService.getNonExistentId(),
         public: true,
       };
 
@@ -167,7 +162,7 @@ describe('Reply Endpoints (e2e)', () => {
 
     it('should return 400 if the reply id is not a valid UUID', async () => {
       const updateData = {
-        id: 'invalid_uuid', // Invalid UUID
+        id: 'invalid_uuid',
         public: true,
       };
 
