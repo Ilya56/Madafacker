@@ -3,32 +3,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { v4 as uuidv4 } from 'uuid';
-import { MessageModel, UserModel, IncomeUserMessagesModel } from '@frameworks/data-services/sequelize/models';
-import { MessageMode } from '@core';
+import { MessageModel } from '@frameworks/data-services/sequelize/models';
+import { TestDataService } from './utils/TestDataService';
 import { delay } from './utils/delay';
+import { MessageMode } from '@core';
 
 describe('Message Endpoints (e2e)', () => {
   let app: INestApplication;
-  let createdMessages: MessageModel[] = [];
-  let createdUsers: UserModel[] = [];
-  let createdUser: UserModel;
-  let anotherUser: UserModel;
-
-  const createUsers = async (token: string) => {
-    for (let i = 0; i < 10; i++) {
-      const user = await UserModel.create({ name: `test_user_${uuidv4()}`, registrationToken: `${token}-${i}` });
-      createdUsers.push(user);
-    }
-  };
-
-  const clearUsers = async () => {
-    for (const user of createdUsers) {
-      await IncomeUserMessagesModel.destroy({ where: { userId: user.id } });
-      await MessageModel.destroy({ where: { authorId: user.id } });
-      await UserModel.destroy({ where: { id: user.id } });
-    }
-    createdUsers = [];
-  };
+  let testDataService: TestDataService;
+  let createdUser: any;
+  let anotherUser: any;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -39,25 +23,22 @@ describe('Message Endpoints (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    await createUsers('token');
+    // Initialize the TestDataService
+    testDataService = new TestDataService();
+  });
 
-    createdUser = createdUsers[0];
-    anotherUser = createdUsers[1];
+  beforeEach(async () => {
+    // Create users before each test
+    createdUser = await testDataService.createUser('token');
+    anotherUser = await testDataService.createUser('token2');
   });
 
   afterEach(async () => {
-    // Delete only the messages created during the tests
-    for (const message of createdMessages) {
-      await IncomeUserMessagesModel.destroy({ where: { messageId: message.id } });
-      await MessageModel.destroy({ where: { id: message.id } });
-    }
-    createdMessages = [];
+    // Cleanup all created data after each test
+    await testDataService.cleanupAll();
   });
 
   afterAll(async () => {
-    // Clean up by deleting the created users
-    await clearUsers();
-
     await app.close();
   });
 
@@ -80,7 +61,7 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('updatedAt');
 
-      const createdMessage = await MessageModel.findOne({ where: { id: response.body.id } });
+      const createdMessage = await testDataService.findMessage({ id: response.body.id });
       expect(createdMessage).toBeDefined();
 
       // Check that the message was marked as sent
@@ -93,7 +74,7 @@ describe('Message Endpoints (e2e)', () => {
       // const incomeUserMessages = await IncomeUserMessagesModel.findAll({ where: { messageId: response.body.id } });
       // expect(incomeUserMessages.length).toBeGreaterThan(0);
 
-      createdMessages.push(createdMessage as MessageModel);
+      testDataService.addCreatedMessage(createdMessage);
     });
 
     it('should return 400 for missing message body', async () => {
@@ -158,25 +139,16 @@ describe('Message Endpoints (e2e)', () => {
   // Test cases for Rate Message
   describe('Rate Message', () => {
     it('should rate a message successfully', async () => {
-      const messageData = {
-        body: 'Test message for rating',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-      };
+      const message = await testDataService.createMessage(anotherUser.id, 'Test message for rating');
 
-      const createdMessage = await MessageModel.create(messageData);
-      createdMessages.push(createdMessage);
-      await IncomeUserMessagesModel.create({
-        userId: createdUser.id,
-        messageId: createdMessage.id,
-      });
+      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
       const rateData = {
         rating: 'like',
       };
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/message/${createdMessage.id}/rate`)
+        .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
         .send(rateData)
         .expect(200);
@@ -184,34 +156,22 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body).toBeDefined();
     });
 
-    it('should return 400 when trying to rate message again', async () => {
-      const messageData = {
-        body: 'Test message for rating',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-      };
+    it('should return 400 when trying to rate the message again', async () => {
+      const message = await testDataService.createMessage(anotherUser.id, 'Test message for rating');
+      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
-      const createdMessage = await MessageModel.create(messageData);
-      createdMessages.push(createdMessage);
-      await IncomeUserMessagesModel.create({
-        userId: createdUser.id,
-        messageId: createdMessage.id,
-      });
+      const rateData = { rating: 'like' };
 
-      const rateData = {
-        rating: 'like',
-      };
-
-      // first time rate 200
+      // First rate (success)
       await request(app.getHttpServer())
-        .patch(`/api/message/${createdMessage.id}/rate`)
+        .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
         .send(rateData)
         .expect(200);
 
-      // second rate error
+      // Second rate (error)
       const response = await request(app.getHttpServer())
-        .patch(`/api/message/${createdMessage.id}/rate`)
+        .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
         .send(rateData)
         .expect(400);
@@ -220,21 +180,12 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 when trying to rate own message', async () => {
-      const messageData = {
-        body: 'Test message to self-rate',
-        mode: MessageMode.light,
-        authorId: createdUser.id,
-      };
+      const message = await testDataService.createMessage(createdUser.id, 'Test message to self-rate');
 
-      const createdMessage = await MessageModel.create(messageData);
-      createdMessages.push(createdMessage);
-
-      const rateData = {
-        rating: 'like',
-      };
+      const rateData = { rating: 'like' };
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/message/${createdMessage.id}/rate`)
+        .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
         .send(rateData)
         .expect(400);
@@ -242,47 +193,29 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.message).toBe('Operation not allowed: Cannot rate own message');
     });
 
-    it('should return 404 when trying to rate that not receiver', async () => {
-      const messageData = {
-        body: 'Test message for rating',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-      };
+    it('should return 404 when trying to rate a message not received by the user', async () => {
+      const message = await testDataService.createMessage(anotherUser.id, 'Test message for rating');
 
-      const createdMessage = await MessageModel.create(messageData);
-      createdMessages.push(createdMessage);
-
-      const rateData = {
-        rating: 'like',
-      };
+      const rateData = { rating: 'like' };
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/message/${createdMessage.id}/rate`)
+        .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
         .send(rateData)
         .expect(404);
 
       expect(response.body.message).toBe(
-        `Cannot rate because message with id ${createdMessage.id} not found for current user ${createdUser.id}`,
+        `Cannot rate because message with id ${message.id} not found for current user ${createdUser.id}`,
       );
     });
 
     it('should return 400 for missing rating', async () => {
-      const messageData = {
-        body: 'Test message for missing rating',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-      };
+      const message = await testDataService.createMessage(anotherUser.id, 'Test message for missing rating');
 
-      const createdMessage = await MessageModel.create(messageData);
-      createdMessages.push(createdMessage);
-      await IncomeUserMessagesModel.create({
-        userId: createdUser.id,
-        messageId: createdMessage.id,
-      });
+      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/message/${createdMessage.id}/rate`)
+        .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
         .send({})
         .expect(400);
@@ -291,25 +224,16 @@ describe('Message Endpoints (e2e)', () => {
     });
 
     it('should return 400 for invalid rating value', async () => {
-      const messageData = {
-        body: 'Test message for invalid rating',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-      };
+      const message = await testDataService.createMessage(anotherUser.id, 'Test message for invalid rating');
 
-      const createdMessage = await MessageModel.create(messageData);
-      createdMessages.push(createdMessage);
-      await IncomeUserMessagesModel.create({
-        userId: createdUser.id,
-        messageId: createdMessage.id,
-      });
+      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
 
       const rateData = {
         rating: 'invalid_rating',
       };
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/message/${createdMessage.id}/rate`)
+        .patch(`/api/message/${message.id}/rate`)
         .set('token', createdUser.id)
         .send(rateData)
         .expect(400);
@@ -337,35 +261,16 @@ describe('Message Endpoints (e2e)', () => {
   // Test cases for Get Incoming Messages
   describe('Get Incoming Messages with Replies', () => {
     it('should retrieve incoming messages with 1 level depth replies', async () => {
-      const parentMessageData = {
-        body: 'Parent message',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-      };
+      const parentMessage = await testDataService.createMessage(anotherUser.id, 'Parent message');
+      const replyMessage = await testDataService.createMessage(
+        anotherUser.id,
+        'Reply to parent message',
+        MessageMode.dark,
+        parentMessage.id,
+      );
 
-      const parentMessage = await MessageModel.create(parentMessageData);
-
-      // Create a reply to the parent message
-      const replyMessageData = {
-        body: 'Reply to parent message',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-        parentId: parentMessage.id, // Setting parentId to establish the reply relationship
-      };
-
-      const replyMessage = await MessageModel.create(replyMessageData);
-      createdMessages.push(replyMessage);
-      createdMessages.push(parentMessage);
-
-      // Associate messages with the created user
-      await IncomeUserMessagesModel.create({
-        userId: createdUser.id,
-        messageId: parentMessage.id,
-      });
-      await IncomeUserMessagesModel.create({
-        userId: createdUser.id,
-        messageId: replyMessage.id,
-      });
+      await testDataService.addMessageToUserInbox(createdUser.id, parentMessage.id);
+      await testDataService.addMessageToUserInbox(createdUser.id, replyMessage.id);
 
       const response = await request(app.getHttpServer())
         .get('/api/message/current/incoming')
@@ -387,25 +292,13 @@ describe('Message Endpoints (e2e)', () => {
   // Test cases for Get Outcoming Messages
   describe('Get Outcoming Messages with Replies', () => {
     it('should retrieve outcoming messages with 1 level depth replies', async () => {
-      const parentMessageData = {
-        body: 'Parent message',
-        mode: MessageMode.light,
-        authorId: createdUser.id,
-      };
-
-      const parentMessage = await MessageModel.create(parentMessageData);
-
-      // Create a reply to the parent message
-      const replyMessageData = {
-        body: 'Reply to parent message',
-        mode: MessageMode.light,
-        authorId: anotherUser.id,
-        parentId: parentMessage.id, // Setting parentId to establish the reply relationship
-      };
-
-      const replyMessage = await MessageModel.create(replyMessageData);
-      createdMessages.push(replyMessage);
-      createdMessages.push(parentMessage);
+      const parentMessage = await testDataService.createMessage(createdUser.id, 'Parent message');
+      const replyMessage = await testDataService.createMessage(
+        anotherUser.id,
+        'Reply to parent message',
+        MessageMode.dark,
+        parentMessage.id,
+      );
 
       const response = await request(app.getHttpServer())
         .get('/api/message/current/outcoming')
@@ -427,8 +320,8 @@ describe('Message Endpoints (e2e)', () => {
   it('should create a message successfully and handle fcm invalid token error', async () => {
     const loggerSpy = jest.spyOn(Logger.prototype, 'error');
 
-    await clearUsers();
-    await createUsers('invalid-token');
+    await testDataService.cleanupUsers();
+    await testDataService.createMultipleUsers(10, 'invalid-token');
 
     const messageData = {
       body: 'Test message',
@@ -437,7 +330,7 @@ describe('Message Endpoints (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/api/message')
-      .set('token', createdUsers[0].id)
+      .set('token', testDataService.getFirstCreatedUser().id)
       .send(messageData)
       .expect(201);
 
@@ -445,8 +338,8 @@ describe('Message Endpoints (e2e)', () => {
 
     expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
 
-    const createdMessage = await MessageModel.findOne({ where: { id: response.body.id } });
-    createdMessages.push(createdMessage as MessageModel);
+    const createdMessage = await testDataService.findMessage({ id: response.body.id });
+    testDataService.addCreatedMessage(createdMessage);
 
     loggerSpy.mockRestore();
   });
@@ -454,8 +347,8 @@ describe('Message Endpoints (e2e)', () => {
   it('should create a message successfully and handle fcm unknown error', async () => {
     const loggerSpy = jest.spyOn(Logger.prototype, 'error');
 
-    await clearUsers();
-    await createUsers('error');
+    await testDataService.cleanupUsers();
+    await testDataService.createMultipleUsers(10, 'error');
 
     const messageData = {
       body: 'Test message',
@@ -464,7 +357,7 @@ describe('Message Endpoints (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/api/message')
-      .set('token', createdUsers[0].id)
+      .set('token', testDataService.getFirstCreatedUser().id)
       .send(messageData)
       .expect(201);
 
@@ -472,8 +365,8 @@ describe('Message Endpoints (e2e)', () => {
 
     expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
 
-    const createdMessage = await MessageModel.findOne({ where: { id: response.body.id } });
-    createdMessages.push(createdMessage as MessageModel);
+    const createdMessage = await testDataService.findMessage({ id: response.body.id });
+    testDataService.addCreatedMessage(createdMessage);
 
     loggerSpy.mockRestore();
   });
