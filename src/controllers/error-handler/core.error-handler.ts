@@ -29,6 +29,7 @@ export class CoreErrorHandler implements NestInterceptor {
    */
   @WithSentry()
   catch(exception: Error | CoreError): any {
+    console.log('CoreErrorHandler HANDLE');
     if (exception instanceof HttpException) {
       return exception;
     }
