@@ -166,7 +166,6 @@ describe('Message Endpoints (e2e)', () => {
 
         await delay(500);
 
-        console.log(loggerSpy.mock.calls);
         expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
 
         const createdMessage = await testDataService.findMessage({ id: response.body.id });
@@ -185,7 +184,6 @@ describe('Message Endpoints (e2e)', () => {
 
         await delay(500);
 
-        console.log(loggerSpy.mock.calls);
         expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
 
         const createdMessage = await testDataService.findMessage({ id: response.body.id });
