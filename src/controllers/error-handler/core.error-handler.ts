@@ -16,7 +16,7 @@ import {
   OperationNotAllowedException,
 } from '@core';
 import { catchError, Observable, throwError } from 'rxjs';
-import { WithSentry } from '@sentry/nestjs';
+import * as Sentry from '@sentry/nestjs';
 
 /**
  * This interceptor process core error into the HTTP errors
@@ -27,9 +27,9 @@ export class CoreErrorHandler implements NestInterceptor {
    * Map core errors to the HTTP errors. Return new HTTP error based on core error
    * @param exception core type exception
    */
-  @WithSentry()
   catch(exception: Error | CoreError): any {
     console.log('CoreErrorHandler HANDLE');
+    Sentry.captureException(exception);
     if (exception instanceof HttpException) {
       return exception;
     }
