@@ -2,6 +2,7 @@ import { Message, TaskServiceAbstract, User, ConvertObjectsToStringType, Message
 import { SendMessageUseCase } from '@use-cases/message';
 import { Injectable } from '@nestjs/common';
 import { TaskListenersAbstract } from '../task-listeners.abstract';
+import * as Sentry from '@sentry/nestjs';
 
 /**
  * Send message listener implementation
@@ -23,6 +24,7 @@ export class SendMessageListener extends TaskListenersAbstract {
     this.taskService.sendMessage.processQueue((message) =>
       this.sendMessageUseCase.execute(this.prepareMessage(message)),
     );
+    Sentry.captureException(new Error('TEST'));
   }
 
   /**
