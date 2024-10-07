@@ -24,7 +24,6 @@ export class SendMessageListener extends TaskListenersAbstract {
     this.taskService.sendMessage.processQueue((message) =>
       this.sendMessageUseCase.execute(this.prepareMessage(message)),
     );
-    Sentry.captureException(new Error('TEST'));
   }
 
   /**
