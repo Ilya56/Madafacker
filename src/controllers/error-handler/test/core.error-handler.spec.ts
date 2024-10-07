@@ -14,6 +14,12 @@ import {
   OperationNotAllowedException,
 } from '@core';
 import { of, throwError } from 'rxjs';
+import * as Sentry from '@sentry/nestjs';
+
+jest.mock('@sentry/nestjs', () => ({
+  captureException: jest.fn(),
+  flush: jest.fn().mockResolvedValue(undefined),
+}));
 
 describe('CoreErrorHandler', () => {
   let interceptor: CoreErrorHandler;
@@ -32,25 +38,32 @@ describe('CoreErrorHandler', () => {
     } as CallHandler;
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('catch method', () => {
-    it('should return HttpException as it is', () => {
+    it('should return HttpException as it is', async () => {
       const badRequestException = new BadRequestException('Bad input');
-      const result = interceptor.catch(badRequestException);
+      const result = await interceptor.catch(badRequestException);
       expect(result).toBe(badRequestException);
     });
 
-    it('should handle non-CoreError as InternalServerErrorException', () => {
-      const result = interceptor.catch(new Error('General error'));
+    it('should handle non-CoreError as InternalServerErrorException and call Sentry', async () => {
+      const error = new Error('General error');
+      const result = await interceptor.catch(error);
       expect(result).toBeInstanceOf(InternalServerErrorException);
       expect(result.getResponse()).toBeDefined();
       expect(result.getStatus()).toBe(500);
       expect(result.message).toBe('General error');
       expect(result.name).toBe('InternalServerErrorException');
+      expect(Sentry.captureException).toHaveBeenCalledWith(error);
+      expect(Sentry.flush).toHaveBeenCalledWith(1000);
     });
 
-    it('should handle NotFoundError as NotFoundException', () => {
+    it('should handle NotFoundError as NotFoundException', async () => {
       const notFoundError = new NotFoundError('Resource not found');
-      const result = interceptor.catch(notFoundError);
+      const result = await interceptor.catch(notFoundError);
       expect(result).toBeInstanceOf(NotFoundException);
       expect(result.getResponse()).toBeDefined();
       expect(result.getStatus()).toBe(404);
@@ -58,9 +71,9 @@ describe('CoreErrorHandler', () => {
       expect(result.message).toBe('Resource not found');
     });
 
-    it('should handle DuplicateNotAllowedError as BadRequestException', () => {
+    it('should handle DuplicateNotAllowedError as BadRequestException', async () => {
       const duplicateNowAllowedError = new DuplicateNotAllowedError('Duplicate not allowed');
-      const result = interceptor.catch(duplicateNowAllowedError);
+      const result = await interceptor.catch(duplicateNowAllowedError);
       expect(result).toBeInstanceOf(BadRequestException);
       expect(result.getResponse()).toBeDefined();
       expect(result.getStatus()).toBe(400);
@@ -68,9 +81,9 @@ describe('CoreErrorHandler', () => {
       expect(result.message).toBe('Duplicated value is not allowed: Duplicate not allowed');
     });
 
-    it('should handle OperationNotAllowedException as BadRequestException', () => {
+    it('should handle OperationNotAllowedException as BadRequestException', async () => {
       const operationNotAllowedException = new OperationNotAllowedException('Operation not allowed');
-      const result = interceptor.catch(operationNotAllowedException);
+      const result = await interceptor.catch(operationNotAllowedException);
       expect(result).toBeInstanceOf(BadRequestException);
       expect(result.getResponse()).toBeDefined();
       expect(result.getStatus()).toBe(400);
@@ -78,9 +91,9 @@ describe('CoreErrorHandler', () => {
       expect(result.message).toBe('Operation not allowed: Operation not allowed');
     });
 
-    it('should handle InvalidNotifyServiceTokenException as BadRequestException', () => {
+    it('should handle InvalidNotifyServiceTokenException as BadRequestException', async () => {
       const invalidNotifyServiceTokenException = new InvalidNotifyServiceTokenException('Invalid token', 'test-token');
-      const result = interceptor.catch(invalidNotifyServiceTokenException);
+      const result = await interceptor.catch(invalidNotifyServiceTokenException);
       expect(result).toBeInstanceOf(BadRequestException);
       expect(result.getResponse()).toBeDefined();
       expect(result.getStatus()).toBe(400);
@@ -93,7 +106,7 @@ describe('CoreErrorHandler', () => {
     it('should catch errors and handle them', (done) => {
       next.handle = () => throwError(() => new NotFoundError('Not found'));
       interceptor.intercept(context, next).subscribe({
-        next: () => {},
+        next: () => done.fail('Unexpected success'),
         error: (err) => {
           expect(err).toBeInstanceOf(NotFoundException);
           expect(err.getResponse()).toBeDefined();
@@ -112,10 +125,7 @@ describe('CoreErrorHandler', () => {
           expect(result).toEqual({ success: true });
           done();
         },
-        error: () => {
-          // This should not be called
-          done.fail('Error handler called when it should not have been');
-        },
+        error: () => done.fail('Error handler called when it should not have been'),
       });
     });
   });

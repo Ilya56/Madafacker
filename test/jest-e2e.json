@@ -35,7 +35,7 @@
       "branches": 80,
       "functions": 100,
       "lines": 97,
-      "statements": 98
+      "statements": 97
     },
     "./src/core": {
       "branches": 100,

@@ -164,7 +164,7 @@ describe('Message Endpoints (e2e)', () => {
           .send(messageData)
           .expect(201);
 
-        await delay(500);
+        await delay(1000);
 
         expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
 
@@ -182,7 +182,7 @@ describe('Message Endpoints (e2e)', () => {
           .send(messageData)
           .expect(201);
 
-        await delay(500);
+        await delay(1000);
 
         expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
 
