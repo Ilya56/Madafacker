@@ -15,8 +15,8 @@ import {
   NotFoundError,
   OperationNotAllowedException,
 } from '@core';
-import { catchError, Observable, throwError } from 'rxjs';
-import { WithSentry } from '@sentry/nestjs';
+import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
+import * as Sentry from '@sentry/nestjs';
 
 /**
  * This interceptor process core error into the HTTP errors
@@ -27,8 +27,7 @@ export class CoreErrorHandler implements NestInterceptor {
    * Map core errors to the HTTP errors. Return new HTTP error based on core error
    * @param exception core type exception
    */
-  @WithSentry()
-  catch(exception: Error | CoreError): any {
+  async catch(exception: Error | CoreError): Promise<any> {
     if (exception instanceof HttpException) {
       return exception;
     }
@@ -46,6 +45,10 @@ export class CoreErrorHandler implements NestInterceptor {
       return new BadRequestException(`Invalid notify service token ${exception.token}: ${exception.message}`);
     }
 
+    // capture all not expected exceptions and flush then in the main thread
+    Sentry.captureException(exception);
+    await Sentry.flush(1000);
+
     return new InternalServerErrorException(exception);
   }
 
@@ -57,6 +60,8 @@ export class CoreErrorHandler implements NestInterceptor {
    * `Observable` representing the response stream from the route handler.
    */
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle().pipe(catchError((err) => throwError(() => this.catch(err))));
+    return next
+      .handle()
+      .pipe(catchError((err) => from(this.catch(err)).pipe(switchMap((result) => throwError(() => result)))));
   }
 }
