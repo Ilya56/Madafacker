@@ -28,7 +28,7 @@ export class CoreErrorHandler implements NestInterceptor {
    * @param exception core type exception
    */
   async catch(exception: Error | CoreError): Promise<any> {
-    await Promise.resolve(Sentry.captureException(exception));
+    Sentry.captureException(exception);
     await Sentry.flush(1000);
 
     if (exception instanceof HttpException) {
