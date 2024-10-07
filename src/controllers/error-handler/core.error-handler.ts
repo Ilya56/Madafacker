@@ -15,7 +15,7 @@ import {
   NotFoundError,
   OperationNotAllowedException,
 } from '@core';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 import * as Sentry from '@sentry/nestjs';
 
 /**
@@ -28,8 +28,7 @@ export class CoreErrorHandler implements NestInterceptor {
    * @param exception core type exception
    */
   async catch(exception: Error | CoreError): Promise<any> {
-    console.log('CoreErrorHandler HANDLE');
-    Sentry.captureException(exception);
+    console.log('CoreErrorHandler HANDLE', await Sentry.captureException(exception));
     await Sentry.flush(1000);
     if (exception instanceof HttpException) {
       return exception;
@@ -59,6 +58,8 @@ export class CoreErrorHandler implements NestInterceptor {
    * `Observable` representing the response stream from the route handler.
    */
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle().pipe(catchError((err) => throwError(() => this.catch(err))));
+    return next
+      .handle()
+      .pipe(catchError((err) => from(this.catch(err)).pipe(switchMap((result) => throwError(() => result)))));
   }
 }
