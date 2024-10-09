@@ -347,10 +347,6 @@ describe('Message Endpoints (e2e)', () => {
 
   // Test cases for Get Outcoming Messages
   describe('Get Outcoming Messages with Replies', () => {
-    // beforeEach(async () => {
-    //
-    // });
-
     it('should retrieve outcoming messages with 1 level depth replies', async () => {
       const parentMessage = await testDataService.createMessage({ authorId: createdUser.id, body: 'Parent message' });
       const replyMessage = await testDataService.createMessage({
