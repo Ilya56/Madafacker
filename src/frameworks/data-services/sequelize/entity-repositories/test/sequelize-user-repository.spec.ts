@@ -3,6 +3,7 @@ import { SequelizeUserRepository } from '../sequelize-user-repository';
 import { IncomeUserMessagesModel, UserModel } from '../../models';
 import { Message } from '@core';
 import { Sequelize } from 'sequelize-typescript';
+import { Op } from 'sequelize';
 
 describe('SequelizeUserRepository', () => {
   let userRepository: SequelizeUserRepository;
@@ -150,6 +151,26 @@ describe('SequelizeUserRepository', () => {
       expect(UserModel.findOne).toHaveBeenCalledWith({
         where: { name: 'NonExistentUser' },
       });
+    });
+  });
+
+  describe('markTokensAsInvalid', () => {
+    it('should mark a single user token as invalid', async () => {
+      const userId = 'user1';
+      jest.spyOn(UserModel, 'update').mockResolvedValue([1]); // Mock update response
+
+      await userRepository.markTokensAsInvalid(userId);
+
+      expect(UserModel.update).toHaveBeenCalledWith({ tokenIsInvalid: true }, { where: { id: { [Op.in]: [userId] } } });
+    });
+
+    it('should mark multiple user tokens as invalid', async () => {
+      const userIds = ['user1', 'user2', 'user3'];
+      jest.spyOn(UserModel, 'update').mockResolvedValue([userIds.length]); // Mock update response
+
+      await userRepository.markTokensAsInvalid(userIds);
+
+      expect(UserModel.update).toHaveBeenCalledWith({ tokenIsInvalid: true }, { where: { id: { [Op.in]: userIds } } });
     });
   });
 });
