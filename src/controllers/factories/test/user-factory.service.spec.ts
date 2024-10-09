@@ -39,5 +39,16 @@ describe('UserFactoryService', () => {
       expect(result).toBeInstanceOf(User);
       expect(result.name).toBe(updateUserDto.name);
     });
+
+    it('should update a user with the correct registration token from UpdateUserDto', () => {
+      const updateUserDto: UpdateUserDto = { registrationToken: 'token' };
+      const expectedUser = new User();
+      expectedUser.registrationToken = 'token';
+
+      const result = userFactoryService.updateUser(updateUserDto);
+
+      expect(result).toBeInstanceOf(User);
+      expect(result.registrationToken).toBe(updateUserDto.registrationToken);
+    });
   });
 });
