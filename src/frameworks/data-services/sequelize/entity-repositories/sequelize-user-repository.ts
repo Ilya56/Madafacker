@@ -111,4 +111,17 @@ export class SequelizeUserRepository
       },
     );
   }
+
+  /**
+   * Updates user entity
+   * If user updates registration token, need to mark it as valid
+   * @param id user id to update
+   * @param user user data to update
+   */
+  update(id: User['id'], user: Partial<UserModel>): Promise<UserModel | null> {
+    if (user.registrationToken) {
+      user.tokenIsInvalid = false;
+    }
+    return super.update(id, user);
+  }
 }

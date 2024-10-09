@@ -173,4 +173,33 @@ describe('SequelizeUserRepository', () => {
       expect(UserModel.update).toHaveBeenCalledWith({ tokenIsInvalid: true }, { where: { id: { [Op.in]: userIds } } });
     });
   });
+
+  describe('update', () => {
+    it('should update the user with provided data', async () => {
+      const userId = 'user1';
+      const userData = { name: 'Jane Doe' };
+      const updatedUser = { id: userId, ...userData, tokenIsInvalid: false } as UserModel;
+      jest.spyOn(UserModel, 'update').mockResolvedValue([1, [updatedUser]] as any);
+
+      const result = await userRepository.update(userId, userData);
+
+      expect(UserModel.update).toHaveBeenCalledWith(userData, { where: { id: userId }, returning: true });
+      expect(result).toEqual(updatedUser);
+    });
+
+    it('should mark token as valid if registrationToken is provided', async () => {
+      const userId = 'user1';
+      const userData = { registrationToken: 'newToken' };
+      const updatedUser = { id: userId, ...userData, tokenIsInvalid: false } as UserModel;
+      jest.spyOn(UserModel, 'update').mockResolvedValue([1, [updatedUser]] as any);
+
+      const result = await userRepository.update(userId, userData);
+
+      expect(UserModel.update).toHaveBeenCalledWith(
+        { ...userData, tokenIsInvalid: false },
+        { where: { id: userId }, returning: true },
+      );
+      expect(result).toEqual(updatedUser);
+    });
+  });
 });
