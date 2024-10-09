@@ -49,6 +49,7 @@ describe('SendMessageListener', () => {
           incomeMessages: [],
           coins: 0,
           registrationToken: '',
+          tokenIsInvalid: false,
         },
       };
 
@@ -76,6 +77,7 @@ describe('SendMessageListener', () => {
           name: 'Author Name',
           coins: 0,
           registrationToken: '',
+          tokenIsInvalid: false,
           outcomeMessages: [
             {
               id: '2',

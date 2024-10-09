@@ -27,21 +27,23 @@ describe('UpdateUserUseCase', () => {
   });
 
   it('should update the current user and return updated user', async () => {
-    const newUserData = {
+    const newUserData: User = {
       id: '123',
       name: 'Test_updated',
       incomeMessages: [],
       outcomeMessages: [],
       coins: 0,
       registrationToken: '',
+      tokenIsInvalid: false,
     };
-    const currentUser = {
+    const currentUser: User = {
       id: '123',
       name: 'Test',
       incomeMessages: [],
       outcomeMessages: [],
       coins: 0,
       registrationToken: '',
+      tokenIsInvalid: false,
     };
 
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(currentUser);

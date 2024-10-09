@@ -25,4 +25,8 @@ export class User extends Entity {
    * User registration token to identify user in notify systems
    */
   registrationToken: string;
+  /**
+   * Mark that token is invalid and should be updated
+   */
+  tokenIsInvalid: boolean;
 }
