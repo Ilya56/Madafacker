@@ -86,9 +86,25 @@ describe('UserController', () => {
   });
 
   describe('update', () => {
-    it('should update the user and return the updated user', async () => {
+    it('should update the user name only and return the updated user', async () => {
       const mockUpdateUserDto: UpdateUserDto = { name: 'Jane Doe' };
       const expectedUser = new User();
+      expectedUser.name = 'Jane Doe';
+      jest.spyOn(userFactoryService, 'updateUser').mockReturnValue(expectedUser);
+      jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(expectedUser);
+
+      const result = await userController.update(mockUpdateUserDto);
+
+      expect(result).toEqual(expectedUser);
+      expect(userFactoryService.updateUser).toHaveBeenCalledWith(mockUpdateUserDto);
+      expect(updateUserUseCase.execute).toHaveBeenCalledWith(expectedUser);
+    });
+
+    it('should update the user and return the updated user', async () => {
+      const mockUpdateUserDto: UpdateUserDto = { name: 'Jane Doe', registrationToken: 'new-token' };
+      const expectedUser = new User();
+      expectedUser.name = 'Jane Doe';
+      expectedUser.registrationToken = 'new-token';
       jest.spyOn(userFactoryService, 'updateUser').mockReturnValue(expectedUser);
       jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(expectedUser);
 

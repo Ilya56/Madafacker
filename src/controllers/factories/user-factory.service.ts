@@ -24,7 +24,15 @@ export class UserFactoryService {
    */
   updateUser(updateUserDto: UpdateUserDto): User {
     const user = new User();
-    user.name = updateUserDto.name;
+
+    if (updateUserDto.name) {
+      user.name = updateUserDto.name;
+    }
+
+    if (updateUserDto.registrationToken) {
+      user.registrationToken = updateUserDto.registrationToken;
+    }
+
     return user;
   }
 }
