@@ -2,6 +2,7 @@ import { Message, User, UserRepositoryAbstract } from '@core';
 import { SequelizeGenericRepository } from '../sequelize-generic-repository';
 import { IncomeUserMessagesModel, UserModel } from '../models';
 import { Sequelize } from 'sequelize-typescript';
+import { Op } from 'sequelize';
 
 declare module 'sequelize' {
   export interface IncrementDecrementOptions {
@@ -92,5 +93,22 @@ export class SequelizeUserRepository
         name,
       },
     });
+  }
+
+  /**
+   * Updates user or users tokenIsInvalid to `true`
+   * @param ids user ids to update
+   */
+  async markTokensAsInvalid(ids: User['id'] | User['id'][]): Promise<void> {
+    if (!Array.isArray(ids)) {
+      ids = [ids];
+    }
+
+    await this.repository.update(
+      { tokenIsInvalid: true },
+      {
+        where: { id: { [Op.in]: ids } },
+      },
+    );
   }
 }
