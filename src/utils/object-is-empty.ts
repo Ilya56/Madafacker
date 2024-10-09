@@ -4,5 +4,5 @@
  * @private
  */
 export function objectIsEmpty(obj: any): boolean {
-  return Object.keys(obj).length === 0;
+  return obj && typeof obj === 'object' && Object.keys(obj).length === 0;
 }
