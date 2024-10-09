@@ -78,4 +78,11 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
    */
   @UpdatedAt
   updatedAt?: Date;
+
+  /**
+   * Mark that token is invalid and should be updated
+   */
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  tokenIsInvalid: CreationOptional<boolean>;
 }
