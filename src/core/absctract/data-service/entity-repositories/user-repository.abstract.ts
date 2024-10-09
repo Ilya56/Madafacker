@@ -42,4 +42,11 @@ export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> 
    * @param name user name to search
    */
   getByName(name: User['name']): Promise<User | null>;
+
+  /**
+   * Marks user registration tokens as invalid by setting tokenIsInvalid as true
+   * Can accept one or many users id
+   * @param ids user ids to mark invalidate token
+   */
+  markTokensAsInvalid(ids: User['id'] | User['id'][]): Promise<void>;
 }
