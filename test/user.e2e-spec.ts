@@ -165,6 +165,26 @@ describe('User Endpoints (e2e)', () => {
       expect(updatedUser?.registrationToken).toBe(updatedToken);
     });
 
+    it('should return current user if no update', async () => {
+      const user = await testDataService.createUser();
+      const oldName = user.name;
+      const oldToken = user.registrationToken;
+
+      const response = await request(app.getHttpServer())
+        .patch('/api/user/current')
+        .send({})
+        .set('token', user.id)
+        .expect(200);
+
+      expect(response.body.name).toBe(oldName);
+      expect(response.body.registrationToken).toBe(oldToken);
+
+      const updatedUser = await testDataService.findUser({ id: user.id });
+      expect(updatedUser).not.toBeNull();
+      expect(updatedUser?.name).toBe(oldName);
+      expect(updatedUser?.registrationToken).toBe(oldToken);
+    });
+
     it('should return 401 if the user is not found', async () => {
       const response = await request(app.getHttpServer())
         .patch('/api/user/current')
