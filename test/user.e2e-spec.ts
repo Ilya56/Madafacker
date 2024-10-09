@@ -131,7 +131,7 @@ describe('User Endpoints (e2e)', () => {
   });
 
   describe('Update Current User', () => {
-    it('should update the current user successfully', async () => {
+    it('should update the current user name successfully', async () => {
       const user = await testDataService.createUser();
       const updatedName = `updated_user_${user.name}`;
 
@@ -148,16 +148,21 @@ describe('User Endpoints (e2e)', () => {
       expect(updatedUser?.name).toBe(updatedName);
     });
 
-    it('should not allow updating registration token of the current user', async () => {
+    it('should update the current user registration successfully', async () => {
       const user = await testDataService.createUser();
+      const updatedToken = `updated_user_${user.name}`;
 
       const response = await request(app.getHttpServer())
         .patch('/api/user/current')
-        .send({ name: user.name, registrationToken: 'new_token' })
+        .send({ registrationToken: updatedToken })
         .set('token', user.id)
-        .expect(400);
+        .expect(200);
 
-      expect(response.body.message).toContain('property registrationToken should not exist');
+      expect(response.body.registrationToken).toBe(updatedToken);
+
+      const updatedUser = await testDataService.findUser({ id: user.id });
+      expect(updatedUser).not.toBeNull();
+      expect(updatedUser?.registrationToken).toBe(updatedToken);
     });
 
     it('should return 401 if the user is not found', async () => {
