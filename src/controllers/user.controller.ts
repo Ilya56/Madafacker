@@ -9,6 +9,7 @@ import { CheckNameAvailableDto, CreateUserDto, NameIsAvailableResponseDto, Updat
 import { User } from '@core';
 import { UserFactoryService } from './factories';
 import { Public } from './auth';
+import { objectIsEmpty } from '@utils/object-is-empty';
 
 /**
  * User actions controller. All related to the user should be here
@@ -44,11 +45,17 @@ export class UserController {
 
   /**
    * Updates current user data
+   * If no data to update - return current user
    * @param updateUserDto updated user data
    */
   @Patch('/current')
   async update(@Body() updateUserDto: UpdateUserDto): Promise<User> {
     const user = this.userFactoryService.updateUser(updateUserDto);
+
+    if (objectIsEmpty(user)) {
+      return this.getUserByIdUseCase.execute();
+    }
+
     const updatedUser = await this.updateUserUseCase.execute(user);
 
     if (!updatedUser) {

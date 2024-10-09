@@ -115,10 +115,27 @@ describe('UserController', () => {
       expect(updateUserUseCase.execute).toHaveBeenCalledWith(expectedUser);
     });
 
+    it('should return current user is not update object', async () => {
+      const mockUpdateUserDto: UpdateUserDto = {};
+      const expectedUser = new User();
+      jest.spyOn(userFactoryService, 'updateUser').mockReturnValue(expectedUser);
+      jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(expectedUser);
+      jest.spyOn(getUserByIdUseCase, 'execute').mockResolvedValue(expectedUser);
+
+      const result = await userController.update(mockUpdateUserDto);
+
+      expect(result).toEqual(expectedUser);
+      expect(userFactoryService.updateUser).toHaveBeenCalledWith(mockUpdateUserDto);
+      expect(getUserByIdUseCase.execute).toHaveBeenCalledWith();
+      expect(updateUserUseCase.execute).not.toHaveBeenCalled();
+    });
+
     it('should throw a NotFoundException if the update does not find the user', async () => {
       const mockUpdateUserDto: UpdateUserDto = { name: 'Jane Doe' };
+      const userMock = new User();
+      userMock.name = 'Jane Doe';
 
-      jest.spyOn(userFactoryService, 'updateUser').mockReturnValue(new User());
+      jest.spyOn(userFactoryService, 'updateUser').mockReturnValue(userMock);
       jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(null);
 
       await expect(userController.update(mockUpdateUserDto)).rejects.toThrow(
