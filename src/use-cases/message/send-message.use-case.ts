@@ -1,5 +1,5 @@
 import { CommandAbstract } from '@use-cases/abstract';
-import { InvalidNotifyServiceTokenException, Message } from '@core';
+import { InvalidNotifyServiceTokenException, Message, User, TokenExpiredException } from '@core';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class SendMessageUseCase extends CommandAbstract<Message, void> {
    * @protected
    */
   protected async implementation(message: Message): Promise<void> {
-    const userIds = [];
+    const userIds: User['id'][] = [];
     const sendMessageData = await this.algoService.selectUsersShowMessage(message);
 
     // send a message to random users if only users count was returned
@@ -39,6 +39,9 @@ export class SendMessageUseCase extends CommandAbstract<Message, void> {
       await this.dataService.messages.markAsSent(message.id);
     }
 
+    // save user ids with invalid tokens
+    const expiredTokenUserIds: User['id'][] = [];
+
     // send notification to all users that receives a message
     const notificationText = `[${message.mode}] ${message.body}`;
     for (const userId of userIds) {
@@ -52,11 +55,20 @@ export class SendMessageUseCase extends CommandAbstract<Message, void> {
       try {
         await this.notifyService.notify(user.registrationToken, notificationText);
       } catch (e) {
+        // process errors that are known
         if (e instanceof InvalidNotifyServiceTokenException) {
-          return this.logger.error(`Invalid user registration token: ${e.message} : ${e.token}`);
+          this.logger.error(`Invalid user registration token: ${e.message} : ${e.token}`);
+        } else if (e instanceof TokenExpiredException) {
+          expiredTokenUserIds.push(userId);
+        } else {
+          this.logger.error(`Error while notify users about message: ${e.message}`);
         }
-        return this.logger.error(`Error while notify users about message: ${e.message}`);
       }
+    }
+
+    // invalidate user tokens
+    if (expiredTokenUserIds.length > 0) {
+      await this.dataService.users.markTokensAsInvalid(expiredTokenUserIds);
     }
   }
 }
