@@ -142,7 +142,9 @@
       "/src/frameworks/data-services/sequelize/migrations/",
       "/src/frameworks/data-services/sequelize/models/",
       "/src/frameworks/data-services/sequelize/seeders/",
-      "/src/frameworks/data-services/sequelize/config"
+      "/src/frameworks/data-services/sequelize/config",
+      "/src/frameworks/alert-services/sentry/instrument",
+      "/src/serives/alert-service/insturment"
     ],
     "moduleNameMapper": {
       "@config": [
