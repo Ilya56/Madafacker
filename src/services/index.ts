@@ -10,3 +10,4 @@ export * from './date-service/date-service.module';
 export * from './user-service/user-service.module';
 export * from './task-service/task-service.module';
 export * from './notify-service/notify-service.module';
+export * from './alert-service/alert-service.module';
