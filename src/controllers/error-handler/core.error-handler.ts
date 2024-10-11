@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  AlertServiceAbstract,
   CoreError,
   DuplicateNotAllowedError,
   InvalidNotifyServiceTokenException,
@@ -16,13 +17,18 @@ import {
   OperationNotAllowedException,
 } from '@core';
 import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
-import * as Sentry from '@sentry/nestjs';
 
 /**
  * This interceptor process core error into the HTTP errors
  */
 @Injectable()
 export class CoreErrorHandler implements NestInterceptor {
+  /**
+   * Inject alert service to use it in case of unexpected error
+   * @param alertService
+   */
+  constructor(private readonly alertService: AlertServiceAbstract) {}
+
   /**
    * Map core errors to the HTTP errors. Return new HTTP error based on core error
    * @param exception core type exception
@@ -45,9 +51,7 @@ export class CoreErrorHandler implements NestInterceptor {
       return new BadRequestException(`Invalid notify service token ${exception.token}: ${exception.message}`);
     }
 
-    // capture all not expected exceptions and flush then in the main thread
-    Sentry.captureException(exception);
-    await Sentry.flush(1000);
+    await this.alertService.processException(exception);
 
     return new InternalServerErrorException(exception);
   }
