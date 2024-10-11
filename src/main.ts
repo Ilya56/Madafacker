@@ -1,5 +1,5 @@
-// IMPORTANT: Make sure to import `instrument.js` at the top of your file.
-import './instrument';
+// IMPORTANT: Import instrument on the very beginning
+import './services/alert-service/instrument';
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
