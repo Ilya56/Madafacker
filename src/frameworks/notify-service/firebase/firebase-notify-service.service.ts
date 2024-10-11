@@ -1,15 +1,11 @@
-import { InvalidNotifyServiceTokenException, NotifyServiceAbstract } from '@core';
+import { InvalidNotifyServiceTokenException, NotifyServiceAbstract, TokenExpiredException } from '@core';
 import { Injectable } from '@nestjs/common';
 import * as firebase from 'firebase-admin';
 import Messaging = firebase.messaging.Messaging;
 import { ConfigService } from '@nestjs/config';
 import { ConfigType } from '@config';
 import { FirebaseAdminMock } from '@frameworks/notify-service/firebase/mocks/firebase-admin.mock';
-
-/**
- * Firebase error code
- */
-const INVALID_TOKEN_ERROR_CODE = 'messaging/invalid-argument';
+import { ErrorCodes } from '@frameworks/notify-service/firebase/error-codes.enum';
 
 /**
  * This class provides firebase possibilities as a notification system
@@ -50,8 +46,12 @@ export class FirebaseNotifyServiceService extends NotifyServiceAbstract {
     try {
       await this.fcm.send({ token, data: { message }, notification: { title: message } });
     } catch (err) {
-      if (err.code === INVALID_TOKEN_ERROR_CODE) {
+      if (err.code === ErrorCodes.INVALID_TOKEN_ERROR_CODE) {
         throw new InvalidNotifyServiceTokenException('Cannot send notification', token);
+      }
+
+      if (err.code === ErrorCodes.TOKEN_NOT_REGISTERED_ERROR_CODE) {
+        throw new TokenExpiredException('Token was expired or app was removed', token);
       }
 
       throw err;

@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FirebaseNotifyServiceService } from '../firebase-notify-service.service';
 import { ConfigService } from '@nestjs/config';
 import { messaging } from 'firebase-admin';
-import { InvalidNotifyServiceTokenException } from '@core';
+import { InvalidNotifyServiceTokenException, TokenExpiredException } from '@core';
+import { ErrorCodes } from '@frameworks/notify-service/firebase/error-codes.enum';
 
 // Mock firebase-admin methods
 jest.mock('firebase-admin', () => ({
@@ -21,7 +22,7 @@ describe('FirebaseNotifyServiceService', () => {
   let mockMessaging: jest.Mocked<messaging.Messaging>;
 
   const mockConfigService = {
-    get: () => ({
+    get: jest.fn().mockReturnValue({
       isFirebaseEnabled: true,
     }),
   };
@@ -40,38 +41,74 @@ describe('FirebaseNotifyServiceService', () => {
     jest.clearAllMocks();
   });
 
-  it('should call fcm.send with the correct parameters', async () => {
-    const token = 'mockToken';
-    const message = 'Hello World';
+  describe('notify', () => {
+    it('should call fcm.send with the correct parameters', async () => {
+      const token = 'mockToken';
+      const message = 'Hello World';
 
-    mockMessaging.send.mockResolvedValue('messageId');
+      mockMessaging.send.mockResolvedValue('messageId');
 
-    await service.notify(token, message);
+      await service.notify(token, message);
 
-    expect(mockMessaging.send).toHaveBeenCalledWith({
-      token,
-      data: { message },
-      notification: { title: message },
+      expect(mockMessaging.send).toHaveBeenCalledWith({
+        token,
+        data: { message },
+        notification: { title: message },
+      });
+    });
+
+    it('should throw InvalidNotifyServiceTokenException for invalid token error', async () => {
+      const token = 'mockToken';
+      const message = 'Hello World';
+      const error = { code: ErrorCodes.INVALID_TOKEN_ERROR_CODE };
+
+      mockMessaging.send.mockRejectedValue(error);
+
+      await expect(service.notify(token, message)).rejects.toThrow(InvalidNotifyServiceTokenException);
+    });
+
+    it('should throw TokenExpiredException for token not registered error', async () => {
+      const token = 'mockToken';
+      const message = 'Hello World';
+      const error = { code: ErrorCodes.TOKEN_NOT_REGISTERED_ERROR_CODE };
+
+      mockMessaging.send.mockRejectedValue(error);
+
+      await expect(service.notify(token, message)).rejects.toThrow(TokenExpiredException);
+    });
+
+    it('should rethrow any other error from fcm.send', async () => {
+      const token = 'mockToken';
+      const message = 'Hello World';
+      const error = new Error('Unknown error');
+
+      mockMessaging.send.mockRejectedValue(error);
+
+      await expect(service.notify(token, message)).rejects.toThrow('Unknown error');
     });
   });
 
-  it('should throw an error if notify fails', async () => {
-    const token = 'mockToken';
-    const message = 'Hello World';
+  describe('verifyToken', () => {
+    it('should return true if token is valid', async () => {
+      const token = 'mockToken';
 
-    const error = new Error('Failed to send');
-    mockMessaging.send.mockRejectedValue(error);
+      mockMessaging.send.mockResolvedValue('messageId');
 
-    await expect(service.notify(token, message)).rejects.toThrow('Failed to send');
-  });
+      const result = await service.verifyToken(token);
 
-  it('should throw an error if Firebase messaging fails', async () => {
-    const token = 'test-token';
-    const message = 'test-message';
-    const error = { code: 'messaging/invalid-argument' };
+      expect(result).toBe(true);
+      expect(mockMessaging.send).toHaveBeenCalledWith({ token }, true);
+    });
 
-    mockMessaging.send.mockRejectedValue(error);
+    it('should return false if token is invalid', async () => {
+      const token = 'mockToken';
+      const error = new Error('Token is invalid');
 
-    await expect(service.notify(token, message)).rejects.toThrow(InvalidNotifyServiceTokenException);
+      mockMessaging.send.mockRejectedValue(error);
+
+      const result = await service.verifyToken(token);
+
+      expect(result).toBe(false);
+    });
   });
 });
