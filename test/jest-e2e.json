@@ -16,6 +16,7 @@
     "/src/frameworks/data-services/sequelize/migrations/",
     "/src/frameworks/data-services/sequelize/seeders/",
     "/src/frameworks/data-services/sequelize/config",
+    "/src/frameworks/alert-services",
     "/test/utils/TestDataService"
   ],
   "coverageThreshold": {
