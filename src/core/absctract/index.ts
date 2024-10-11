@@ -9,5 +9,6 @@ export * from './algo-service.abstract';
 export * from './date-service.abstract';
 export * from './user-service.abstract';
 export * from './notify-service.abstract';
+export * from './alert-service.abstract';
 export * from './data-service';
 export * from './task-service';
