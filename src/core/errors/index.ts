@@ -7,3 +7,4 @@ export * from './NotFoundError';
 export * from './DuplicateNotAllowedError';
 export * from './OperationNotAllowedException';
 export * from './InvalidNotifyServiceTokenException';
+export * from './TokenExpiredException';
