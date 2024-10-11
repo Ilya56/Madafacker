@@ -8,6 +8,7 @@ import {
   MessageMode,
   NotifyServiceAbstract,
   User,
+  TokenExpiredException,
 } from '@core';
 import { SERVICES_PROVIDER } from '@utils/test-helpers';
 import { Logger } from '@nestjs/common';
@@ -26,9 +27,9 @@ describe('SendMessageUseCase', () => {
   const defaultSendMessageData = { usersCount: 3, wasSent: false };
   const defaultUserIds = ['user1', 'user2', 'user3'];
   const defaultUsers: User[] = [
-    { id: 'user1', registrationToken: 'token1' } as User,
-    { id: 'user2', registrationToken: 'token2' } as User,
-    { id: 'user3', registrationToken: 'token3' } as User,
+    { id: 'user1', registrationToken: 'token1', tokenIsInvalid: false } as User,
+    { id: 'user2', registrationToken: 'token2', tokenIsInvalid: false } as User,
+    { id: 'user3', registrationToken: 'token3', tokenIsInvalid: false } as User,
   ];
 
   beforeEach(async () => {
@@ -64,6 +65,7 @@ describe('SendMessageUseCase', () => {
     jest.spyOn(dataService.users, 'getById').mockImplementation(async (userId) => {
       return users.find((user) => user.id === userId) ?? null;
     });
+    jest.spyOn(dataService.users, 'markTokensAsInvalid').mockResolvedValue();
     jest.spyOn(notifyService, 'notify').mockResolvedValue();
     jest.spyOn(Logger.prototype, 'warn').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
@@ -156,6 +158,21 @@ describe('SendMessageUseCase', () => {
       await service.execute(message);
 
       expect(Logger.prototype.error).toHaveBeenCalledWith('Error while notify users about message: Notify error');
+    });
+
+    it('should mark tokens as invalid if TokenExpiredException is thrown for multiple users', async () => {
+      setupMocks();
+
+      const tokenExpiredException = new TokenExpiredException('Token expired', 'token');
+      jest
+        .spyOn(notifyService, 'notify')
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(tokenExpiredException)
+        .mockRejectedValueOnce(tokenExpiredException);
+
+      await service.execute(message);
+
+      expect(dataService.users.markTokensAsInvalid).toHaveBeenCalledWith(['user2', 'user3']);
     });
   });
 });

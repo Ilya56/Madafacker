@@ -22,6 +22,7 @@ export const SERVICES_PROVIDER = [
         sendMessageToUsers: jest.fn(),
         addCoins: jest.fn(),
         getByName: jest.fn(),
+        markTokensAsInvalid: jest.fn(),
       },
       messages: {
         getById: jest.fn(),
