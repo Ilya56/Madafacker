@@ -5,6 +5,7 @@ import { DateServicesModule } from './date-service/date-service.module';
 import { AlgoServiceModule } from './algo-service/algo-service.module';
 import { TaskServiceModule } from './task-service/task-service.module';
 import { NotifyServiceModule } from './notify-service/notify-service.module';
+import { AlertServiceModule } from './alert-service/alert-service.module';
 
 /**
  * This module is created to easier import all modules from use cases
@@ -18,6 +19,7 @@ import { NotifyServiceModule } from './notify-service/notify-service.module';
     AlgoServiceModule,
     TaskServiceModule,
     NotifyServiceModule,
+    AlertServiceModule,
   ],
   exports: [
     DataServiceModule,
@@ -26,6 +28,7 @@ import { NotifyServiceModule } from './notify-service/notify-service.module';
     AlgoServiceModule,
     TaskServiceModule,
     NotifyServiceModule,
+    AlertServiceModule,
   ],
 })
 export class ServicesModule {}
