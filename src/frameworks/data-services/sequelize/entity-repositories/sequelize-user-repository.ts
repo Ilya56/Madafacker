@@ -24,8 +24,8 @@ export class SequelizeUserRepository
   /**
    * Count users without criteria. Returns a number of all users
    */
-  getTotalUsersCount(): Promise<number> {
-    return this.repository.count();
+  getValidUsersCount(): Promise<number> {
+    return this.repository.count({ where: { tokenIsInvalid: false } });
   }
 
   /**

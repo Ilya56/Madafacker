@@ -41,12 +41,12 @@ describe('SequelizeUserRepository', () => {
     userRepository = module.get<SequelizeUserRepository>(SequelizeUserRepository);
   });
 
-  describe('getTotalUsersCount', () => {
+  describe('getValidUsersCount', () => {
     it('should return the total number of users', async () => {
       jest.spyOn(UserModel, 'count').mockResolvedValue(10);
-      const result = await userRepository.getTotalUsersCount();
+      const result = await userRepository.getValidUsersCount();
       expect(result).toEqual(10);
-      expect(UserModel.count).toHaveBeenCalled();
+      expect(UserModel.count).toHaveBeenCalledWith({ where: { tokenIsInvalid: false } });
     });
   });
 

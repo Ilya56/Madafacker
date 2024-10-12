@@ -5,9 +5,9 @@ import { User, GenericRepositoryAbstract, Message } from '@core';
  */
 export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> {
   /**
-   * Returns total active users count
+   * Returns total users with valid tokens count
    */
-  getTotalUsersCount(): Promise<number>;
+  getValidUsersCount(): Promise<number>;
 
   /**
    * Returns a number of users that already see a message with messageId
