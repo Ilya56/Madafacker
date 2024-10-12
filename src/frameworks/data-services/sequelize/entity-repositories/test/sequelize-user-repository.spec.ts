@@ -67,10 +67,11 @@ describe('SequelizeUserRepository', () => {
       jest.spyOn(sequelize, 'random').mockReturnValue('RANDOM()' as any);
 
       const quantity = 3;
-      const result = await userRepository.getRandomUserIds(quantity);
+      const result = await userRepository.getRandomValidUserIds(quantity);
 
       expect(result).toEqual(['1', '2', '3']);
       expect(UserModel.findAll).toHaveBeenCalledWith({
+        where: { tokenIsInvalid: false },
         order: 'RANDOM()',
         limit: quantity,
         attributes: ['id'],

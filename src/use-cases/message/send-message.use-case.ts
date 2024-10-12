@@ -29,7 +29,7 @@ export class SendMessageUseCase extends CommandAbstract<Message, void> {
 
     // send a message to random users if only users count was returned
     if (sendMessageData.usersCount) {
-      const randomUserIds = await this.dataService.users.getRandomUserIds(sendMessageData.usersCount);
+      const randomUserIds = await this.dataService.users.getRandomValidUserIds(sendMessageData.usersCount);
       await this.dataService.users.sendMessageToUsers(message, randomUserIds);
       userIds.push(...randomUserIds);
     }

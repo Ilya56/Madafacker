@@ -44,8 +44,9 @@ export class SequelizeUserRepository
    * Returns a plain array of ids (strings)
    * @param quantity quantity of the random users to retrieve
    */
-  async getRandomUserIds(quantity: number): Promise<User['id'][]> {
+  async getRandomValidUserIds(quantity: number): Promise<User['id'][]> {
     const users = await this.repository.findAll({
+      where: { tokenIsInvalid: false },
       order: this.sequelize.random(),
       limit: quantity,
       attributes: ['id'],
