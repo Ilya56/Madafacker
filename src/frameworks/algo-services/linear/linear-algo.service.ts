@@ -23,7 +23,7 @@ export class LinearAlgoService extends AlgoServiceAbstract {
    */
   async selectUsersShowMessage(message: Message): Promise<ShowMessageOutput> {
     // Total number of active users in the system
-    const totalUsersCount = await this.dataService.users.getTotalUsersCount();
+    const totalUsersCount = await this.dataService.users.getValidUsersCount();
     // Date when a message was created
     const messageCreationDate = message.createdAt;
     // Number of users that already see this message

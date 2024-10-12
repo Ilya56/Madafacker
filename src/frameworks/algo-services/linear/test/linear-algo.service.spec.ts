@@ -16,7 +16,7 @@ describe('LinearAlgoService', () => {
     };
     const mockDataService = {
       users: {
-        getTotalUsersCount: jest.fn(),
+        getValidUsersCount: jest.fn(),
         getUsersAlreadySeeMessageCount: jest.fn(),
       },
     };
@@ -34,7 +34,7 @@ describe('LinearAlgoService', () => {
     dataService = module.get<DataServiceAbstract>(DataServiceAbstract);
 
     jest.spyOn(dateService, 'getIntervalDuration').mockReturnValue(604800000); // 1 week in ms
-    jest.spyOn(dataService.users, 'getTotalUsersCount').mockResolvedValue(TOTAL_USERS_COUNT); // 100 total users
+    jest.spyOn(dataService.users, 'getValidUsersCount').mockResolvedValue(TOTAL_USERS_COUNT); // 100 total users
   });
 
   it('should calculate the correct number of users to show the message to after a certain time', async () => {
