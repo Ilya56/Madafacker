@@ -59,7 +59,7 @@ describe('SendMessageUseCase', () => {
     const users = overrides?.users || defaultUsers;
 
     jest.spyOn(algoService, 'selectUsersShowMessage').mockResolvedValue(sendMessageData);
-    jest.spyOn(dataService.users, 'getRandomUserIds').mockResolvedValue(userIds);
+    jest.spyOn(dataService.users, 'getRandomValidUserIds').mockResolvedValue(userIds);
     jest.spyOn(dataService.users, 'sendMessageToUsers').mockResolvedValue();
     jest.spyOn(dataService.messages, 'markAsSent').mockResolvedValue();
     jest.spyOn(dataService.users, 'getById').mockImplementation(async (userId) => {
@@ -78,7 +78,7 @@ describe('SendMessageUseCase', () => {
       await service.execute(message);
 
       expect(algoService.selectUsersShowMessage).toHaveBeenCalledWith(message);
-      expect(dataService.users.getRandomUserIds).toHaveBeenCalledWith(3);
+      expect(dataService.users.getRandomValidUserIds).toHaveBeenCalledWith(3);
       expect(dataService.users.sendMessageToUsers).toHaveBeenCalledWith(message, defaultUserIds);
     });
 
@@ -88,7 +88,7 @@ describe('SendMessageUseCase', () => {
       await service.execute(message);
 
       expect(algoService.selectUsersShowMessage).toHaveBeenCalledWith(message);
-      expect(dataService.users.getRandomUserIds).not.toHaveBeenCalled();
+      expect(dataService.users.getRandomValidUserIds).not.toHaveBeenCalled();
       expect(dataService.users.sendMessageToUsers).not.toHaveBeenCalled();
     });
 
@@ -107,7 +107,7 @@ describe('SendMessageUseCase', () => {
       await service.execute(message);
 
       expect(algoService.selectUsersShowMessage).toHaveBeenCalledWith(message);
-      expect(dataService.users.getRandomUserIds).toHaveBeenCalledWith(3);
+      expect(dataService.users.getRandomValidUserIds).toHaveBeenCalledWith(3);
       expect(dataService.users.sendMessageToUsers).toHaveBeenCalledWith(message, defaultUserIds);
       expect(dataService.messages.markAsSent).toHaveBeenCalledWith(message.id);
     });

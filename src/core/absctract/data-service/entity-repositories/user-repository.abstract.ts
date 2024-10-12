@@ -16,10 +16,10 @@ export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> 
   getUsersAlreadySeeMessageCount(messageId: Message['id']): Promise<number>;
 
   /**
-   * Returns an array of IDs random users. Here should be quantity random users
+   * Returns an array of IDs random users with valid token. Here should be quantity random users
    * @param quantity quantity of the random users to retrieve
    */
-  getRandomUserIds(quantity: number): Promise<User['id'][]>;
+  getRandomValidUserIds(quantity: number): Promise<User['id'][]>;
 
   /**
    * Save message as sent to the users that is contained in the userIds
