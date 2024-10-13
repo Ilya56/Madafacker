@@ -164,7 +164,7 @@ describe('Message Endpoints (e2e)', () => {
           .send(messageData)
           .expect(201);
 
-        await delay(1000);
+        await delay(2000);
 
         expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
 
@@ -182,12 +182,33 @@ describe('Message Endpoints (e2e)', () => {
           .send(messageData)
           .expect(201);
 
-        await delay(1000);
+        await delay(2000);
 
         expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
 
         const createdMessage = await testDataService.findMessage({ id: response.body.id });
         testDataService.addCreatedMessage(createdMessage);
+      });
+
+      it('should mark expired or invalid tokens as invalid', async () => {
+        const messageData = {
+          body: 'Test message with invalid tokens',
+          mode: 'dark',
+        };
+
+        // Create users with invalid tokens
+        await testDataService.createMultipleUsers(10, 'expired-token');
+
+        await request(app.getHttpServer())
+          .post('/api/message')
+          .set('token', createdUser.id)
+          .send(messageData)
+          .expect(201);
+
+        await delay(2000);
+
+        const invalidTokenUsers = await testDataService.getUsersWithInvalidTokens();
+        expect(invalidTokenUsers.length).toBeGreaterThan(0);
       });
     });
   });

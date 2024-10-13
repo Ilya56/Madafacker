@@ -79,6 +79,13 @@ export class TestDataService {
   }
 
   /**
+   * Retrieve users with invalid tokens
+   */
+  async getUsersWithInvalidTokens(): Promise<UserModel[]> {
+    return await UserModel.findAll({ where: { tokenIsInvalid: true } });
+  }
+
+  /**
    * Create a message and store it for later cleanup
    * @param messageData message data
    */
