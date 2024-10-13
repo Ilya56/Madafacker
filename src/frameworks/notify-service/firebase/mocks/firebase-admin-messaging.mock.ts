@@ -1,4 +1,5 @@
 import { Message } from 'firebase-admin/lib/messaging/messaging-api';
+import { ErrorCodes } from '@frameworks/notify-service/firebase/error-codes.enum';
 
 /**
  * Firebase message cloud mock, useful in e2e tests
@@ -13,7 +14,12 @@ export class FirebaseAdminMessagingMock {
     const tokenMessage = message as { token: string };
     if (tokenMessage.token.includes('invalid-token')) {
       throw {
-        code: 'messaging/invalid-argument',
+        code: ErrorCodes.INVALID_TOKEN_ERROR_CODE,
+      };
+    }
+    if (tokenMessage.token.includes('expired-token')) {
+      throw {
+        code: ErrorCodes.TOKEN_NOT_REGISTERED_ERROR_CODE,
       };
     }
     if (tokenMessage.token.includes('error')) {
