@@ -183,9 +183,7 @@ export class TestDataService {
    */
   async cleanupUsers(): Promise<void> {
     for (const user of this.createdUsers) {
-      await IncomeUserMessagesModel.destroy({ where: { userId: user.id } });
-      await MessageModel.destroy({ where: { authorId: user.id } });
-      await UserModel.destroy({ where: { id: user.id } });
+      await UserModel.truncate({ where: { id: user.id }, cascade: true });
     }
     this.createdUsers = [];
   }
@@ -195,8 +193,7 @@ export class TestDataService {
    */
   async cleanupMessages(): Promise<void> {
     for (const message of this.createdMessages.reverse()) {
-      await IncomeUserMessagesModel.destroy({ where: { messageId: message.id } });
-      await MessageModel.destroy({ where: { id: message.id } });
+      await MessageModel.truncate({ where: { id: message.id }, cascade: true });
     }
     this.createdMessages = [];
   }
