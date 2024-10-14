@@ -62,7 +62,7 @@ export class MessageModel extends Model<InferAttributes<MessageModel>, InferCrea
    * Message parent id and parent message object
    */
   @ForeignKeyDecorator(() => MessageModel)
-  parentId: ForeignKey<MessageModel['id']>;
+  parentId: ForeignKey<MessageModel['id']> | null;
   @HasOne(() => MessageModel)
   parent: NonAttribute<MessageModel>;
 
