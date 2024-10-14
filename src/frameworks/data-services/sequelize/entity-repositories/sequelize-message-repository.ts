@@ -84,6 +84,7 @@ export class SequelizeMessageRepository
     return this.repository.findAll({
       where: {
         wasSent: false,
+        parentId: null,
       },
     });
   }

@@ -132,6 +132,7 @@ describe('SequelizeMessageRepository', () => {
       expect(findAllMessageSpy).toHaveBeenCalledWith({
         where: {
           wasSent: false,
+          parentId: null,
         },
       });
       expect(result).toEqual(messages);
