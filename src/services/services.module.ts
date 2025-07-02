@@ -6,6 +6,7 @@ import { AlgoServiceModule } from './algo-service/algo-service.module';
 import { TaskServiceModule } from './task-service/task-service.module';
 import { NotifyServiceModule } from './notify-service/notify-service.module';
 import { AlertServiceModule } from './alert-service/alert-service.module';
+import { AuthStrategyModule } from './auth-strategy/auth-strategy.module';
 
 /**
  * This module is created to easier import all modules from use cases
@@ -20,6 +21,7 @@ import { AlertServiceModule } from './alert-service/alert-service.module';
     TaskServiceModule,
     NotifyServiceModule,
     AlertServiceModule,
+    AuthStrategyModule,
   ],
   exports: [
     DataServiceModule,
@@ -29,6 +31,7 @@ import { AlertServiceModule } from './alert-service/alert-service.module';
     TaskServiceModule,
     NotifyServiceModule,
     AlertServiceModule,
+    AuthStrategyModule,
   ],
 })
 export class ServicesModule {}
