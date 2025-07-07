@@ -41,6 +41,10 @@ describe('SequelizeUserRepository', () => {
     userRepository = module.get<SequelizeUserRepository>(SequelizeUserRepository);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('getValidUsersCount', () => {
     it('should return the total number of users', async () => {
       jest.spyOn(UserModel, 'count').mockResolvedValue(10);
@@ -201,6 +205,31 @@ describe('SequelizeUserRepository', () => {
         { where: { id: userId }, returning: true },
       );
       expect(result).toEqual(updatedUser);
+    });
+  });
+
+  describe('getByAuthProviderId', () => {
+    it('should return the user with specific auth provider id', async () => {
+      const mockUser = { id: '1', authProviderId: 'test-id' } as UserModel;
+      jest.spyOn(UserModel, 'findOne').mockResolvedValue(mockUser as any);
+
+      const result = await userRepository.getByAuthProviderId('test-id');
+
+      expect(result).toEqual(mockUser);
+      expect(UserModel.findOne).toHaveBeenCalledWith({
+        where: { authProviderId: 'test-id' },
+      });
+    });
+
+    it('should return null if no user is found', async () => {
+      jest.spyOn(UserModel, 'findOne').mockResolvedValue(null);
+
+      const result = await userRepository.getByName('NonExistentUser');
+
+      expect(result).toBeNull();
+      expect(UserModel.findOne).toHaveBeenCalledWith({
+        where: { name: 'NonExistentUser' },
+      });
     });
   });
 });
