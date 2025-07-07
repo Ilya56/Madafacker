@@ -29,4 +29,8 @@ export class User extends Entity {
    * Mark that token is invalid and should be updated
    */
   tokenIsInvalid: boolean;
+  /**
+   * Auth provider user unique identifier. Is used to bind internal user with external
+   */
+  authProviderId: string;
 }

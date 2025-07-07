@@ -50,6 +50,7 @@ describe('SendMessageListener', () => {
           coins: 0,
           registrationToken: '',
           tokenIsInvalid: false,
+          authProviderId: '',
         },
       };
 
@@ -78,6 +79,7 @@ describe('SendMessageListener', () => {
           coins: 0,
           registrationToken: '',
           tokenIsInvalid: false,
+          authProviderId: '',
           outcomeMessages: [
             {
               id: '2',

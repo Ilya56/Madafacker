@@ -20,6 +20,7 @@ describe('PassportUserServiceService', () => {
       coins: 0,
       registrationToken: '',
       tokenIsInvalid: false,
+      authProviderId: '',
     };
 
     const module: TestingModule = await Test.createTestingModule({
