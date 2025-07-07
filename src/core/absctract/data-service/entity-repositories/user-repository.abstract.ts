@@ -49,4 +49,10 @@ export interface UserRepositoryAbstract extends GenericRepositoryAbstract<User> 
    * @param ids user ids to mark invalidate token
    */
   markTokensAsInvalid(ids: User['id'] | User['id'][]): Promise<void>;
+
+  /**
+   * Returns user found by auth provider ID or null
+   * @param authProviderId external auth provider identifier
+   */
+  getByAuthProviderId(authProviderId: User['authProviderId']): Promise<User | null>;
 }
