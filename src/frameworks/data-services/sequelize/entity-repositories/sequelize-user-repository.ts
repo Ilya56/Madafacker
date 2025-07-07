@@ -125,4 +125,16 @@ export class SequelizeUserRepository
     }
     return super.update(id, user);
   }
+
+  /**
+   * Search user using findOne and return it
+   * @param authProviderId auth provider id
+   */
+  getByAuthProviderId(authProviderId: User['authProviderId']): Promise<User | null> {
+    return this.repository.findOne({
+      where: {
+        authProviderId,
+      },
+    });
+  }
 }

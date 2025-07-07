@@ -85,4 +85,11 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
   @Default(false)
   @Column(DataType.BOOLEAN)
   tokenIsInvalid: CreationOptional<boolean>;
+
+  @NotEmpty
+  @Unique
+  @Column({
+    allowNull: false,
+  })
+  authProviderId: string;
 }
