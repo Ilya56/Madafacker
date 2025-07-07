@@ -35,6 +35,7 @@ describe('UpdateUserUseCase', () => {
       coins: 0,
       registrationToken: '',
       tokenIsInvalid: false,
+      authProviderId: '',
     };
     const currentUser: User = {
       id: '123',
@@ -44,6 +45,7 @@ describe('UpdateUserUseCase', () => {
       coins: 0,
       registrationToken: '',
       tokenIsInvalid: false,
+      authProviderId: '',
     };
 
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(currentUser);
