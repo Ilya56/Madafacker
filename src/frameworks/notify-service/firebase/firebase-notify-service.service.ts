@@ -1,39 +1,23 @@
 import { InvalidNotifyServiceTokenException, NotifyServiceAbstract, TokenExpiredException } from '@core';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as firebase from 'firebase-admin';
 import Messaging = firebase.messaging.Messaging;
-import { ConfigService } from '@nestjs/config';
-import { ConfigType } from '@config';
-import { FirebaseAdminMock } from '@frameworks/notify-service/firebase/mocks/firebase-admin.mock';
 import { ErrorCodes } from '@frameworks/notify-service/firebase/error-codes.enum';
+import { FIREBASE_MESSAGING } from '@frameworks/firebase-module';
 
 /**
  * This class provides firebase possibilities as a notification system
  */
 @Injectable()
 export class FirebaseNotifyServiceService extends NotifyServiceAbstract {
-  /** Firebase Messaging Module instance */
-  private readonly fcm: Messaging;
-
   /**
    * Creates new instance of the Firebase notify service using config service to configure it
    * If isFirebaseEnabled is false, mocked class is used instead of real FCM
    * Real value exists if no FIREBASE_ENABLED in envs or FIREBASE_ENABLED is true
-   * @param configService nestjs config service
+   * @param fcm Firebase messaging service
    */
-  constructor(private configService: ConfigService) {
+  constructor(@Inject(FIREBASE_MESSAGING) private fcm: Messaging) {
     super();
-
-    const config = this.configService.get<ConfigType['firebase']>('firebase');
-
-    if (!config || !config.isFirebaseEnabled) {
-      this.fcm = new FirebaseAdminMock().messaging();
-    } else {
-      const app = firebase.initializeApp({
-        credential: firebase.credential.cert(config),
-      });
-      this.fcm = app.messaging();
-    }
   }
 
   /**
