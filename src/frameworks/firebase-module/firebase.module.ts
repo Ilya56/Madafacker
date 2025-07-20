@@ -3,13 +3,14 @@ import * as firebase from 'firebase-admin';
 import { getApp, getApps } from 'firebase-admin/app';
 import { ConfigType } from '@config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { FirebaseAdminMock } from '@frameworks/notify-service/firebase/mocks';
+import { FirebaseAdminMock } from './mocks';
 import App = firebase.app.App;
 
 /**
  * Firebase DI keys
  */
 export const FIREBASE_MESSAGING = Symbol('FIREBASE_MESSAGING');
+export const FIREBASE_AUTH = Symbol('FIREBASE_AUTH');
 export const FIREBASE_ROOT = Symbol('FIREBASE_ROOT');
 
 /**
@@ -43,8 +44,13 @@ export class FirebaseModule {
           useFactory: (app: App) => app.messaging(),
           inject: [FIREBASE_ROOT],
         },
+        {
+          provide: FIREBASE_AUTH,
+          useFactory: (app: App) => app.auth(),
+          inject: [FIREBASE_ROOT],
+        },
       ],
-      exports: [FIREBASE_MESSAGING],
+      exports: [FIREBASE_MESSAGING, FIREBASE_AUTH],
     };
   }
 }
