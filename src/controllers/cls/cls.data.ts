@@ -8,5 +8,10 @@ export interface ClsData extends ClsStore {
   /**
    * Current user in the scope of the request
    */
-  user: User;
+  user: User | null;
+
+  /**
+   * If true - current endpoint is a registration endpoint
+   */
+  isRegistrationEndpoint: boolean;
 }
