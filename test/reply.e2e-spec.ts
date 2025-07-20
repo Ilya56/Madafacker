@@ -3,6 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TestDataService } from './utils/TestDataService';
+import { VALID_TOKEN } from '@frameworks/firebase-module';
+
+const VALID_AUTH = `Bearer ${VALID_TOKEN}`;
 
 describe('Reply Endpoints (e2e)', () => {
   let app: INestApplication;
@@ -25,7 +28,7 @@ describe('Reply Endpoints (e2e)', () => {
 
   beforeEach(async () => {
     // Create user and parent message for each test
-    createdUser = await testDataService.createUser('token', 10);
+    createdUser = await testDataService.createUser({ token: 'token', coins: 10 });
     parentMessage = await testDataService.createMessage({ authorId: createdUser.id, body: 'Parent message' });
   });
 
@@ -48,7 +51,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/reply')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(replyData);
 
       expect(response.body).toHaveProperty('id');
@@ -73,7 +76,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/reply')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(replyData)
         .expect(404);
 
@@ -89,7 +92,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/reply')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(replyData)
         .expect(400);
 
@@ -108,7 +111,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/reply')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(replyData)
         .expect(400);
 
@@ -136,7 +139,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch('/api/reply')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(updateData)
         .expect(200);
 
@@ -153,7 +156,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch('/api/reply')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(updateData)
         .expect(404);
 
@@ -168,7 +171,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch('/api/reply')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(updateData)
         .expect(400);
 
@@ -191,7 +194,7 @@ describe('Reply Endpoints (e2e)', () => {
     it('should retrieve a reply by ID successfully', async () => {
       const response = await request(app.getHttpServer())
         .get(`/api/reply/${createdReply.id}`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .expect(200);
 
       expect(response.body).toHaveProperty('id');
@@ -204,7 +207,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .get(`/api/reply/${nonExistentReplyId}`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .expect(404);
 
       expect(response.body.message).toContain(`Reply with id ${nonExistentReplyId} was not found`);
@@ -215,7 +218,7 @@ describe('Reply Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .get(`/api/reply/${invalidReplyId}`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .expect(400);
 
       expect(response.body.message).toContain('Validation failed (uuid is expected)');

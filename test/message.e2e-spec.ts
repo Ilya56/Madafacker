@@ -2,10 +2,12 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { v4 as uuidv4 } from 'uuid';
 import { MessageModel } from '@frameworks/data-services/sequelize/models';
 import { TestDataService } from './utils/TestDataService';
 import { delay } from './utils/delay';
+import { VALID_TOKEN } from '@frameworks/firebase-module';
+
+const VALID_AUTH = `Bearer ${VALID_TOKEN}`;
 
 describe('Message Endpoints (e2e)', () => {
   let app: INestApplication;
@@ -28,8 +30,8 @@ describe('Message Endpoints (e2e)', () => {
 
   beforeEach(async () => {
     // Create users before each test
-    createdUser = await testDataService.createUser('token');
-    anotherUser = await testDataService.createUser('token2');
+    createdUser = await testDataService.createUser({ token: 'token' });
+    anotherUser = await testDataService.createUser({ token: 'token2', authProviderId: 'another_id' });
   });
 
   afterEach(async () => {
@@ -50,7 +52,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/message')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(messageData)
         .expect(201);
 
@@ -83,7 +85,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/message')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(messageData)
         .expect(400);
 
@@ -98,7 +100,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/message')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(messageData)
         .expect(400);
 
@@ -112,7 +114,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/message')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(messageData)
         .expect(400);
 
@@ -127,7 +129,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/message')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(messageData)
         .expect(400);
 
@@ -160,7 +162,7 @@ describe('Message Endpoints (e2e)', () => {
 
         const response = await request(app.getHttpServer())
           .post('/api/message')
-          .set('token', testDataService.getFirstCreatedUser().id)
+          .set('Authorization', VALID_AUTH)
           .send(messageData)
           .expect(201);
 
@@ -178,7 +180,7 @@ describe('Message Endpoints (e2e)', () => {
 
         const response = await request(app.getHttpServer())
           .post('/api/message')
-          .set('token', testDataService.getFirstCreatedUser().id)
+          .set('Authorization', VALID_AUTH)
           .send(messageData)
           .expect(201);
 
@@ -201,7 +203,7 @@ describe('Message Endpoints (e2e)', () => {
 
         await request(app.getHttpServer())
           .post('/api/message')
-          .set('token', createdUser.id)
+          .set('Authorization', VALID_AUTH)
           .send(messageData)
           .expect(201);
 
@@ -232,7 +234,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(rateData)
         .expect(200);
 
@@ -245,14 +247,14 @@ describe('Message Endpoints (e2e)', () => {
       // First rate (success)
       await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(rateData)
         .expect(200);
 
       // Second rate (error)
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(rateData)
         .expect(400);
 
@@ -269,7 +271,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(rateData)
         .expect(400);
 
@@ -286,7 +288,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(rateData)
         .expect(404);
 
@@ -298,7 +300,7 @@ describe('Message Endpoints (e2e)', () => {
     it('should return 400 for missing rating', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send({})
         .expect(400);
 
@@ -312,7 +314,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${message.id}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(rateData)
         .expect(400);
 
@@ -328,7 +330,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/api/message/${nonExistentMessageId}/rate`)
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .send(rateData)
         .expect(404);
 
@@ -351,7 +353,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .get('/api/message/current/incoming')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .expect(200);
 
       expect(response.body).toBeInstanceOf(Array);
@@ -378,7 +380,7 @@ describe('Message Endpoints (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .get('/api/message/current/outcoming')
-        .set('token', createdUser.id)
+        .set('Authorization', VALID_AUTH)
         .expect(200);
 
       expect(response.body).toBeInstanceOf(Array);

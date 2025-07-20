@@ -1,6 +1,7 @@
 import { MessageMode } from '@core';
 import { UserModel, MessageModel, IncomeUserMessagesModel } from '@frameworks/data-services/sequelize/models';
 import { v4 as uuidv4 } from 'uuid';
+import { USER_ID } from '@frameworks/firebase-module';
 
 /**
  * Test data service manipulates database data while e2e tests
@@ -22,9 +23,15 @@ export class TestDataService {
    * Create a user and store it for later cleanup
    * @param token optional token value
    * @param coins optional coins number
+   * @param authProviderId optional auth provider id
    */
-  async createUser(token = 'token', coins = 0): Promise<UserModel> {
-    const user = await UserModel.create({ name: `user_${uuidv4()}`, registrationToken: token, coins });
+  async createUser({ token = 'token', coins = 0, authProviderId = USER_ID } = {}): Promise<UserModel> {
+    const user = await UserModel.create({
+      name: `user_${uuidv4()}`,
+      registrationToken: token,
+      coins,
+      authProviderId,
+    });
     this.createdUsers.push(user);
     return user;
   }
@@ -36,7 +43,7 @@ export class TestDataService {
    */
   async createMultipleUsers(count: number, token = 'token'): Promise<void> {
     for (let i = 0; i < count; i++) {
-      const user = await this.createUser(`${token}-${i}`);
+      const user = await this.createUser({ token: `${token}-${i}`, authProviderId: `test-${i}` });
       this.createdUsers.push(user);
     }
   }

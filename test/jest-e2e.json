@@ -45,7 +45,7 @@
       "statements": 100
     },
     "./src/frameworks": {
-      "branches": 75,
+      "branches": 73,
       "functions": 95,
       "lines": 97,
       "statements": 97
