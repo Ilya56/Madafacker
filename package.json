@@ -145,6 +145,7 @@
       "/src/frameworks/data-services/sequelize/seeders/",
       "/src/frameworks/data-services/sequelize/config",
       "/src/frameworks/alert-services/sentry/instrument",
+      "/src/frameworks/firebase-module",
       "/src/serives/alert-service/insturment"
     ],
     "moduleNameMapper": {
