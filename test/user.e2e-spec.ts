@@ -3,6 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TestDataService } from './utils/TestDataService';
+import { VALID_TOKEN, NO_USER_TOKEN } from '@frameworks/firebase-module';
+
+const VALID_AUTH = `Bearer ${VALID_TOKEN}`;
 
 describe('User Endpoints (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +40,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/api/user')
         .send({ name, registrationToken: 'token' })
+        .set('Authorization', VALID_AUTH)
         .expect(201);
 
       expect(response.body).toHaveProperty('id');
@@ -57,13 +61,18 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/api/user')
         .send({ name: user.name, registrationToken: 'token' })
+        .set('Authorization', VALID_AUTH)
         .expect(400);
 
       expect(response.body.message).toContain('Duplicated value is not allowed');
     });
 
     it('should return 400 for invalid data (empty body)', async () => {
-      const response = await request(app.getHttpServer()).post('/api/user').send({}).expect(400);
+      const response = await request(app.getHttpServer())
+        .post('/api/user')
+        .send({})
+        .set('Authorization', VALID_AUTH)
+        .expect(400);
 
       expect(response.body.message).toContain('name should not be empty');
       expect(response.body.message).toContain('registrationToken should not be empty');
@@ -76,6 +85,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/api/user')
         .send({ name, registrationToken })
+        .set('Authorization', VALID_AUTH)
         .expect(400);
 
       expect(response.body.message).toContain('Invalid notify service token');
@@ -88,6 +98,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/api/user')
         .send({ name, registrationToken })
+        .set('Authorization', VALID_AUTH)
         .expect(400);
 
       expect(response.body.message).toContain('name must be shorter than or equal to 255 characters');
@@ -96,10 +107,13 @@ describe('User Endpoints (e2e)', () => {
   });
 
   describe('Get Current User', () => {
-    it('should return the current user', async () => {
+    it('should return the current user by valid token', async () => {
       const user = await testDataService.createUser();
 
-      const response = await request(app.getHttpServer()).get('/api/user/current').set('token', user.id).expect(200);
+      const response = await request(app.getHttpServer())
+        .get('/api/user/current')
+        .set('Authorization', VALID_AUTH)
+        .expect(200);
 
       expect(response.body.name).toBe(user.name);
       expect(response.body.registrationToken).toBe(user.registrationToken);
@@ -111,22 +125,22 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body.message).toBe('Unauthorized');
     });
 
-    it('should return 404 if no user is found', async () => {
+    it('should return 404 if no user is found with valid token', async () => {
       const response = await request(app.getHttpServer())
         .get('/api/user/current')
-        .set('token', testDataService.getNonExistentId())
+        .set('Authorization', `Bearer ${NO_USER_TOKEN}`)
         .expect(404);
 
       expect(response.body.message).toBe('User not found');
     });
 
-    it('should return 404 if invalid id provided', async () => {
+    it('should return 401 if invalid token is provided', async () => {
       const response = await request(app.getHttpServer())
         .get('/api/user/current')
-        .set('token', 'Random string')
-        .expect(404);
+        .set('Authorization', 'Bearer random')
+        .expect(401);
 
-      expect(response.body.message).toBe('User not found');
+      expect(response.body.message).toBe('Unauthorized');
     });
   });
 
@@ -138,7 +152,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch('/api/user/current')
         .send({ name: updatedName })
-        .set('token', user.id)
+        .set('Authorization', VALID_AUTH)
         .expect(200);
 
       expect(response.body.name).toBe(updatedName);
@@ -155,7 +169,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch('/api/user/current')
         .send({ registrationToken: updatedToken })
-        .set('token', user.id)
+        .set('Authorization', VALID_AUTH)
         .expect(200);
 
       expect(response.body.registrationToken).toBe(updatedToken);
@@ -173,7 +187,7 @@ describe('User Endpoints (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch('/api/user/current')
         .send({})
-        .set('token', user.id)
+        .set('Authorization', VALID_AUTH)
         .expect(200);
 
       expect(response.body.name).toBe(oldName);
@@ -197,7 +211,11 @@ describe('User Endpoints (e2e)', () => {
     it('should return 400 for too long name or registration token', async () => {
       const name = 'a'.repeat(256); // exceeds 255 characters
 
-      const response = await request(app.getHttpServer()).post('/api/user').send({ name }).expect(400);
+      const response = await request(app.getHttpServer())
+        .post('/api/user')
+        .set('Authorization', VALID_AUTH)
+        .send({ name })
+        .expect(400);
 
       expect(response.body.message).toContain('name must be shorter than or equal to 255 characters');
     });

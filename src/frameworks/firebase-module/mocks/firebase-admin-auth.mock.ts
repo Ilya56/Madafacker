@@ -20,7 +20,9 @@ export class FirebaseAdminAuthMock {
     } else if (idToken === REVOKED_TOKEN && checkRevoked) {
       throw new Error('MOCK token revoked auth error');
     } else {
-      throw new Error('MOCK invalid token auth error');
+      const error = new Error('MOCK invalid token auth error') as any;
+      error.errorInfo = { code: 'mocked-error' };
+      throw error;
     }
   }
 }
