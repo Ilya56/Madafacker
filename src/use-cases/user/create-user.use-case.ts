@@ -14,6 +14,10 @@ export class CreateUserUseCase extends CommandAbstract<User, User> {
       throw new InvalidNotifyServiceTokenException('Invalid registration token', user.registrationToken);
     }
 
+    // in registration case current user contains only authProviderId that is verified
+    const userAuthProviderObject = await this.userService.getCurrentUser();
+    user.authProviderId = userAuthProviderObject.authProviderId;
+
     return this.dataService.users.create(user);
   }
 }
