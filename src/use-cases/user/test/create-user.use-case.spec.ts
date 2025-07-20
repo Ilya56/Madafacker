@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserUseCase } from '@use-cases/user';
-import { InvalidNotifyServiceTokenException, DataServiceAbstract, User, NotifyServiceAbstract } from '@core';
+import {
+  InvalidNotifyServiceTokenException,
+  DataServiceAbstract,
+  User,
+  NotifyServiceAbstract,
+  UserServiceAbstract,
+} from '@core';
 import { SERVICES_PROVIDER } from '@utils/test-helpers';
 
 jest.mock('sequelize-transactional-decorator', () => ({
@@ -14,6 +20,7 @@ jest.mock('sequelize-transactional-decorator', () => ({
 describe('CreateUserUseCase', () => {
   let createUserUseCase: CreateUserUseCase;
   let dataService: DataServiceAbstract;
+  let userService: UserServiceAbstract;
   let notifyService: any;
 
   beforeEach(async () => {
@@ -24,6 +31,7 @@ describe('CreateUserUseCase', () => {
     createUserUseCase = module.get<CreateUserUseCase>(CreateUserUseCase);
     dataService = module.get<DataServiceAbstract>(DataServiceAbstract);
     notifyService = module.get<NotifyServiceAbstract>(NotifyServiceAbstract);
+    userService = module.get<UserServiceAbstract>(UserServiceAbstract);
   });
 
   afterEach(() => {
@@ -31,13 +39,15 @@ describe('CreateUserUseCase', () => {
   });
 
   it('should successfully create a user', async () => {
-    const createdUser = { id: '1', name: 'Test', registrationToken: 'valid_token' };
+    const createdUser = { id: '1', name: 'Test', registrationToken: 'valid_token', authProviderId: 'auth_provider_id' };
     const user = new User();
     user.name = 'Test';
     user.registrationToken = 'valid_token';
+    user.authProviderId = 'auth_provider_id';
 
     jest.spyOn(dataService.users, 'create').mockImplementation(async (user) => ({ ...user, id: '1' }));
     jest.spyOn(notifyService, 'verifyToken').mockResolvedValue(true);
+    jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
 
     const result = await createUserUseCase.execute(user);
 
@@ -45,6 +55,7 @@ describe('CreateUserUseCase', () => {
     expect(notifyService.verifyToken).toHaveBeenCalledWith(user.registrationToken);
     expect(dataService.transactional).toHaveBeenCalled();
     expect(dataService.users.create).toHaveBeenCalledWith(user);
+    expect(userService.getCurrentUser).toHaveBeenCalled();
   });
 
   it('should throw InvalidNotifyServiceTokenException when token is invalid', async () => {
