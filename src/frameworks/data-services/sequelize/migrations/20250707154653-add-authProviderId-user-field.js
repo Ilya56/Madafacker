@@ -9,8 +9,19 @@ module.exports = {
     await queryInterface.addColumn('UserModels', 'authProviderId', {
       type: Sequelize.STRING,
       unique: true,
+      allowNull: true,
+    });
+
+    await queryInterface.sequelize.query(`
+      UPDATE "UserModels"
+      SET "authProviderId" = gen_random_uuid()
+      WHERE "authProviderId" IS NULL;
+    `);
+
+    await queryInterface.changeColumn('UserModels', 'authProviderId', {
+      type: Sequelize.STRING,
+      unique: true,
       allowNull: false,
-      defaultValue: 'no-provided-id',
     });
   },
 
