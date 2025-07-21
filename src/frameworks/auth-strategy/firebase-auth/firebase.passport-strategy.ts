@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
 import { DataServiceAbstract, User } from '@core';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject, Logger, NotFoundException } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 import { ClsData } from '@controllers';
 import { FIREBASE_AUTH } from '@frameworks/firebase-module';
@@ -12,6 +12,8 @@ import Auth = firebase.auth.Auth;
  * Implementation of the password firebase jwt strategy
  */
 export class FirebasePassportStrategy extends PassportStrategy(Strategy) {
+  private readonly logger: Logger;
+
   constructor(
     private dataService: DataServiceAbstract,
     private readonly cls: ClsService<ClsData>,
@@ -20,6 +22,7 @@ export class FirebasePassportStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
+    this.logger = new Logger(FirebasePassportStrategy.name);
   }
 
   /**
@@ -45,6 +48,8 @@ export class FirebasePassportStrategy extends PassportStrategy(Strategy) {
 
       return user;
     } catch (e) {
+      this.logger.warn(e, e.errorInfo);
+
       // Found only such a way to identify firebase errors
       if (e.errorInfo) {
         return null;
