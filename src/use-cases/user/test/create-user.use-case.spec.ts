@@ -39,7 +39,13 @@ describe('CreateUserUseCase', () => {
   });
 
   it('should successfully create a user', async () => {
-    const createdUser = { id: '1', name: 'Test', registrationToken: 'valid_token', authProviderId: 'auth_provider_id', coins: 1000000 };
+    const createdUser = {
+      id: '1',
+      name: 'Test',
+      registrationToken: 'valid_token',
+      authProviderId: 'auth_provider_id',
+      coins: 1000000,
+    };
     const user = new User();
     user.name = 'Test';
     user.registrationToken = 'valid_token';
