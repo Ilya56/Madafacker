@@ -18,6 +18,8 @@ export class CreateUserUseCase extends CommandAbstract<User, User> {
     const userAuthProviderObject = await this.userService.getCurrentUser();
     user.authProviderId = userAuthProviderObject.authProviderId;
 
+    user.coins = 1000000;
+
     return this.dataService.users.create(user);
   }
 }
