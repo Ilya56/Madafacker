@@ -22,9 +22,9 @@ export class User extends Entity {
    */
   coins: number;
   /**
-   * User registration token to identify user in notify systems
+   * User registration token to identify user in notify systems. Can be not present
    */
-  registrationToken: string;
+  registrationToken?: string;
   /**
    * Mark that token is invalid and should be updated
    */

@@ -60,10 +60,9 @@ export class UserModel extends Model<InferAttributes<UserModel>, InferCreationAt
   /**
    * Unique user token that is used by notification system
    */
-  @NotEmpty
   @Unique
   @Column({
-    allowNull: false,
+    allowNull: true,
   })
   registrationToken: string;
 
