@@ -38,27 +38,57 @@ describe('CreateUserUseCase', () => {
     jest.clearAllMocks();
   });
 
-  it('should successfully create a user', async () => {
+  it('should successfully create a user with registration token', async () => {
     const createdUser = {
       id: '1',
       name: 'Test',
       registrationToken: 'valid_token',
       authProviderId: 'auth_provider_id',
       coins: 1000000,
+      tokenIsInvalid: false,
     };
     const user = new User();
     user.name = 'Test';
     user.registrationToken = 'valid_token';
     user.authProviderId = 'auth_provider_id';
 
-    jest.spyOn(dataService.users, 'create').mockImplementation(async (user) => ({ ...user, id: '1' }));
     jest.spyOn(notifyService, 'verifyToken').mockResolvedValue(true);
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
+    jest
+      .spyOn(dataService.users, 'create')
+      .mockImplementation(async (user) => ({ ...user, id: '1', tokenIsInvalid: false }));
 
     const result = await createUserUseCase.execute(user);
 
     expect(result).toEqual(createdUser);
     expect(notifyService.verifyToken).toHaveBeenCalledWith(user.registrationToken);
+    expect(dataService.transactional).toHaveBeenCalled();
+    expect(dataService.users.create).toHaveBeenCalledWith(user);
+    expect(userService.getCurrentUser).toHaveBeenCalled();
+  });
+
+  it('should successfully create a user without registration token', async () => {
+    const createdUser = {
+      id: '1',
+      name: 'Test',
+      authProviderId: 'auth_provider_id',
+      coins: 1000000,
+      tokenIsInvalid: true,
+    };
+    const user = new User();
+    user.name = 'Test';
+    user.authProviderId = 'auth_provider_id';
+
+    jest.spyOn(notifyService, 'verifyToken').mockResolvedValue(true);
+    jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
+    jest
+      .spyOn(dataService.users, 'create')
+      .mockImplementation(async (user) => ({ ...user, id: '1', tokenIsInvalid: true }));
+
+    const result = await createUserUseCase.execute(user);
+
+    expect(result).toEqual(createdUser);
+    expect(notifyService.verifyToken).not.toHaveBeenCalled();
     expect(dataService.transactional).toHaveBeenCalled();
     expect(dataService.users.create).toHaveBeenCalledWith(user);
     expect(userService.getCurrentUser).toHaveBeenCalled();
