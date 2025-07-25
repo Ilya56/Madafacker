@@ -54,9 +54,10 @@ export class CreateUserDto {
   name: string;
 
   @IsString()
+  @IsOptional()
   @IsNotEmpty()
   @MaxLength(1000)
-  registrationToken: string;
+  registrationToken?: string;
 }
 
 export class UpdateUserDto {
