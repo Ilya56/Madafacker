@@ -33,7 +33,7 @@ describe('User Endpoints (e2e)', () => {
   });
 
   describe('Create User', () => {
-    it('should create a user successfully', async () => {
+    it('should create a user successfully with registration token', async () => {
       const name = testDataService.getUserName();
       const registrationToken = 'token';
 
@@ -46,12 +46,34 @@ describe('User Endpoints (e2e)', () => {
       expect(response.body).toHaveProperty('id');
       expect(response.body.name).toBe(name);
       expect(response.body.registrationToken).toBe(registrationToken);
+      expect(response.body.tokenIsInvalid).toBeFalsy();
       expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('updatedAt');
 
       const createdUser = await testDataService.findUser({ name: name });
       expect(createdUser).toBeDefined();
       expect(createdUser?.registrationToken).toBe(registrationToken);
+      testDataService.addCreatedUser(createdUser);
+    });
+
+    it('should create a user successfully without registration token', async () => {
+      const name = testDataService.getUserName();
+
+      const response = await request(app.getHttpServer())
+        .post('/api/user')
+        .send({ name })
+        .set('Authorization', VALID_AUTH)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.name).toBe(name);
+      expect(response.body.tokenIsInvalid).toBeTruthy();
+      expect(response.body).toHaveProperty('createdAt');
+      expect(response.body).toHaveProperty('updatedAt');
+
+      const createdUser = await testDataService.findUser({ name: name });
+      expect(createdUser).toBeDefined();
+      expect(createdUser?.registrationToken).toBeNull();
       testDataService.addCreatedUser(createdUser);
     });
 
@@ -75,7 +97,6 @@ describe('User Endpoints (e2e)', () => {
         .expect(400);
 
       expect(response.body.message).toContain('name should not be empty');
-      expect(response.body.message).toContain('registrationToken should not be empty');
     });
 
     it('should return 400 for invalid registration token format', async () => {
