@@ -52,16 +52,18 @@ export class SendMessageUseCase extends CommandAbstract<Message, void> {
         continue;
       }
 
-      try {
-        await this.notifyService.notify(user.registrationToken, notificationText);
-      } catch (e) {
-        // process errors that are known
-        if (e instanceof InvalidNotifyServiceTokenException) {
-          this.logger.error(`Invalid user registration token: ${e.message} : ${e.token}`);
-        } else if (e instanceof TokenExpiredException) {
-          expiredTokenUserIds.push(userId);
-        } else {
-          this.logger.error(`Error while notify users about message: ${e.message}`);
+      if (user.registrationToken) {
+        try {
+          await this.notifyService.notify(user.registrationToken, notificationText);
+        } catch (e) {
+          // process errors that are known
+          if (e instanceof InvalidNotifyServiceTokenException) {
+            this.logger.error(`Invalid user registration token: ${e.message} : ${e.token}`);
+          } else if (e instanceof TokenExpiredException) {
+            expiredTokenUserIds.push(userId);
+          } else {
+            this.logger.error(`Error while notify users about message: ${e.message}`);
+          }
         }
       }
     }

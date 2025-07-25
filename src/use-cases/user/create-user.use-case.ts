@@ -9,9 +9,13 @@ export class CreateUserUseCase extends CommandAbstract<User, User> {
    * @param user user entity to create
    */
   protected async implementation(user: User): Promise<User> {
-    const tokenIsValid = await this.notifyService.verifyToken(user.registrationToken);
-    if (!tokenIsValid) {
-      throw new InvalidNotifyServiceTokenException('Invalid registration token', user.registrationToken);
+    if (user.registrationToken) {
+      const tokenIsValid = await this.notifyService.verifyToken(user.registrationToken);
+      if (!tokenIsValid) {
+        throw new InvalidNotifyServiceTokenException('Invalid registration token', user.registrationToken);
+      }
+    } else {
+      user.tokenIsInvalid = true;
     }
 
     // in registration case current user contains only authProviderId that is verified
