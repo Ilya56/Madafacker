@@ -1,6 +1,15 @@
-import { MessageMode } from '../enums';
+import { MessageMode, MessageRating } from '../enums';
 import { User } from './user.entity';
 import { Entity } from './entity';
+
+/**
+ * Interface for message rating statistics
+ */
+export interface MessageRatingStats {
+  likes: number;
+  dislikes: number;
+  superLikes: number;
+}
 
 /**
  * Message is a message from any user with any text that will be shown to another user's.
@@ -28,4 +37,14 @@ export class Message extends Entity {
    * Mark that message already was sent to all users and no need to process this message again
    */
   wasSent: boolean;
+
+  /**
+   * Message rating statistics
+   */
+  ratingStats?: MessageRatingStats;
+
+  /**
+   * Own rating of the current user
+   */
+  ownRating?: MessageRating | null;
 }
