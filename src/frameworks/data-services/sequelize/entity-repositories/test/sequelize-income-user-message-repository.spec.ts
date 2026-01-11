@@ -6,12 +6,14 @@ describe('SequelizeIncomeUserMessageRepository', () => {
   let repository: SequelizeIncomeUserMessageRepository;
   let findOneSpy: jest.SpyInstance;
   let updateIncomeUserMessageSpy: jest.SpyInstance;
+  let findAllSpy: jest.SpyInstance;
 
   beforeEach(() => {
     repository = new SequelizeIncomeUserMessageRepository();
 
     findOneSpy = jest.spyOn(IncomeUserMessagesModel, 'findOne').mockImplementation(async () => null);
     updateIncomeUserMessageSpy = jest.spyOn(IncomeUserMessagesModel, 'update').mockImplementation(async () => [1]);
+    findAllSpy = jest.spyOn(IncomeUserMessagesModel, 'findAll').mockImplementation(async () => []);
   });
 
   afterEach(() => {
@@ -76,6 +78,46 @@ describe('SequelizeIncomeUserMessageRepository', () => {
           },
         },
       );
+    });
+  });
+
+  describe('getRatingStatsByMessageIds', () => {
+    it('should return correct rating stats', async () => {
+      const messageIds = ['msg-1', 'msg-2'];
+      const rawStats = [
+        { messageId: 'msg-1', rating: MessageRating.like, count: '5' },
+        { messageId: 'msg-1', rating: MessageRating.dislike, count: '1' },
+        { messageId: 'msg-2', rating: MessageRating.superlike, count: '2' },
+      ];
+
+      findAllSpy.mockResolvedValue(rawStats);
+
+      const result = await repository.getRatingStatsByMessageIds(messageIds);
+
+      expect(result).toEqual({
+        'msg-1': { likes: 5, dislikes: 1, superLikes: 0 },
+        'msg-2': { likes: 0, dislikes: 0, superLikes: 2 },
+      });
+    });
+  });
+
+  describe('getUserRatingsByMessageIds', () => {
+    it('should return correct user ratings', async () => {
+      const userId = 'user-1';
+      const messageIds = ['msg-1', 'msg-2'];
+      const rawRatings = [
+        { messageId: 'msg-1', rating: MessageRating.like },
+        { messageId: 'msg-2', rating: MessageRating.dislike },
+      ];
+
+      findAllSpy.mockResolvedValue(rawRatings);
+
+      const result = await repository.getUserRatingsByMessageIds(userId, messageIds);
+
+      expect(result).toEqual({
+        'msg-1': MessageRating.like,
+        'msg-2': MessageRating.dislike,
+      });
     });
   });
 });

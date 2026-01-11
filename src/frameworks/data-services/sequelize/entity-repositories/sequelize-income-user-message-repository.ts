@@ -1,7 +1,7 @@
-import { MessageRating } from 'src/core/enums/MessageRating';
 import { IncomeUserMessagesModel } from '../models';
 import { SequelizeGenericRepository } from '../sequelize-generic-repository';
-import { IncomeUserMessageRepositoryAbstract, Message, User } from '@core';
+import { IncomeUserMessageRepositoryAbstract, Message, User, MessageRatingStats, MessageRating } from '@core';
+import { col, fn, Op } from 'sequelize';
 
 /**
  * Sequelize income user message repository implementation
@@ -54,5 +54,73 @@ export class SequelizeIncomeUserMessageRepository
       },
     );
     return updatedCount > 0;
+  }
+
+  /**
+   * Returns rating statistics for a list of messages
+   * @param messageIds
+   */
+  async getRatingStatsByMessageIds(messageIds: Message['id'][]): Promise<Record<string, MessageRatingStats>> {
+    type RatingWithCount = { messageId: string; rating: MessageRating; count: string };
+
+    const ratings = (await IncomeUserMessagesModel.findAll({
+      where: {
+        messageId: { [Op.in]: messageIds },
+        rating: { [Op.ne]: null },
+      },
+      attributes: ['messageId', 'rating', [fn('COUNT', col('rating')), 'count']],
+      group: ['messageId', 'rating'],
+      raw: true,
+    })) as unknown as RatingWithCount[];
+
+    const result: Record<string, MessageRatingStats> = {};
+    messageIds.forEach((messageId) => {
+      result[messageId] = { likes: 0, dislikes: 0, superLikes: 0 };
+    });
+
+    ratings.forEach((rating) => {
+      const count = parseInt(rating.count, 10);
+
+      if (rating.rating === MessageRating.like) {
+        result[rating.messageId].likes = count;
+      }
+      if (rating.rating === MessageRating.dislike) {
+        result[rating.messageId].dislikes = count;
+      }
+      if (rating.rating === MessageRating.superlike) {
+        result[rating.messageId].superLikes = count;
+      }
+    });
+
+    return result;
+  }
+
+  /**
+   * Returns user ratings for a list of messages
+   * @param userId
+   * @param messageIds
+   */
+  async getUserRatingsByMessageIds(
+    userId: User['id'],
+    messageIds: Message['id'][],
+  ): Promise<Record<string, MessageRating>> {
+    type Rating = { messageId: string; rating: MessageRating; count: string };
+
+    const ratings = (await IncomeUserMessagesModel.findAll({
+      where: {
+        userId,
+        messageId: { [Op.in]: messageIds },
+        rating: { [Op.ne]: null },
+      },
+      attributes: ['messageId', 'rating'],
+      raw: true,
+    })) as unknown as Rating[];
+
+    const result: Record<string, MessageRating> = {};
+    ratings.forEach((rating) => {
+      result[rating.messageId] = rating.rating;
+    });
+
+    return result;
   }
 }
