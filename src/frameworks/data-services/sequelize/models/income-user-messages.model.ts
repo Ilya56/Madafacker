@@ -31,8 +31,8 @@ export class IncomeUserMessagesModel extends Model<
   message: NonAttribute<MessageModel>;
 
   /**
-   * Message rating from user
+   * Message rating from a user
    */
   @Column(DataType.STRING)
-  rating?: MessageRating;
+  rating?: MessageRating | null;
 }

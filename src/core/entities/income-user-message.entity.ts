@@ -9,11 +9,11 @@ export class IncomeUserMessage {
    */
   user: User;
   /**
-   * A message that user received
+   * A message that the user received
    */
   message: Message;
   /**
    * User rating on the message
    */
-  rating?: MessageRating;
+  rating?: MessageRating | null;
 }
