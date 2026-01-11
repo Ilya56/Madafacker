@@ -47,16 +47,41 @@ describe('SequelizeMessageRepository', () => {
   });
 
   describe('getIncomingByUserId', () => {
-    it('should retrieve incoming messages for a given user ID', async () => {
+    it('should retrieve incoming messages for a given user ID and map ownRating', async () => {
       const userId = 'test-user-id';
       const messages = [
-        { id: 1, text: 'Message 1' },
-        { id: 2, text: 'Message 2' },
+        {
+          id: 1,
+          text: 'Message 1',
+          get: function () {
+            return this;
+          },
+        },
+        {
+          id: 2,
+          text: 'Message 2',
+          get: function () {
+            return this;
+          },
+        },
       ] as unknown as MessageModel[];
 
-      const incomeUserMessagesModels = messages.map((message) => ({
-        message,
-      })) as any;
+      const incomeUserMessagesModels = [
+        {
+          message: messages[0],
+          rating: 'like',
+          get: function () {
+            return this;
+          },
+        },
+        {
+          message: messages[1],
+          rating: null,
+          get: function () {
+            return this;
+          },
+        },
+      ] as any;
 
       findAllSpy.mockResolvedValue(incomeUserMessagesModels);
 
@@ -64,9 +89,11 @@ describe('SequelizeMessageRepository', () => {
 
       expect(findAllSpy).toHaveBeenCalledWith({
         where: { userId },
-        include: { model: MessageModel },
+        include: [{ include: [UserModel], model: MessageModel }],
       });
       expect(result).toEqual(messages);
+      expect(result[0].ownRating).toEqual('like');
+      expect(result[1].ownRating).toBeNull();
     });
   });
 
@@ -74,8 +101,22 @@ describe('SequelizeMessageRepository', () => {
     it('should retrieve outgoing messages for a given user ID', async () => {
       const userId = 'test-user-id';
       const messages = [
-        { id: 1, text: 'Outgoing Message 1', authorId: userId },
-        { id: 2, text: 'Outgoing Message 2', authorId: userId },
+        {
+          id: 1,
+          text: 'Outgoing Message 1',
+          authorId: userId,
+          get: function () {
+            return this;
+          },
+        },
+        {
+          id: 2,
+          text: 'Outgoing Message 2',
+          authorId: userId,
+          get: function () {
+            return this;
+          },
+        },
       ] as unknown as MessageModel[];
 
       findAllMessageSpy.mockResolvedValue(messages);
@@ -86,6 +127,7 @@ describe('SequelizeMessageRepository', () => {
         where: {
           authorId: userId,
         },
+        include: [UserModel],
       });
       expect(result).toEqual(messages);
     });
@@ -101,9 +143,11 @@ describe('SequelizeMessageRepository', () => {
           model: MessageModel,
           as: 'replies',
           include: [
+            UserModel,
             {
               model: MessageModel,
               as: 'replies',
+              include: [UserModel],
             },
           ],
         },

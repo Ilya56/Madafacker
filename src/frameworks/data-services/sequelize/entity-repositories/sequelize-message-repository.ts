@@ -30,31 +30,44 @@ export class SequelizeMessageRepository
    */
   async getIncomingByUserId(userId: User['id'], repliesDepth = 0): Promise<Message[]> {
     const include = this.generateInclude(repliesDepth);
+
     const incomeUserMessagesModels = await IncomeUserMessagesModel.findAll({
       where: {
         userId,
       },
-      include: {
-        model: MessageModel,
-        ...(include && { include }),
-      },
+      include: [
+        {
+          model: MessageModel,
+          include: [UserModel, ...(include ? include : [])],
+        },
+      ],
     });
-    return incomeUserMessagesModels.map((incomeMessage) => incomeMessage.message);
+
+    return incomeUserMessagesModels.map((incomeMessage) => {
+      // TODO: look for better approach in types
+      const message = incomeMessage.message.get({ plain: true }) as unknown as Message;
+      message.ownRating = incomeMessage.rating;
+      return message;
+    });
   }
 
   /**
-   * Returns all messages with authorId is provided user id
+   * Returns all outcome messages from the user by user id
    * @param userId user id to search
    * @param [repliesDepth=0] replies depth to retrieve
    */
-  getOutcomingByUserId(userId: User['id'], repliesDepth = 0): Promise<Message[]> {
+  async getOutcomingByUserId(userId: User['id'], repliesDepth = 0): Promise<Message[]> {
     const include = this.generateInclude(repliesDepth);
-    return this.repository.findAll({
+
+    const messages = await this.repository.findAll({
       where: {
         authorId: userId,
       },
-      ...(include && { include }),
+      include: [UserModel, ...(include ? include : [])],
     });
+
+    // TODO: look for better approach in types
+    return messages.map((message) => message.get({ plain: true }) as unknown as Message);
   }
 
   /**
@@ -62,7 +75,7 @@ export class SequelizeMessageRepository
    * @param depth replies include depth
    * @private
    */
-  protected generateInclude(depth: number): [IncludeOptions] | undefined {
+  protected generateInclude(depth: number): IncludeOptions[] | undefined {
     if (depth <= 0) {
       return; // Base case: no more nesting
     }
@@ -72,13 +85,13 @@ export class SequelizeMessageRepository
       {
         model: MessageModel,
         as: 'replies',
-        ...(include && { include }),
+        include: [UserModel, ...(include ? include : [])],
       },
     ];
   }
 
   /**
-   * Returns all messages with flag wasSent = false
+   * Returns all messages with a flag wasSent = false
    */
   getNotSentMessages(): Promise<Message[]> {
     return this.repository.findAll({
