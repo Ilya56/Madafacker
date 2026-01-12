@@ -1,4 +1,4 @@
-import { MessageModel } from '../models';
+import { MessageModel, UserModel } from '../models';
 import { Reply, ReplyRepositoryAbstract } from '@core';
 import { SequelizeMessageRepository } from './sequelize-message-repository';
 
@@ -24,7 +24,8 @@ export class SequelizeReplyRepository extends SequelizeMessageRepository impleme
   getByIdWithPopulatedReplies(replyId: Reply['id'], repliesDepth = 0): Promise<MessageModel | null> {
     const include = this.generateInclude(repliesDepth);
     return this.repository.findByPk(replyId, {
-      ...(include && { include }),
+      include: [UserModel, ...(include ? include : [])],
+      raw: true,
     });
   }
 }
