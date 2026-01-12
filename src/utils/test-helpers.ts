@@ -40,6 +40,8 @@ export const SERVICES_PROVIDER = [
       incomeUserMessage: {
         getUserMessageRating: jest.fn(),
         rateMessage: jest.fn(),
+        getRatingStatsByMessageIds: jest.fn(),
+        getUserRatingsByMessageIds: jest.fn(),
       },
       transactional: jest.fn().mockImplementation(async (fn: any) => fn()),
     },
