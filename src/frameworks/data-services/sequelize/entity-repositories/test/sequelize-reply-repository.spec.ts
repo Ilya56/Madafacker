@@ -1,6 +1,6 @@
 import { SequelizeReplyRepository } from '../sequelize-reply-repository';
 import { SequelizeGenericRepository } from '../../sequelize-generic-repository';
-import { MessageModel } from '../../models';
+import { MessageModel, UserModel } from '../../models';
 
 describe('SequelizeReplyRepository', () => {
   let repository: SequelizeReplyRepository;
@@ -41,7 +41,7 @@ describe('SequelizeReplyRepository', () => {
 
     const result = await repository.getByIdWithPopulatedReplies(replyId, 0);
 
-    expect(findByPkSpy).toHaveBeenCalledWith(replyId, {});
+    expect(findByPkSpy).toHaveBeenCalledWith(replyId, { include: [UserModel], raw: true });
     expect(result).toEqual(reply);
   });
 
@@ -76,6 +76,7 @@ describe('SequelizeReplyRepository', () => {
 
     expect(findByPkSpy).toHaveBeenCalledWith(replyId, {
       include: [
+        UserModel,
         {
           model: MessageModel,
           as: 'replies',
@@ -88,6 +89,7 @@ describe('SequelizeReplyRepository', () => {
           ],
         },
       ],
+      raw: true,
     });
     expect(result).toEqual(populatedReply);
   });
