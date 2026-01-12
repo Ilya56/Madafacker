@@ -366,6 +366,33 @@ describe('Message Endpoints (e2e)', () => {
       expect(parentMessageInResponse.replies.length).toBe(1);
       expect(parentMessageInResponse.replies[0].body).toBe(replyMessage.body);
     });
+
+    it('should retrieve incoming messages with rating statistics and own rating', async () => {
+      const message = await testDataService.createMessage({ authorId: anotherUser.id, body: 'Rated message' });
+      await testDataService.addMessageToUserInbox(createdUser.id, message.id);
+
+      // Other user likes this message
+      const thirdUser = await testDataService.createUser({ token: 'token3', authProviderId: 'third_id' });
+      await testDataService.addMessageToUserInbox(thirdUser.id, message.id);
+      await testDataService.rateMessage(thirdUser.id, message.id, 'like');
+
+      // Current user superlikes this message
+      await testDataService.rateMessage(createdUser.id, message.id, 'superlike');
+
+      const response = await request(app.getHttpServer())
+        .get('/api/message/current/incoming')
+        .set('Authorization', VALID_AUTH)
+        .expect(200);
+
+      const messageInResponse = response.body.find((msg: any) => msg.id === message.id);
+      expect(messageInResponse).toBeDefined();
+      expect(messageInResponse.ratingStats).toEqual({
+        likes: 1,
+        dislikes: 0,
+        superLikes: 1,
+      });
+      expect(messageInResponse.ownRating).toBe('superlike');
+    });
   });
 
   // Test cases for Get Outcoming Messages
@@ -392,6 +419,29 @@ describe('Message Endpoints (e2e)', () => {
       expect(parentMessageInResponse.replies).toBeInstanceOf(Array);
       expect(parentMessageInResponse.replies.length).toBe(1);
       expect(parentMessageInResponse.replies[0].body).toBe(replyMessage.body);
+    });
+
+    it('should retrieve outcoming messages with rating statistics', async () => {
+      const message = await testDataService.createMessage({ authorId: createdUser.id, body: 'My outcoming message' });
+
+      // Other user likes my message
+      await testDataService.addMessageToUserInbox(anotherUser.id, message.id);
+      await testDataService.rateMessage(anotherUser.id, message.id, 'dislike');
+
+      const response = await request(app.getHttpServer())
+        .get('/api/message/current/outcoming')
+        .set('Authorization', VALID_AUTH)
+        .expect(200);
+
+      const messageInResponse = response.body.find((msg: any) => msg.id === message.id);
+      expect(messageInResponse).toBeDefined();
+      expect(messageInResponse.ratingStats).toEqual({
+        likes: 0,
+        dislikes: 1,
+        superLikes: 0,
+      });
+      // Outcoming messages should not have ownRating (or it should be null/undefined as it is not an incoming message for the current user)
+      expect(messageInResponse.ownRating).toBeFalsy();
     });
   });
 });

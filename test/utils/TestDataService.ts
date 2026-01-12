@@ -178,6 +178,16 @@ export class TestDataService {
   }
 
   /**
+   * Rates a message in a user's inbox
+   * @param userId
+   * @param messageId
+   * @param rating
+   */
+  async rateMessage(userId: string, messageId: string, rating: string): Promise<void> {
+    await IncomeUserMessagesModel.update({ rating: rating as any }, { where: { userId, messageId } });
+  }
+
+  /**
    * Returns income user message model
    * @param messageId message to retrieve where was send
    */
