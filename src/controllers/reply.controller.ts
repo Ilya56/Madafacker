@@ -1,11 +1,26 @@
-import { Body, Controller, Get, NotFoundException, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  SerializeOptions,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CreateReplyUseCase, GetReplyByIdUseCase, UpdateReplyUseCase } from '@use-cases/reply';
-import { CreateReplyDto, UpdateReplyDto } from './dtos';
+import { CreateReplyDto, ReplyDto, UpdateReplyDto } from './dtos';
 import { ReplyFactoryService } from './factories';
+import { plainToInstance } from 'class-transformer';
 
 /**
  * Reply actions controller. All related to the reply should be here
  */
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ excludeExtraneousValues: true })
 @Controller('/api/reply')
 export class ReplyController {
   constructor(
@@ -20,9 +35,10 @@ export class ReplyController {
    * @param createReply new reply data
    */
   @Post()
-  create(@Body() createReply: CreateReplyDto) {
+  async create(@Body() createReply: CreateReplyDto): Promise<ReplyDto> {
     const reply = this.replyFactoryService.createNewReply(createReply);
-    return this.createReplyUseCase.execute({ reply, parentId: createReply.parentId });
+    const createdReply = await this.createReplyUseCase.execute({ reply, parentId: createReply.parentId });
+    return plainToInstance(ReplyDto, createdReply);
   }
 
   /**
@@ -30,7 +46,7 @@ export class ReplyController {
    * @param updateReply id of the reply to update and updated reply data
    */
   @Patch()
-  async update(@Body() updateReply: UpdateReplyDto) {
+  async update(@Body() updateReply: UpdateReplyDto): Promise<ReplyDto> {
     const reply = this.replyFactoryService.updateReply(updateReply);
     const updatedReply = await this.updateReplyUseCase.execute(reply);
 
@@ -38,7 +54,7 @@ export class ReplyController {
       throw new NotFoundException('Reply with such id was not found');
     }
 
-    return updatedReply;
+    return plainToInstance(ReplyDto, updatedReply);
   }
 
   /**
@@ -46,13 +62,13 @@ export class ReplyController {
    * @param id id of the reply to retrieve
    */
   @Get('/:id')
-  async getById(@Param('id', ParseUUIDPipe) id: string) {
+  async getById(@Param('id', ParseUUIDPipe) id: string): Promise<ReplyDto> {
     const reply = await this.getReplyByIdUseCase.execute(id);
 
     if (!reply) {
       throw new NotFoundException(`Reply with id ${id} was not found`);
     }
 
-    return reply;
+    return plainToInstance(ReplyDto, reply);
   }
 }

@@ -1,17 +1,30 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  SerializeOptions,
+  UseInterceptors,
+} from '@nestjs/common';
 import { MessageFactoryService } from './factories';
-import { Message } from '@core';
-import { CreateMessageDto, RatingDto } from './dtos';
+import { CreateMessageDto, PublicMessageDto, RatingDto, PrivateMessageDto } from './dtos';
 import {
   CreateMessageUseCase,
   RateMessageUseCase,
   RetrieveIncomeMessagesUseCase,
   RetrieveOutcomeMessagesUseCase,
 } from '@use-cases/message';
+import { plainToInstance } from 'class-transformer';
 
 /**
  * Message actions controller. All related to the message should be here
  */
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ excludeExtraneousValues: true })
 @Controller('api/message')
 export class MessageController {
   constructor(
@@ -27,25 +40,28 @@ export class MessageController {
    * @param messageDto new message data
    */
   @Post()
-  create(@Body() messageDto: CreateMessageDto): Promise<Message> {
+  async create(@Body() messageDto: CreateMessageDto): Promise<PrivateMessageDto> {
     const message = this.messageFactoryService.createNewMessage(messageDto);
-    return this.createMessageUseCase.execute(message);
+    const createdMessage = await this.createMessageUseCase.execute(message);
+    return plainToInstance(PrivateMessageDto, createdMessage);
   }
 
   /**
    * Returns all incoming messages for current user
    */
   @Get('/current/incoming')
-  retrieveIncoming() {
-    return this.retrieveIncomeMessagesUseCase.execute();
+  async retrieveIncoming(): Promise<PublicMessageDto[]> {
+    const messages = await this.retrieveIncomeMessagesUseCase.execute();
+    return plainToInstance(PublicMessageDto, messages);
   }
 
   /**
    * Returns all outcoming messages of the current user
    */
   @Get('/current/outcoming')
-  retrieveOutcome() {
-    return this.retrieveOutcomeMessagesUseCase.execute();
+  async retrieveOutcome(): Promise<PrivateMessageDto[]> {
+    const messages = await this.retrieveOutcomeMessagesUseCase.execute();
+    return plainToInstance(PrivateMessageDto, messages);
   }
 
   /**
@@ -54,7 +70,7 @@ export class MessageController {
    * @param rating rating to set
    */
   @Patch('/:id/rate')
-  rate(@Param('id', ParseUUIDPipe) messageId: string, @Body() { rating }: RatingDto) {
+  rate(@Param('id', ParseUUIDPipe) messageId: string, @Body() { rating }: RatingDto): Promise<void> {
     return this.rateMessageUseCase.execute({ messageId, rating });
   }
 }

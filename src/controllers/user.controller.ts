@@ -1,20 +1,39 @@
-import { Body, Controller, Get, NotFoundException, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  NotFoundException,
+  Patch,
+  Post,
+  Query,
+  SerializeOptions,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   CreateUserUseCase,
   GetCurrentUserUseCase,
   UpdateUserUseCase,
   CheckUsernameAvailableUseCase,
 } from '@use-cases/user';
-import { CheckNameAvailableDto, CreateUserDto, NameIsAvailableResponseDto, UpdateUserDto } from './dtos';
-import { User } from '@core';
+import {
+  CheckNameAvailableDto,
+  CreateUserDto,
+  NameIsAvailableResponseDto,
+  UpdateUserDto,
+  PrivateUserDto,
+} from './dtos';
 import { UserFactoryService } from './factories';
 import { Public } from './auth';
 import { objectIsEmpty } from '@utils/object-is-empty';
-import { Registration } from './auth/registration.guard';
+import { Registration } from './auth';
+import { plainToInstance } from 'class-transformer';
 
 /**
  * User actions controller. All related to the user should be here
  */
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ excludeExtraneousValues: true })
 @Controller('api/user')
 export class UserController {
   constructor(
@@ -31,17 +50,19 @@ export class UserController {
    */
   @Registration()
   @Post()
-  create(@Body() userDto: CreateUserDto): Promise<User> {
+  async create(@Body() userDto: CreateUserDto): Promise<PrivateUserDto> {
     const user = this.userFactoryService.createNewUser(userDto);
-    return this.createUserUseCase.execute(user);
+    const createdUser = await this.createUserUseCase.execute(user);
+    return plainToInstance(PrivateUserDto, createdUser);
   }
 
   /**
    * Returns current user entity
    */
   @Get('/current')
-  async retrieve(): Promise<User> {
-    return await this.getUserByIdUseCase.execute();
+  async retrieve(): Promise<PrivateUserDto> {
+    const user = await this.getUserByIdUseCase.execute();
+    return plainToInstance(PrivateUserDto, user);
   }
 
   /**
@@ -50,11 +71,12 @@ export class UserController {
    * @param updateUserDto updated user data
    */
   @Patch('/current')
-  async update(@Body() updateUserDto: UpdateUserDto): Promise<User> {
+  async update(@Body() updateUserDto: UpdateUserDto): Promise<PrivateUserDto> {
     const user = this.userFactoryService.updateUser(updateUserDto);
 
     if (objectIsEmpty(user)) {
-      return this.getUserByIdUseCase.execute();
+      const currentUser = await this.getUserByIdUseCase.execute();
+      return plainToInstance(PrivateUserDto, currentUser);
     }
 
     const updatedUser = await this.updateUserUseCase.execute(user);
@@ -63,7 +85,7 @@ export class UserController {
       throw new NotFoundException('Current user not found');
     }
 
-    return updatedUser;
+    return plainToInstance(PrivateUserDto, updatedUser);
   }
 
   /**
@@ -75,8 +97,8 @@ export class UserController {
   async checkNameAvailable(@Query() query: CheckNameAvailableDto): Promise<NameIsAvailableResponseDto> {
     const nameIsAvailable = await this.checkUsernameAvailableUseCase.execute(query.name);
 
-    return {
+    return plainToInstance(NameIsAvailableResponseDto, {
       nameIsAvailable,
-    };
+    });
   }
 }
