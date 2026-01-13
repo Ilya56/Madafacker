@@ -4,11 +4,11 @@
 - [x] 1.3 Install `openai` package (npm)
 
 ## 2. Core Abstractions
-- [ ] 2.1 Create `ModerationServiceAbstract` in `src/core/abstract/moderation-service.abstract.ts` returning provider-agnostic result:
+- [x] 2.1 Create `ModerationServiceAbstract` in `src/core/abstract/moderation-service.abstract.ts` returning provider-agnostic result:
   - `flagged: boolean`
   - `categoryScores: Record<string, number>`
-- [ ] 2.2 Create `ModerationException` mapped to HTTP 422 (follow existing `src/core/errors/` patterns)
-- [ ] 2.3 Export new core elements from the core barrel exports (where the project exports abstracts/errors)
+- [x] 2.2 Create `ModerationException` mapped to HTTP 422 (follow existing `src/core/errors/` patterns)
+- [x] 2.3 Export new core elements from the core barrel exports (where the project exports abstracts/errors)
 
 ## 3. Provider Implementation (OpenAI)
 - [ ] 3.1 Implement `OpenAIModerationService` in `src/services/moderation-service/openai-moderation.service.ts`

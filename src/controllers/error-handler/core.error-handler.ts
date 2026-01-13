@@ -7,19 +7,21 @@ import {
   InternalServerErrorException,
   NestInterceptor,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import {
   AlertServiceAbstract,
   CoreError,
   DuplicateNotAllowedError,
   InvalidNotifyServiceTokenException,
+  ModerationException,
   NotFoundError,
   OperationNotAllowedException,
 } from '@core';
 import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 
 /**
- * This interceptor process core error into the HTTP errors
+ * This interceptor processes core error into the HTTP errors
  */
 @Injectable()
 export class CoreErrorHandler implements NestInterceptor {
@@ -49,6 +51,9 @@ export class CoreErrorHandler implements NestInterceptor {
     }
     if (exception instanceof InvalidNotifyServiceTokenException) {
       return new BadRequestException(`Invalid notify service token ${exception.token}: ${exception.message}`);
+    }
+    if (exception instanceof ModerationException) {
+      return new UnprocessableEntityException(exception.message);
     }
 
     await this.alertService.processException(exception);
