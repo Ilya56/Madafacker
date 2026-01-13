@@ -24,6 +24,13 @@ export default () =>
       privateKey: stringValue('FIREBASE_PRIVATE_KEY', ''),
       isFirebaseEnabled: booleanValue('FIREBASE_ENABLED', 'true'),
     },
+    openai: {
+      apiKey: stringValue('OPENAI_API_KEY', ''),
+    },
+    moderation: {
+      thresholdLight: numberValue('MODERATION_THRESHOLD_LIGHT', '0.01'),
+      thresholdDark: numberValue('MODERATION_THRESHOLD_DARK', '0.4'),
+    },
   } as const);
 
 /**
