@@ -16,13 +16,13 @@
 - [x] 3.3 Add DI wiring so `ModerationServiceAbstract` resolves to `OpenAIModerationService` in the Nest module setup
 
 ## 4. Message Creation Flow (Synchronous Moderation)
-- [ ] 4.1 Inject `ModerationServiceAbstract` and `ConfigService` into `CreateMessageUseCase`
-- [ ] 4.2 Implement mode-based threshold logic in `CreateMessageUseCase`:
+- [x] 4.1 Inject `ModerationServiceAbstract` and `ConfigService` into `CreateMessageUseCase`
+- [x] 4.2 Implement mode-based threshold logic in `CreateMessageUseCase`:
   - `light`: reject if ANY score > `MODERATION_THRESHOLD_LIGHT`
   - `dark`: reject if ANY score > `MODERATION_THRESHOLD_DARK`
   - ignore provider `flagged` for `dark` decisions (still keep it available for logging/telemetry if needed)
-- [ ] 4.3 Ensure ordering is strict: moderate → create message in DB → enqueue/broadcast via `taskService.sendMessage.addTask()`
-- [ ] 4.4 Implement fail-close: any provider error/timeout/invalid response throws `ModerationException` and blocks creation
+- [x] 4.3 Ensure ordering is strict: moderate → create message in DB → enqueue/broadcast via `taskService.sendMessage.addTask()`
+- [x] 4.4 Implement fail-close: any provider error/timeout/invalid response throws `ModerationException` and blocks creation
 
 ## 5. Verification
 - [ ] 5.1 Unit tests for `CreateMessageUseCase` moderation decisions (mock `ModerationServiceAbstract`, verify thresholds and ordering)

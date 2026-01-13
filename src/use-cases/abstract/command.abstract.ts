@@ -1,11 +1,13 @@
 import {
   AlgoServiceAbstract,
   DataServiceAbstract,
+  ModerationServiceAbstract,
   NotifyServiceAbstract,
   TaskServiceAbstract,
   UserServiceAbstract,
 } from '@core';
 import { Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Command options.
@@ -29,6 +31,8 @@ export abstract class CommandAbstract<I, O> {
    * @protected
    */
   @Inject()
+  protected configService: ConfigService;
+  @Inject()
   protected dataService: DataServiceAbstract;
   @Inject()
   protected userService: UserServiceAbstract;
@@ -38,6 +42,8 @@ export abstract class CommandAbstract<I, O> {
   protected taskService: TaskServiceAbstract;
   @Inject()
   protected notifyService: NotifyServiceAbstract;
+  @Inject()
+  protected moderationService: ModerationServiceAbstract;
 
   /**
    * Constructor is created to change options if needed
