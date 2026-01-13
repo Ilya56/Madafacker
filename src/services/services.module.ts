@@ -7,6 +7,7 @@ import { TaskServiceModule } from './task-service/task-service.module';
 import { NotifyServiceModule } from './notify-service/notify-service.module';
 import { AlertServiceModule } from './alert-service/alert-service.module';
 import { AuthStrategyModule } from './auth-strategy/auth-strategy.module';
+import { ModerationServiceModule } from './moderation-service/moderation-service.module';
 
 /**
  * This module is created to easier import all modules from use cases
@@ -22,6 +23,7 @@ import { AuthStrategyModule } from './auth-strategy/auth-strategy.module';
     NotifyServiceModule,
     AlertServiceModule,
     AuthStrategyModule,
+    ModerationServiceModule,
   ],
   exports: [
     DataServiceModule,
@@ -32,6 +34,7 @@ import { AuthStrategyModule } from './auth-strategy/auth-strategy.module';
     NotifyServiceModule,
     AlertServiceModule,
     AuthStrategyModule,
+    ModerationServiceModule,
   ],
 })
 export class ServicesModule {}
