@@ -42,6 +42,7 @@
     "dayjs": "^1.11.11",
     "firebase-admin": "^12.6.0",
     "nestjs-cls": "^4.3.0",
+    "openai": "^4.104.0",
     "passport": "^0.7.0",
     "passport-firebase-jwt": "^1.2.1",
     "passport-unique-token": "^3.0.0",

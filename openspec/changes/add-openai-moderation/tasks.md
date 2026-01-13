@@ -1,7 +1,7 @@
 ## 1. Environment & Infrastructure
-- [ ] 1.1 Add `OPENAI_API_KEY`, `MODERATION_THRESHOLD_LIGHT` (default: 0.01), and `MODERATION_THRESHOLD_DARK` (default: 0.4) to `.env` (use placeholders, do not commit real keys)
-- [ ] 1.2 Update `ConfigService` to expose moderation variables with defaults and validation (number parsing for thresholds)
-- [ ] 1.3 Install `openai` package (npm)
+- [x] 1.1 Add `OPENAI_API_KEY`, `MODERATION_THRESHOLD_LIGHT` (default: 0.01), and `MODERATION_THRESHOLD_DARK` (default: 0.4) to `.env` (use placeholders, do not commit real keys)
+- [x] 1.2 Update `ConfigService` to expose moderation variables with defaults and validation (number parsing for thresholds)
+- [x] 1.3 Install `openai` package (npm)
 
 ## 2. Core Abstractions
 - [ ] 2.1 Create `ModerationServiceAbstract` in `src/core/abstract/moderation-service.abstract.ts` returning provider-agnostic result:
