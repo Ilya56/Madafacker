@@ -12,3 +12,4 @@ export * from './task-service/task-service.module';
 export * from './auth-strategy/auth-strategy.module';
 export * from './notify-service/notify-service.module';
 export * from './alert-service/alert-service.module';
+export * from './moderation-service/moderation-service.module';

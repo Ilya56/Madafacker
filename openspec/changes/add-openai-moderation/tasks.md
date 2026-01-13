@@ -11,9 +11,9 @@
 - [x] 2.3 Export new core elements from the core barrel exports (where the project exports abstracts/errors)
 
 ## 3. Provider Implementation (OpenAI)
-- [ ] 3.1 Implement `OpenAIModerationService` in `src/services/moderation-service/openai-moderation.service.ts`
-- [ ] 3.2 Map OpenAI response into standardized `{ flagged, categoryScores }`
-- [ ] 3.3 Add DI wiring so `ModerationServiceAbstract` resolves to `OpenAIModerationService` in the Nest module setup
+- [x] 3.1 Implement `OpenAIModerationService` in `src/services/moderation-service/openai-moderation.service.ts`
+- [x] 3.2 Map OpenAI response into standardized `{ flagged, categoryScores }`
+- [x] 3.3 Add DI wiring so `ModerationServiceAbstract` resolves to `OpenAIModerationService` in the Nest module setup
 
 ## 4. Message Creation Flow (Synchronous Moderation)
 - [ ] 4.1 Inject `ModerationServiceAbstract` and `ConfigService` into `CreateMessageUseCase`
