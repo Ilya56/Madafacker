@@ -1,10 +1,12 @@
 import {
   AlgoServiceAbstract,
   DataServiceAbstract,
+  ModerationServiceAbstract,
   NotifyServiceAbstract,
   TaskServiceAbstract,
   UserServiceAbstract,
 } from '@core';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * This variable is useful to create tests for a use cases
@@ -71,6 +73,18 @@ export const SERVICES_PROVIDER = [
     useValue: {
       notify: jest.fn(),
       verifyToken: jest.fn(),
+    },
+  },
+  {
+    provide: ModerationServiceAbstract,
+    useValue: {
+      moderate: jest.fn(),
+    },
+  },
+  {
+    provide: ConfigService,
+    useValue: {
+      get: jest.fn(),
     },
   },
 ];
