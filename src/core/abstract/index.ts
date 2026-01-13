@@ -12,3 +12,4 @@ export * from './notify-service.abstract';
 export * from './alert-service.abstract';
 export * from './data-service';
 export * from './task-service';
+export * from './moderation-service.abstract';

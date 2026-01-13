@@ -5,11 +5,13 @@ import {
   ExecutionContext,
   InternalServerErrorException,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { CoreErrorHandler } from '../core.error-handler';
 import {
   DuplicateNotAllowedError,
   InvalidNotifyServiceTokenException,
+  ModerationException,
   NotFoundError,
   OperationNotAllowedException,
 } from '@core';
@@ -105,6 +107,17 @@ describe('CoreErrorHandler', () => {
       expect(result.getStatus()).toBe(400);
       expect(result.name).toBe('BadRequestException');
       expect(result.message).toBe('Invalid notify service token test-token: Invalid token');
+    });
+
+    it('should map ModerationException to UnprocessableEntityException (422)', async () => {
+      const err = new ModerationException('rejected by moderation');
+      const result = await interceptor.catch(err);
+
+      expect(result).toBeInstanceOf(UnprocessableEntityException);
+      expect(result.getResponse()).toBeDefined();
+      expect(result.getStatus()).toBe(422);
+      expect(result.name).toBe('UnprocessableEntityException');
+      expect(result.message).toBe('rejected by moderation');
     });
   });
 
