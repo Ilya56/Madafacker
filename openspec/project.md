@@ -21,63 +21,288 @@ A backend for a social network with anonymous users, providing a safe environmen
 - Husky for Git hooks.
 - Rules for explicit return types and `no-explicit-any` are disabled.
 
-### Architecture Patterns
-- **Clean Architecture / DDD:**
-  - `src/core`: Domain entities, repository interfaces (`abstract`), core error types, and service abstracts.
-  - `src/use-cases`: Domain-specific business logic. Uses `CommandAbstract` and `QueryAbstract` patterns.
-  - `src/controllers`: API layer. Controllers use Use Cases to perform operations.
-  - `src/frameworks`: Implementation details (Sequelize, Firebase, Sentry). Decoupled from a domain via dependency injection.
-  - `src/services`: Shared domain services (e.g., `UserService`).
+---
 
-### Technical Principles
+## Architecture Patterns
 
-#### 1. Data Flow
-Standard flow: `Request` -> `Controller` -> `Use Case (execute)` -> `Repository/Service` -> `Database/External API`.
-Use cases should contain the bulk of business logic, keeping controllers thin.
+### Clean Architecture / DDD
+- `src/core`
+    - Domain entities
+    - Repository interfaces (`abstract`)
+    - Core service abstractions
+    - Domain-level error types
+- `src/use-cases`
+    - Business logic
+    - Decision making
+    - Orchestration of domain services
+- `src/controllers`
+    - API layer
+    - No business logic
+- `src/frameworks`
+    - Implementation details (Sequelize, Firebase, OpenAI, Sentry)
+    - Must not leak into core logic
+- `src/services`
+    - Service composition and DI wiring
 
-#### 2. Repository Pattern
-- All data access is abstracted through `DataServiceAbstract`.
-- Repositories are injected via `DataServiceAbstract`, ensuring implementations (like Sequelize) can be swapped.
-- Generic operations are handled by `GenericRepositoryAbstract<T>`.
+---
 
-#### 3. Entity Mapping
-- **Entities (`src/core/entities`):** Pure TypeScript classes representing domain objects. Business logic depends only on these.
-- **Models (`src/frameworks/data-services/sequelize/models`):** Sequelize-specific classes for persistence.
-- Repositories handle the mapping between Models and Entities (though Sequelize models are often used directly as entities if they satisfy the interface, they should ideally be mapped).
+### Use Case Contract (Command / Query)
 
-#### 4. Transaction Management
-- Uses `sequelize-transactional-decorator` and `CLS (Continuation Local Storage)`.
-- Use Cases extending `CommandAbstract` have transaction management enabled by default.
-- Manual transaction control is available via `dataService.transactional(async () => { ... })`.
+All Use Cases MUST follow these rules.
 
-#### 5. Error Handling
-- **Core Errors:** Custom error classes in `src/core` (e.g., `NotFoundError`, `DuplicateNotAllowedError`).
-- **Global Interceptor:** `CoreErrorHandler` interceptor in `src/controllers/error-handler` maps Core Errors to appropriate HTTP exceptions (NestJS `HttpException`).
-- **Unexpected Errors:** Logged via `Logger` and sent to `Sentry` (AlertService) before being returned as `InternalServerErrorException`.
+#### Command Use Cases
+- Extend `CommandAbstract`
+- Modify system state
+- Contain **all business decisions**
+- Controllers MUST NOT contain business logic
 
-#### 6. Background Jobs
-- Bull (Redis-based) is used for asynchronous tasks.
-- Logic for jobs should reside in Use Cases or dedicated Service implementations.
+**Responsibilities of Command Use Cases:**
+- Validation of domain rules
+- Permission checks
+- Safety & moderation checks
+- Threshold-based decisions
+- Ordering side effects
 
-### Testing Strategy
-- **Unit Tests:** Located next to the code (`.spec.ts`). Focus on business logic and core services.
-- **E2E Tests:** Located in the `test/` directory. Focus on API endpoints and full flow integration.
-- **Coverage:** High coverage thresholds (~85-100%) enforced via Jest configuration.
+**Strict execution order for Commands:**
+1. Validate input & permissions
+2. Call external/domain services (e.g. moderation, scoring)
+3. Mutate database state
+4. Trigger asynchronous side effects (tasks, notifications)
 
-### Git Workflow
-- **Conventional Commits:** Used for all commit messages (e.g., `feat:`, `fix:`, `chore:`).
-- **Hooks:** Husky triggers linting and formatting on commit.
+Breaking this order is considered a bug.
+
+#### Query Use Cases
+- Extend `QueryAbstract`
+- MUST NOT mutate system state
+- MUST NOT trigger side effects
+- Used only for data retrieval
+
+---
+
+## Technical Principles
+
+### 1. Data Flow
+Standard flow: `Request → Controller → UseCase.execute() → Domain Services / Repositories → Database / External APIs`
+
+Use Cases are the **single source of truth** for business behavior.
+
+---
+
+### 2. Repository Pattern
+- All data access goes through `DataServiceAbstract`
+- Use Cases MUST NOT depend on concrete repository implementations
+- Repositories encapsulate persistence logic only
+
+---
+
+### 3. Entity Mapping
+- **Entities (`src/core/entities`)**
+  - Pure TypeScript
+  - No framework dependencies
+- **Models (`src/frameworks/data-services/sequelize/models`)**
+  - Sequelize-specific
+- Mapping is repository responsibility
+
+---
+
+### 4. Transaction Management
+- `CommandAbstract` executes inside a transaction by default
+- Backed by `sequelize-transactional-decorator` + CLS
+- Transactions MUST NOT include:
+  - Network calls
+  - External side effects
+- Asynchronous effects (tasks, notifications) must happen **after commit**
+
+---
+
+### 5. Error Handling
+
+#### Core Errors
+- Live in `src/core/errors`
+- Represent business-level failures
+- Never contain HTTP semantics
+
+#### HTTP Mapping
+- Performed centrally by `CoreErrorHandler`
+- Mapping rules are explicit and testable
+
+---
+
+### Fail-Close vs Fail-Open Policy
+
+The project follows a strict failure strategy:
+
+#### Fail-Close (default for safety & business rules)
+Used when:
+- Content moderation fails
+- External safety providers return errors
+- Business rules cannot be reliably evaluated
+
+Result:
+- Operation is rejected
+- Domain error is thrown (e.g. `ModerationException`)
+- Mapped to HTTP **422**
+
+#### Fail-Open (NOT allowed)
+The system MUST NOT allow operations to proceed
+when safety checks fail or are inconclusive.
+
+#### Misconfiguration Errors
+Examples:
+- Missing API keys
+- Invalid environment setup
+
+Result:
+- Runtime error
+- HTTP **500** (server fault)
+
+Use Cases MUST explicitly decide which strategy applies.
+
+---
+
+### 6. Background Jobs
+- Implemented via Bull (Redis)
+- Jobs MUST be triggered by Use Cases
+- Job logic lives in:
+  - Use Cases
+  - or dedicated service implementations
+- Controllers MUST NOT enqueue jobs directly
+
+---
+
+## Safety & Moderation Rules
+
+Safety-related features (moderation, abuse detection, spam scoring) follow a common pattern:
+
+- Implemented synchronously inside Command Use Cases
+- Executed **before** any database mutation
+- Based on numeric thresholds from `ConfigService`
+- Mode-aware (e.g. `light`, `dark`)
+
+**General moderation flow:**
+1. Call moderation service
+2. Extract numeric scores
+3. Compare against mode-specific thresholds
+4. Reject if ANY score exceeds threshold
+5. Ignore provider-level flags unless explicitly required
+
+**User-facing rejection messages SHOULD:**
+- Clearly explain why the action was rejected
+- Avoid leaking provider internals
+- Be deterministic and testable
+
+---
+
+## External Provider Abstractions
+
+All external integrations MUST follow this pattern:
+
+- **Abstract interface** → `src/core/abstract`
+- **Implementation** → `src/frameworks/**`
+- **Use Cases depend ONLY on abstracts**
+
+Provider implementations MUST:
+- Return provider-agnostic data
+- Throw only technical errors
+- Never throw HTTP-specific exceptions
+
+Business interpretation of provider results ALWAYS belongs to the Use Case.
+
+---
+
+## CommandAbstract Dependency Injection
+
+`CommandAbstract` automatically injects:
+
+- `ConfigService`
+- `DataServiceAbstract`
+- `UserServiceAbstract`
+- `AlgoServiceAbstract`
+- `TaskServiceAbstract`
+- `NotifyServiceAbstract`
+- `ModerationServiceAbstract`
+
+Concrete Use Cases SHOULD NOT redeclare these dependencies
+unless custom constructor logic is required.
+
+All injected services MUST be mocked in unit tests.
+
+---
+
+## Testing Strategy
+
+The project follows a **layered testing strategy**.
+
+### Unit Tests
+- Located next to the code (`.spec.ts`)
+- Focus on:
+  - Business decisions
+  - Edge cases
+  - Failure paths
+- MUST:
+  - Mock all abstract services
+  - Never call real external APIs
+  - Verify side-effect ordering where relevant
+  - Assert that rejected operations do NOT mutate state
+
+### Use Case Unit Testing Guidelines
+- Extend existing test files — do not replace them
+- Use `SERVICES_PROVIDER` for DI stubbing
+- Explicitly test:
+  - Allow / reject branches
+  - Threshold edge cases
+  - Fail-close behavior
+  - Correct ordering of operations
+
+### E2E Tests
+- Located in `test/`
+- Validate:
+  - HTTP contracts
+  - Error mapping via global interceptors
+  - Dependency Injection wiring
+  - Real runtime behavior of the system
+- E2E tests MUST NOT call real external providers (OpenAI, Firebase, etc.)
+- External services MUST be mocked at the abstraction level
+
+#### Responsibility of E2E Tests
+E2E tests are responsible for validating **how the system interprets and reacts to data**,
+not for validating the correctness of external providers themselves.
+
+This includes:
+- Boundary values (`0`, exact threshold values)
+- Invalid or unexpected shapes (`null`, empty objects)
+- Extreme numeric values (`Infinity`, `NaN`)
+- Ordering-dependent behavior (e.g. first vs later category exceeding a threshold)
+
+E2E tests intentionally cover such edge cases to ensure that
+the system behaves safely and deterministically under real-world conditions.
+
+#### Coverage Philosophy
+High E2E coverage is encouraged **when it represents meaningful runtime behavior**.
+Coverage MUST NOT be increased via artificial or unreachable test scenarios.
+
+When coverage thresholds are adjusted, they MUST reflect:
+- Realistic runtime reachability
+- Separation of concerns between Unit and E2E tests
+- The safety-critical nature of the system
+
+---
 
 ## Domain Context
-- **Core Concept:** Anonymous social networking with a focus on safety and freedom of expression.
-- **Main Entities:** User, Message, Reply.
+- **Core Concept:** Anonymous social networking with safety-first design
+- **Main Entities:** User, Message, Reply
+
+---
 
 ## Important Constraints
-- Strict TypeScript typing (where applicable, excluding `any`).
-- Transaction management using `sequelize-transactional-decorator`.
+- Strict TypeScript typing (excluding `any` where necessary)
+- No business logic outside Use Cases
+- No direct framework dependencies in core domain
+
+---
 
 ## External Dependencies
-- **Firebase:** Authentication and administrative functions.
-- **Sentry:** Error monitoring and reporting.
-- **Redis:** Required for Bull background queues.
-- **PostgreSQL:** Primary data storage.
+- **Firebase:** Authentication and notifications
+- **Sentry:** Error monitoring
+- **Redis:** Background job queues
+- **PostgreSQL:** Primary data storage
