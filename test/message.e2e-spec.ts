@@ -5,6 +5,7 @@ import { AppModule } from '../src/app.module';
 import { MessageModel } from '@frameworks/data-services/sequelize/models';
 import { TestDataService } from './utils/TestDataService';
 import { VALID_TOKEN } from '@frameworks/firebase-module';
+import { ModerationServiceAbstract } from '@core';
 
 const VALID_AUTH = `Bearer ${VALID_TOKEN}`;
 
@@ -14,10 +15,28 @@ describe('Message Endpoints (e2e)', () => {
   let createdUser: any;
   let anotherUser: any;
 
+  let moderationMock: { moderate: jest.Mock };
+  let configMock: { get: jest.Mock };
+
   beforeAll(async () => {
+    moderationMock = {
+      moderate: jest.fn(),
+    };
+
+    configMock = {
+      get: jest.fn((key: string) => {
+        if (key === 'moderation.thresholdLight') return 0.01;
+        if (key === 'moderation.thresholdDark') return 0.4;
+        return undefined;
+      }),
+    };
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(ModerationServiceAbstract)
+      .useValue(moderationMock)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
@@ -25,12 +44,24 @@ describe('Message Endpoints (e2e)', () => {
 
     // Initialize the TestDataService
     testDataService = new TestDataService();
-  });
+  }, 10000);
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     // Create users before each test
     createdUser = await testDataService.createUser({ token: 'token' });
     anotherUser = await testDataService.createUser({ token: 'token2', authProviderId: 'another_id' });
+
+    // Default moderation behavior (safe): allow everything
+    moderationMock.moderate.mockResolvedValue({ flagged: false, categoryScores: { safe: 0 } });
+
+    // Default thresholds for tests (can be overridden per-test)
+    configMock.get.mockImplementation((key: string) => {
+      if (key === 'moderation.thresholdLight') return 0.01;
+      if (key === 'moderation.thresholdDark') return 0.4;
+      return undefined;
+    });
   });
 
   afterEach(async () => {
@@ -130,6 +161,279 @@ describe('Message Endpoints (e2e)', () => {
         .expect(400);
 
       expect(response.body.message).toContain('mode must be one of the following values: light, dark');
+    });
+
+    describe('Moderation (e2e)', () => {
+      it('light: should reject when ANY score is just above thresholdLight (422) and NOT create message', async () => {
+        configMock.get.mockImplementation((key: string) => {
+          if (key === 'moderation.thresholdLight') return 0.01;
+          if (key === 'moderation.thresholdDark') return 0.4;
+          return undefined;
+        });
+
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: { hate: 0.010001 },
+        });
+
+        const messageData = {
+          body: 'Test message - light mode',
+          mode: 'light',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(422);
+
+        expect(typeof response.body.message).toBe('string');
+        expect(response.body.message).toContain('Message rejected: moderation threshold exceeded for "hate"');
+
+        // Ensure a message was not created
+        const created = await testDataService.findMessage({ body: messageData.body });
+        expect(created).toBeNull();
+      });
+
+      it('light: should allow when score equals thresholdLight (edge case, 201)', async () => {
+        configMock.get.mockImplementation((key: string) => {
+          if (key === 'moderation.thresholdLight') return 0.01;
+          if (key === 'moderation.thresholdDark') return 0.4;
+          return undefined;
+        });
+
+        moderationMock.moderate.mockResolvedValue({
+          flagged: true,
+          categoryScores: { hate: 0.01 }, // equals => allowed
+        });
+
+        const messageData = {
+          body: 'Allowed at threshold light',
+          mode: 'light',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(201);
+
+        expect(response.body.body).toBe(messageData.body);
+        expect(response.body.mode).toBe(messageData.mode);
+
+        const createdMessage = await testDataService.findMessage({ id: response.body.id });
+        expect(createdMessage).toBeDefined();
+        testDataService.addCreatedMessage(createdMessage);
+      });
+
+      it('dark: should allow when scores <= thresholdDark even if provider flagged=true (201)', async () => {
+        configMock.get.mockImplementation((key: string) => {
+          if (key === 'moderation.thresholdLight') return 0.01;
+          if (key === 'moderation.thresholdDark') return 0.4;
+          return undefined;
+        });
+
+        moderationMock.moderate.mockResolvedValue({
+          flagged: true,
+          categoryScores: { violence: 0.4 }, // equals => allowed
+        });
+
+        const messageData = {
+          body: 'Borderline allowed in dark mode',
+          mode: 'dark',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(201);
+
+        expect(response.body.body).toBe(messageData.body);
+        expect(response.body.mode).toBe(messageData.mode);
+
+        const createdMessage = await testDataService.findMessage({ id: response.body.id });
+        expect(createdMessage).toBeDefined();
+        testDataService.addCreatedMessage(createdMessage);
+      });
+
+      it('dark: should reject when ANY score is above thresholdDark (422) and NOT create', async () => {
+        configMock.get.mockImplementation((key: string) => {
+          if (key === 'moderation.thresholdLight') return 0.01;
+          if (key === 'moderation.thresholdDark') return 0.4;
+          return undefined;
+        });
+
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: { violence: 0.40001 },
+        });
+
+        const messageData = {
+          body: 'Rejected in dark mode',
+          mode: 'dark',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(422);
+
+        expect(typeof response.body.message).toBe('string');
+        expect(response.body.message).toContain('Message rejected: moderation threshold exceeded for "violence"');
+
+        const created = await testDataService.findMessage({ body: messageData.body });
+        expect(created).toBeNull();
+      });
+
+      it('should fail-close (422) when moderation provider throws and NOT create', async () => {
+        moderationMock.moderate.mockRejectedValue(new Error('provider down'));
+
+        const messageData = {
+          body: 'Should fail close',
+          mode: 'dark',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(422);
+
+        expect(typeof response.body.message).toBe('string');
+        expect(response.body.message).toBe('Message moderation failed. Please try again later.');
+
+        const created = await testDataService.findMessage({ body: messageData.body });
+        expect(created).toBeNull();
+      });
+
+      it('should ignore non-numeric category scores and still allow when no numeric score exceeds threshold (201)', async () => {
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: {
+            weird: NaN as unknown as number,
+            nonNumber: 'nope' as unknown as number,
+            ok: 0.0,
+          },
+        });
+
+        const messageData = {
+          body: 'Non numeric scores should not break',
+          mode: 'dark',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(201);
+
+        expect(response.body.body).toBe(messageData.body);
+
+        const createdMessage = await testDataService.findMessage({ id: response.body.id });
+        expect(createdMessage).toBeDefined();
+        testDataService.addCreatedMessage(createdMessage);
+      });
+
+      it('should still validate DTO first (400) and NOT call moderation when body is missing', async () => {
+        const messageData = {
+          mode: 'dark',
+        };
+
+        await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(400);
+
+        expect(moderationMock.moderate).not.toHaveBeenCalled();
+      });
+
+      it('should allow when categoryScores is null (treated as empty)', async () => {
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: null as any,
+        });
+
+        const messageData = {
+          body: 'Null categoryScores',
+          mode: 'dark',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send(messageData)
+          .expect(201);
+
+        expect(response.body.body).toBe(messageData.body);
+      });
+
+      it('should allow when categoryScores is empty object', async () => {
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: {},
+        });
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send({ body: 'Empty scores', mode: 'light' })
+          .expect(201);
+
+        expect(response.body.body).toBe('Empty scores');
+      });
+
+      it('should reject when exceeded score is NOT first entry', async () => {
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: {
+            safe: 0.0,
+            hate: 0.02, // second entry exceeds
+          },
+        });
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send({ body: 'Second score exceeds', mode: 'light' })
+          .expect(422);
+
+        expect(response.body.message).toContain('"hate"');
+      });
+
+      it('should reject when score is Infinity', async () => {
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: {
+            extreme: Infinity,
+          },
+        });
+
+        await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send({ body: 'Infinity score', mode: 'dark' })
+          .expect(422);
+      });
+
+      it('should ignore undefined scores', async () => {
+        moderationMock.moderate.mockResolvedValue({
+          flagged: false,
+          categoryScores: {
+            weird: undefined as any,
+          },
+        });
+
+        const response = await request(app.getHttpServer())
+          .post('/api/message')
+          .set('Authorization', VALID_AUTH)
+          .send({ body: 'Undefined score', mode: 'dark' })
+          .expect(201);
+
+        expect(response.body.body).toBe('Undefined score');
+      });
     });
   });
 
