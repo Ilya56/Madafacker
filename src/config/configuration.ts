@@ -46,11 +46,14 @@ function stringValue(name: string, defaultValue: string): string {
 /**
  * Retrieves numeric value from process env.
  * If no value in the env file, it returns parsed to number default value
+ * If the value cannot be parsed as a number, it returns the parsed default value
  * @param name key of the property to retrieve
  * @param defaultValue default value if env value not found
  */
 function numberValue(name: string, defaultValue: string): number {
-  return +stringValue(name, defaultValue);
+  const value = +stringValue(name, defaultValue);
+  // If parsing resulted in NaN, fallback to the default value to ensure fail-close safety
+  return isNaN(value) ? +defaultValue : value;
 }
 
 /**
