@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { MessageModel } from '@frameworks/data-services/sequelize/models';
@@ -16,19 +17,13 @@ describe('Message Endpoints (e2e)', () => {
   let anotherUser: any;
 
   let moderationMock: { moderate: jest.Mock };
-  let configMock: { get: jest.Mock };
+  let configService: ConfigService;
+  let configServiceSpy: jest.SpyInstance;
+  let originalConfigGet: typeof ConfigService.prototype.get;
 
   beforeAll(async () => {
     moderationMock = {
       moderate: jest.fn(),
-    };
-
-    configMock = {
-      get: jest.fn((key: string) => {
-        if (key === 'moderation.thresholdLight') return 0.01;
-        if (key === 'moderation.thresholdDark') return 0.4;
-        return undefined;
-      }),
     };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -37,6 +32,16 @@ describe('Message Endpoints (e2e)', () => {
       .overrideProvider(ModerationServiceAbstract)
       .useValue(moderationMock)
       .compile();
+
+    // Get the real ConfigService instance
+    configService = moduleFixture.get<ConfigService>(ConfigService);
+
+    // Save the original get method to avoid recursion when calling it from spy
+    originalConfigGet = configService.get.bind(configService);
+
+    // Create a spy on ConfigService.get to intercept moderation threshold calls
+    // This allows us to override thresholds in tests while keeping real config for everything else
+    configServiceSpy = jest.spyOn(configService, 'get');
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
@@ -47,7 +52,9 @@ describe('Message Endpoints (e2e)', () => {
   }, 10000);
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    // Clear only the moderation mock, not the configService spy
+    // This preserves the spy's mockImplementation while clearing call history
+    moderationMock.moderate.mockClear();
 
     // Create users before each test
     createdUser = await testDataService.createUser({ token: 'token' });
@@ -57,11 +64,18 @@ describe('Message Endpoints (e2e)', () => {
     moderationMock.moderate.mockResolvedValue({ flagged: false, categoryScores: { safe: 0 } });
 
     // Default thresholds for tests (can be overridden per-test)
-    configMock.get.mockImplementation((key: string) => {
-      if (key === 'moderation.thresholdLight') return 0.01;
-      if (key === 'moderation.thresholdDark') return 0.4;
-      return undefined;
-    });
+    // Use spy to intercept only moderation threshold calls, pass through everything else
+    // Note: mockImplementation is set once in beforeAll and preserved here
+    // Only clear call history, not the implementation
+    configServiceSpy.mockClear();
+    if (!configServiceSpy.getMockImplementation()) {
+      configServiceSpy.mockImplementation((key: string) => {
+        if (key === 'moderation.thresholdLight') return 0.01;
+        if (key === 'moderation.thresholdDark') return 0.4;
+        // For all other keys, call the real implementation
+        return originalConfigGet(key);
+      });
+    }
   });
 
   afterEach(async () => {
@@ -165,10 +179,11 @@ describe('Message Endpoints (e2e)', () => {
 
     describe('Moderation (e2e)', () => {
       it('light: should reject when ANY score is just above thresholdLight (422) and NOT create message', async () => {
-        configMock.get.mockImplementation((key: string) => {
+        configServiceSpy.mockImplementation((key: string) => {
           if (key === 'moderation.thresholdLight') return 0.01;
           if (key === 'moderation.thresholdDark') return 0.4;
-          return undefined;
+          // For all other keys, call the real implementation
+          return originalConfigGet(key);
         });
 
         moderationMock.moderate.mockResolvedValue({
@@ -196,10 +211,11 @@ describe('Message Endpoints (e2e)', () => {
       });
 
       it('light: should allow when score equals thresholdLight (edge case, 201)', async () => {
-        configMock.get.mockImplementation((key: string) => {
+        configServiceSpy.mockImplementation((key: string) => {
           if (key === 'moderation.thresholdLight') return 0.01;
           if (key === 'moderation.thresholdDark') return 0.4;
-          return undefined;
+          // For all other keys, call the real implementation
+          return originalConfigGet(key);
         });
 
         moderationMock.moderate.mockResolvedValue({
@@ -227,10 +243,11 @@ describe('Message Endpoints (e2e)', () => {
       });
 
       it('dark: should allow when scores <= thresholdDark even if provider flagged=true (201)', async () => {
-        configMock.get.mockImplementation((key: string) => {
+        configServiceSpy.mockImplementation((key: string) => {
           if (key === 'moderation.thresholdLight') return 0.01;
           if (key === 'moderation.thresholdDark') return 0.4;
-          return undefined;
+          // For all other keys, call the real implementation
+          return originalConfigGet(key);
         });
 
         moderationMock.moderate.mockResolvedValue({
@@ -258,10 +275,11 @@ describe('Message Endpoints (e2e)', () => {
       });
 
       it('dark: should reject when ANY score is above thresholdDark (422) and NOT create', async () => {
-        configMock.get.mockImplementation((key: string) => {
+        configServiceSpy.mockImplementation((key: string) => {
           if (key === 'moderation.thresholdLight') return 0.01;
           if (key === 'moderation.thresholdDark') return 0.4;
-          return undefined;
+          // For all other keys, call the real implementation
+          return originalConfigGet(key);
         });
 
         moderationMock.moderate.mockResolvedValue({
