@@ -65,6 +65,8 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: pg-password
+          POSTGRES_DB: madafacker-autotests
+
         options: >-
           --health-cmd pg_isready
           --health-interval=10s
