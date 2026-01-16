@@ -28,8 +28,8 @@ export default () =>
       apiKey: stringValue('OPENAI_API_KEY', ''),
     },
     moderation: {
-      thresholdLight: numberValue('MODERATION_THRESHOLD_LIGHT', '0.01'),
-      thresholdDark: numberValue('MODERATION_THRESHOLD_DARK', '0.4'),
+      thresholdLight: numberValueWithFallback('MODERATION_THRESHOLD_LIGHT', '0.01'),
+      thresholdDark: numberValueWithFallback('MODERATION_THRESHOLD_DARK', '0.4'),
     },
   } as const);
 
@@ -46,13 +46,22 @@ function stringValue(name: string, defaultValue: string): string {
 /**
  * Retrieves numeric value from process env.
  * If no value in the env file, it returns parsed to number default value
- * If the value cannot be parsed as a number, it returns the parsed default value
+ * If the value cannot be parsed as a number, it returns NaN to surface misconfig
  * @param name key of the property to retrieve
  * @param defaultValue default value if env value not found
  */
 function numberValue(name: string, defaultValue: string): number {
+  return +stringValue(name, defaultValue);
+}
+
+/**
+ * Retrieves numeric value from process env with a NaN-to-default fallback.
+ * Use only when fail-close behavior is desired for safety.
+ * @param name key of the property to retrieve
+ * @param defaultValue default value if env value not found
+ */
+function numberValueWithFallback(name: string, defaultValue: string): number {
   const value = +stringValue(name, defaultValue);
-  // If parsing resulted in NaN, fallback to the default value to ensure fail-close safety
   return isNaN(value) ? +defaultValue : value;
 }
 
