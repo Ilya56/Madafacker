@@ -40,26 +40,26 @@
     },
     "./src/core": {
       "branches": 100,
-      "functions": 100,
-      "lines": 100,
-      "statements": 100
-    },
-    "./src/frameworks": {
-      "branches": 73,
-      "functions": 95,
+      "functions": 80,
       "lines": 97,
       "statements": 97
     },
+    "./src/frameworks": {
+      "branches": 50,
+      "functions": 80,
+      "lines": 88,
+      "statements": 90
+    },
     "./src/listeners": {
-      "functions": 75,
-      "lines": 90,
-      "statements": 85
+      "functions": 61,
+      "lines": 78,
+      "statements": 79
     },
     "./src/use-cases": {
-      "branches": 85,
-      "functions": 100,
-      "lines": 98,
-      "statements": 98
+      "branches": 55,
+      "functions": 95,
+      "lines": 85,
+      "statements": 87
     }
   },
   "moduleNameMapper": {

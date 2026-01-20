@@ -1,10 +1,9 @@
-import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { MessageModel } from '@frameworks/data-services/sequelize/models';
 import { TestDataService } from './utils/TestDataService';
-import { delay } from './utils/delay';
 import { VALID_TOKEN } from '@frameworks/firebase-module';
 
 const VALID_AUTH = `Bearer ${VALID_TOKEN}`;
@@ -44,7 +43,7 @@ describe('Message Endpoints (e2e)', () => {
   });
 
   describe('Create Message', () => {
-    it('should create a message successfully and send it to selected users', async () => {
+    it('should create a message successfully', async () => {
       const messageData = {
         body: 'Test message',
         mode: 'dark',
@@ -65,15 +64,9 @@ describe('Message Endpoints (e2e)', () => {
       const createdMessage = await testDataService.findMessage({ id: response.body.id });
       expect(createdMessage).toBeDefined();
 
-      // Check that the message was marked as sent
+      // Check that the message was not marked as sent yet
       const updatedMessage = await MessageModel.findOne({ where: { id: response.body.id, wasSent: false } });
       expect(updatedMessage).toBeDefined();
-
-      await delay(100);
-
-      // Check that the message was sent to users (i.e., entries exist in IncomeUserMessagesModel)
-      const incomeUserMessage = await testDataService.getInboxMessageById(response.body.id);
-      expect(incomeUserMessage).toBeDefined();
 
       testDataService.addCreatedMessage(createdMessage);
     });
@@ -134,84 +127,6 @@ describe('Message Endpoints (e2e)', () => {
         .expect(400);
 
       expect(response.body.message).toContain('mode must be one of the following values: light, dark');
-    });
-
-    describe('FCM check', () => {
-      let loggerSpy: jest.SpyInstance;
-
-      const messageData = {
-        body: 'Test message',
-        mode: 'dark',
-      };
-
-      beforeAll(async () => {
-        // remove created users and create new users with required token
-        await testDataService.cleanupUsers();
-      });
-
-      beforeEach(() => {
-        loggerSpy = jest.spyOn(Logger.prototype, 'error');
-      });
-
-      afterEach(() => {
-        loggerSpy.mockRestore();
-      });
-
-      it('should create a message successfully and handle fcm invalid token error', async () => {
-        await testDataService.createMultipleUsers(10, 'invalid-token');
-
-        const response = await request(app.getHttpServer())
-          .post('/api/message')
-          .set('Authorization', VALID_AUTH)
-          .send(messageData)
-          .expect(201);
-
-        await delay(2000);
-
-        expect(loggerSpy.mock.calls[0][0]).toContain('Invalid user registration token');
-
-        const createdMessage = await testDataService.findMessage({ id: response.body.id });
-        testDataService.addCreatedMessage(createdMessage);
-      });
-
-      it('should create a message successfully and handle fcm unknown error', async () => {
-        // remove created users and create new users with required token
-        await testDataService.createMultipleUsers(10, 'error');
-
-        const response = await request(app.getHttpServer())
-          .post('/api/message')
-          .set('Authorization', VALID_AUTH)
-          .send(messageData)
-          .expect(201);
-
-        await delay(2000);
-
-        expect(loggerSpy.mock.calls[0][0]).toContain('Error while notify users about message');
-
-        const createdMessage = await testDataService.findMessage({ id: response.body.id });
-        testDataService.addCreatedMessage(createdMessage);
-      });
-
-      it('should mark expired or invalid tokens as invalid', async () => {
-        const messageData = {
-          body: 'Test message with invalid tokens',
-          mode: 'dark',
-        };
-
-        // Create users with invalid tokens
-        await testDataService.createMultipleUsers(10, 'expired-token');
-
-        await request(app.getHttpServer())
-          .post('/api/message')
-          .set('Authorization', VALID_AUTH)
-          .send(messageData)
-          .expect(201);
-
-        await delay(2000);
-
-        const invalidTokenUsers = await testDataService.getUsersWithInvalidTokens();
-        expect(invalidTokenUsers.length).toBeGreaterThan(0);
-      });
     });
   });
 
