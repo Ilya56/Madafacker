@@ -93,6 +93,10 @@ jobs:
 
       - name: Migration
         run: npm run migrate
+        env:
+          DB_NAME: madafacker-autotests
 
       - name: Run e2e tests without coverage
         run: npm run test:e2e
+        env:
+          DB_NAME: madafacker-autotests
