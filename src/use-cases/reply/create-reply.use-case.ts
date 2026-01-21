@@ -40,6 +40,10 @@ export class CreateReplyUseCase extends CommandAbstract<CreateReplyInput, Reply>
 
     await this.dataService.users.addCoins(user.id, -REPLY_COST);
 
-    return await this.dataService.replies.create(reply);
+    const createdReply = await this.dataService.replies.create(reply);
+
+    createdReply.author = user;
+
+    return createdReply;
   }
 }

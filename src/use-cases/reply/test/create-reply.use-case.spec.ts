@@ -27,10 +27,11 @@ describe('CreateReplyUseCase', () => {
     const user = { id: 'user-id', coins: 10 } as any;
     const parentMessage = { id: 'parent-id', mode: 'mode' } as any;
     const reply = { id: 'reply-id', author: null, parent: null, mode: null } as any;
+    const createdReply = { ...reply, author: null } as any;
 
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
     jest.spyOn(dataService.messages, 'getById').mockResolvedValue(parentMessage);
-    jest.spyOn(dataService.replies, 'create').mockResolvedValue(reply);
+    jest.spyOn(dataService.replies, 'create').mockResolvedValue(createdReply);
     jest.spyOn(dataService.users, 'addCoins').mockResolvedValue(5);
 
     const input = {
@@ -44,7 +45,8 @@ describe('CreateReplyUseCase', () => {
     expect(dataService.messages.getById).toHaveBeenCalledWith('parent-id');
     expect(dataService.users.addCoins).toHaveBeenCalledWith('user-id', -5);
     expect(dataService.replies.create).toHaveBeenCalledWith(reply);
-    expect(result).toBe(reply);
+    expect(result).toBe(createdReply);
+    expect(result.author).toBe(user);
     expect(reply.author).toBe(user);
     expect(reply.parent).toBe(parentMessage);
     expect(reply.mode).toBe(parentMessage.mode);
