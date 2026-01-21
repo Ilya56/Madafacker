@@ -14,6 +14,8 @@ export class CreateMessageUseCase extends CommandAbstract<Message, Message> {
 
     await this.taskService.sendMessage.addTask(createdMessage);
 
+    createdMessage.author = message.author;
+
     return createdMessage;
   }
 }

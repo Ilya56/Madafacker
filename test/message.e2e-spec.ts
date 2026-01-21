@@ -60,6 +60,9 @@ describe('Message Endpoints (e2e)', () => {
       expect(response.body.mode).toBe(messageData.mode);
       expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('updatedAt');
+      expect(response.body).toHaveProperty('author');
+      expect(response.body.author.id).toBe(createdUser.id);
+      expect(response.body.author.name).toBe(createdUser.name);
 
       const createdMessage = await testDataService.findMessage({ id: response.body.id });
       expect(createdMessage).toBeDefined();
