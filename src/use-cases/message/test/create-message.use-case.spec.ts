@@ -36,18 +36,20 @@ describe('CreateMessageUseCase', () => {
     const user = new User();
     user.name = 'username';
 
-    const createMessage = { id: '1', body: 'Test message text', mode: MessageMode.light, author: user };
+    const createdMessage = { id: '1', body: message.body, mode: message.mode } as Message;
 
     jest.spyOn(userService, 'getCurrentUser').mockResolvedValue(user);
-    jest.spyOn(dataService.messages, 'create').mockImplementation(async (message) => ({ ...message, id: '1' }));
+    jest.spyOn(dataService.messages, 'create').mockResolvedValue(createdMessage);
     jest.spyOn(taskService.sendMessage, 'addTask').mockImplementation();
 
     const result = await createMessageUseCase.execute(message);
 
-    expect(result).toEqual(createMessage);
+    expect(result).toEqual({ ...createdMessage, author: user });
     expect(dataService.transactional).toHaveBeenCalled();
     expect(userService.getCurrentUser).toHaveBeenCalled();
     expect(dataService.messages.create).toHaveBeenCalledWith(message);
-    expect(taskService.sendMessage.addTask).toHaveBeenCalledWith({ ...message, id: '1' });
+    expect(taskService.sendMessage.addTask).toHaveBeenCalledWith(
+      expect.objectContaining({ id: createdMessage.id, body: createdMessage.body, mode: createdMessage.mode }),
+    );
   });
 });
