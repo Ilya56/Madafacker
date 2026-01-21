@@ -59,6 +59,9 @@ describe('Reply Endpoints (e2e)', () => {
       expect(response.body.public).toBe(replyData.public);
       expect(response.body.parentId).toBe(replyData.parentId);
       expect(response.body).toHaveProperty('createdAt');
+      expect(response.body).toHaveProperty('author');
+      expect(response.body.author.id).toBe(createdUser.id);
+      expect(response.body.author.name).toBe(createdUser.name);
 
       const createdReply = await testDataService.findMessage({ id: response.body.id });
       expect(createdReply).toBeDefined();
