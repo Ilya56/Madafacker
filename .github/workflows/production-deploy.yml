@@ -58,6 +58,7 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: pg-password
+          POSTGRES_DB: madafacker-autotests
         options: >-
           --health-cmd pg_isready
           --health-interval=10s
@@ -84,9 +85,13 @@ jobs:
 
       - name: Migration
         run: npm run migrate
+        env:
+          DB_NAME: madafacker-autotests
 
       - name: Run e2e tests with coverage
         run: npm run test:e2e:cov
+        env:
+          DB_NAME: madafacker-autotests
 
       - name: Upload e2e test coverage report
         uses: actions/upload-artifact@v4
